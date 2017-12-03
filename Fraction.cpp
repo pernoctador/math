@@ -16,10 +16,28 @@ Fraction::Fraction(long n, long d)
 		den=d/g;
 	}
 	else
-		cout << "Error: denominador = 0;";
+		cout << "Error: denominador = 0;" << endl;	//this could be an exception
 }
 
 Fraction::~Fraction(){}
+
+Fraction& Fraction::operator()(long n, long d)
+{
+	if(d < 0)
+	{
+		den = -den;
+		num = -num;
+	}
+	if(d != 0)
+	{
+		long g = gcd(n,d);
+		num=n/g;
+		den=d/g;
+	}
+	else
+		cout << "Error: denominador = 0" << endl;	//this could be an exception
+	return *this;
+}
 
 void Fraction::operator=(double db)
 {
@@ -45,7 +63,7 @@ Fraction Fraction::operator/(Fraction r)
 		return normal(num*r.den, den*r.num);
 	else
 	{
-		cout << "Error: division por 0";
+		cout << "Error: division por 0" << endl;	//this could be an exception
 		return Fraction(1,1);
 	}
 }
@@ -60,7 +78,7 @@ Fraction Fraction::operator/(long i)
 	}
 	else
 	{
-		cout << "Error: division por 0";
+		cout << "Error: division por 0" << endl;	//this could be an exception
 		return Fraction(1,1);
 	}
 }
@@ -75,11 +93,10 @@ Fraction Fraction::operator/(int i)
 	}
 	else
 	{
-		cout << "Error: division por 0";
+		cout << "Error: division por 0" << endl;
 		return Fraction(1,1);
 	}
 }
-
 
 Fraction Fraction::doubleToFraction(double db)
 {
