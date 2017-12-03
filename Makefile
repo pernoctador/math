@@ -12,7 +12,7 @@ CFLAGS = -g -ggdb -pthread -Wall -std=c++11
 #CTHREADS = -pthread
 #OTHREADS = -pthread
 
-SOURCES = Rational.o
+SOURCES = Fraction.o
 
 all: tests
 
@@ -28,8 +28,8 @@ tests: $(SOURCES) tests.o
 tests.o: tests.cpp
 	$(CC) $(OFLAGS) tests.cpp
 
-Rational.o: Rational.cpp Rational.h
-	$(CC) $(OFLAGS) Rational.cpp Rational.h
+Fraction.o: Fraction.cpp Fraction.h
+	$(CC) $(OFLAGS) Fraction.cpp Fraction.h
 
 clean:
 	rm *.o
