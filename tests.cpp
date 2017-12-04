@@ -2,7 +2,7 @@
 #include <cfloat>
 #include <assert.h>
 
-void testFractions()
+void testBasicFractions()
 {
 	cout << "Minimum representable positive double  : " << DBL_MIN << endl;
 	cout << "Minimum representable positive fraction: " << FRAC_MIN << endl;
@@ -54,6 +54,57 @@ void testFractions()
 	assert(a / 0.5 == c);	
 	assert(b / 2 == 0.25);
 
+	// +=, -=, *=, /=
+	a(1,3);
+	b(1,2);
+	c(5,6);
+	a += b;
+	assert(a == c);
+	b += 2.3;
+	c(14,5);
+	assert(b == c);
+	a += 1;
+	c(11,6);
+	assert(a == c);
+
+	a(1,3);
+	b(1,2);
+	c(-1,6);
+	a -= b;
+	assert(a == c);
+	b -= 2.3;
+	c(-9,5);
+	assert(b == c);
+	a -= 1;
+	c(-7,6);
+	assert(a == c);
+
+	a(1,3);
+	b(1,2);
+	c(1,6);
+	a *= b;
+	assert(a == c);
+	b *= 2.3;
+	c(23,20);
+	assert(b == c);
+	a *= -3;
+	c(-1,2);
+	assert(a == c);
+
+	a(1,3);
+	b(1,2);
+	c(2,3);
+	a /= b;
+	assert(a == c);
+	b /= 2.3;
+	c(5,23);
+	assert(b == c);
+	a /= -3;
+	c(-2,9);
+	assert(a == c);
+
+	// idiv, pow, invert, log
+
 	// casting
 	double da = a(9,8);
 	assert(da == 1.125);
@@ -63,8 +114,19 @@ void testFractions()
 }
 
 
+void testBetterFractions()
+{
+	Fraction a(1,3);
+	double da = 1.0/3.0;
+	assert(a == da);
+	a(136,99);
+	da = 136.0/99.0;
+	assert(a == da);
+}
+
 int main()
 {
-	testFractions();
+	testBasicFractions();	
+	//testBetterFractions();
 	return 0;
 }

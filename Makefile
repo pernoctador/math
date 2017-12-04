@@ -3,8 +3,8 @@
 CC=g++
 # Hey!, I am comment number 2. I want to say that CFLAGS will be the
 # options I'll pass to the compiler.
-OFLAGS= -c -g -ggdb -pthread -Wall -std=c++11
-CFLAGS = -g -ggdb -pthread -Wall -std=c++11
+OFLAGS= -c -g  -Wall -std=c++11
+CFLAGS = -g -Wall -std=c++11
 #For threads: 
 # needed: -pthread
 # might be needed  -lpthread -Wl,--no-as-needed
@@ -15,12 +15,6 @@ CFLAGS = -g -ggdb -pthread -Wall -std=c++11
 SOURCES = Fraction.o
 
 all: tests
-
-#main: $(SOURCES) main.o
-#	$(CC) $(CFLAGS) $(SOURCES) main.o -o TP $(CTHREADS)
-
-#TP.o: main.cpp
-#	$(CC) $(OFLAGS) main.cpp $(OTHREADS)
 
 tests: $(SOURCES) tests.o
 	$(CC) $(CFLAGS) $(SOURCES) tests.o -o tests
@@ -33,5 +27,5 @@ Fraction.o: Fraction.cpp Fraction.h
 
 clean:
 	rm *.o
-	#rm TP
+	rm *.gch
 	rm tests

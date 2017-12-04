@@ -1,7 +1,7 @@
 #ifndef _Fraction_H_
 #define _Fraction_H_
 
-#include <math.h>
+#include <cmath> 	//better than math.h
 #include <iostream>
 #include <climits>
 
@@ -22,6 +22,9 @@ public:
 	Fraction(const Fraction& f){num = f.num; den = f.den;}
 	Fraction(long n, long d);
 	~Fraction();
+
+	long numerator(){return num;}
+	long denominator(){return den;}
 	
 	void print(){cout << num << "/" << den;}
 	friend ostream& operator<<(ostream& os, const Fraction &f){os << f.num << "/" << f.den; return os;}
@@ -87,7 +90,7 @@ public:
 	Fraction operator*(long l){Fraction f(l, den); f.num *= num; return f;}
 	Fraction operator*(double db){return *this * doubleToFraction(db);}
 
-	void operator*=(Fraction f){num *= f.den; den*=f.num; normalize();}
+	void operator*=(Fraction f){num *= f.num; den*=f.den; normalize();}
 	void operator*=(int i){num *= i; normalize();}
 	void operator*=(long l){num *= l; normalize();}
 	void operator*=(double db){*this *= doubleToFraction(db);}
@@ -104,10 +107,16 @@ public:
 
 	Fraction idiv(int i, Fraction f){return normal(f.den*i, f.num);}	//not very usefull, as i / f = 1/f * i
 
-	Fraction powf(Fraction f, long l){return Fraction(pow(num, l), pow(den, l));}
-	double powl(long l, Fraction f){return pow(pow(l, f.num), 1/f.den);}	//don't know how good is pow(x,1/root), maybe a Newton would be better (like binary search for real numbers)
-	double powdb(double db, Fraction f){return pow(pow(db, f.num), 1/f.den);}
+	Fraction powF(Fraction f, long l);	//unfortunately gives weird error when overloading pow(). Compiler stop finding cmath pow() and only try to match with Fraction::pow()
+	double powF(long l, Fraction f);	//don't know how good is pow(x,1/root), maybe a Newton would be better (it's like binary search for real numbers)
+	double powF(double db, Fraction f);
+
 	Fraction invert(){return Fraction(den,num);}
+
+	double logb(Fraction f, long base);	//here i had the same problem as pow(), but it got magically fix.. unfortunately i don't know hoy to fix pow() overloading yet
+	double log(Fraction f);
+	double log10(Fraction f);
+
 	
 	operator int(){return num/den;}
 	operator long(){return num/den;}
