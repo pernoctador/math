@@ -115,7 +115,7 @@ void testBasicFractions()
 
 void testCommonMistakes()
 {
-	//negative
+	//construct negative
 	Fraction a(1,2);
 	Fraction b(1,-2);
 	assert(a > 0);
@@ -147,7 +147,7 @@ void testBetterFractions()
 
 int main()
 {
-	//testBasicFractions();
+	testBasicFractions();
 	testCommonMistakes();
 	//testBetterFractions();
 	return 0;

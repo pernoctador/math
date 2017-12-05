@@ -122,8 +122,8 @@ public:
 	operator long(){return num/den;}
 	operator double(){return (double)num/(double)den;}
 private:
-	Fraction normal(long n, long d){long g = gcd(n,d); n/=g; d/=g; if(d < 0){d = -d;n = -n;} return Fraction(n,d);}
-	void normalize(){long g = gcd(num,den); num/=g, den/=g; if(den < 0){den = -den;num = -num;}}
+	Fraction normal(long n, long d);
+	void normalize();
 	Fraction doubleToFraction(double db);	//need to improve. it doesn't look that easy, as i have to asume wich fraction the double is aproximating.
 	long gcd(long a, long b){return (b == 0) ? a : gcd (b, a % b);}
 	long num;
