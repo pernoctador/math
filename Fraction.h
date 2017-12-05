@@ -52,9 +52,9 @@ public:
 	bool operator<(double db){return num < db*den;}
 
 	bool operator>(Fraction f){return num*f.den > f.num*den;}
-	bool operator>(int i){return num < i*den;}
-	bool operator>(long l){return num < l*den;}
-	bool operator>(double db){return num < db*den;}
+	bool operator>(int i){return num > i*den;}
+	bool operator>(long l){return num > l*den;}
+	bool operator>(double db){return num > db*den;}
 
 	bool operator<=(Fraction f){return *this < f || *this == f;}
 	bool operator<=(int i){return *this < i || *this == i;}
@@ -108,7 +108,7 @@ public:
 	Fraction idiv(int i, Fraction f){return normal(f.den*i, f.num);}	//not very usefull, as i / f = 1/f * i
 
 	Fraction powF(Fraction f, long l);	//unfortunately gives weird error when overloading pow(). Compiler stop finding cmath pow() and only try to match with Fraction::pow()
-	double powF(long l, Fraction f);	//don't know how good is pow(x,1/root), maybe a Newton would be better (it's like binary search for real numbers)
+	double powF(long l, Fraction f);	//don't know how good is pow(x,1/root), maybe a Newton would be better (it's like binary search for real numbers) using the integer root rather than the double 1/root
 	double powF(double db, Fraction f);
 
 	Fraction invert(){return Fraction(den,num);}
@@ -122,9 +122,9 @@ public:
 	operator long(){return num/den;}
 	operator double(){return (double)num/(double)den;}
 private:
-	Fraction normal(long n, long d){if(d < 0){d = -d;n = -n;}long g = gcd(num,den); return Fraction(n/g, d/g);}
-	void normalize(){if(den < 0){den = -den;num = -num;}long g = gcd(num,den); num/=g, den/=g;}
-	Fraction doubleToFraction(double db);
+	Fraction normal(long n, long d){long g = gcd(n,d); n/=g; d/=g; if(d < 0){d = -d;n = -n;} return Fraction(n,d);}
+	void normalize(){long g = gcd(num,den); num/=g, den/=g; if(den < 0){den = -den;num = -num;}}
+	Fraction doubleToFraction(double db);	//need to improve. it doesn't look that easy, as i have to asume wich fraction the double is aproximating.
 	long gcd(long a, long b){return (b == 0) ? a : gcd (b, a % b);}
 	long num;
 	long den;

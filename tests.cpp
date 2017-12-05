@@ -113,6 +113,27 @@ void testBasicFractions()
 	
 }
 
+void testCommonMistakes()
+{
+	//negative
+	Fraction a(1,2);
+	Fraction b(1,-2);
+	assert(a > 0);
+	assert(b < 0);
+	assert(b.denominator() > 0);
+
+	a(1,-2);
+	b(1,2);
+	assert(a < 0);
+	assert(b > 0);
+	assert(a.denominator() > 0);
+
+
+	// zeros
+
+	//normalized fractions
+}
+
 
 void testBetterFractions()
 {
@@ -126,7 +147,8 @@ void testBetterFractions()
 
 int main()
 {
-	testBasicFractions();	
+	//testBasicFractions();
+	testCommonMistakes();
 	//testBetterFractions();
 	return 0;
 }

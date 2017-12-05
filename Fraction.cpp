@@ -1,4 +1,5 @@
 #include "Fraction.h"
+#include <string>         // std::string
 
 
 
@@ -6,14 +7,14 @@ Fraction::Fraction(long n, long d)
 {
 	if(d != 0)
 	{
+		long g = gcd(n,d);
+		num=n/g;
+		den=d/g;
 		if(d < 0)
 		{
 			den = -den;
 			num = -num;
 		}
-		long g = gcd(n,d);
-		num=n/g;
-		den=d/g;
 	}
 	else
 		cout << "Error: denominador = 0;" << endl;	//this could be an exception
@@ -25,14 +26,14 @@ Fraction& Fraction::operator()(long n, long d)
 {
 	if(d != 0)
 	{
+		long g = gcd(n,d);
+		num=n/g;
+		den=d/g;
 		if(d < 0)
 		{
 			den = -den;
 			num = -num;
 		}
-		long g = gcd(n,d);
-		num=n/g;
-		den=d/g;
 	}
 	else
 		cout << "Error: denominador = 0" << endl;	//this could be an exception
@@ -177,8 +178,11 @@ double Fraction::log10(Fraction f)
 
 Fraction Fraction::doubleToFraction(double db)
 {
+	/*
 	if(db*9 == floor(db*9))
 		return Fraction(db*9,9);	//actually, i should chech for shortest period (cycle detection) to chech if it's a periodic number 
+
+
 	double decimals = 0;
 	while(db != floor(db))
 	{
@@ -187,4 +191,17 @@ Fraction Fraction::doubleToFraction(double db)
 	}
 	double ten = 10;
 	return Fraction(db, pow(ten,decimals));
+	*/
+
+	string value = to_string(db);
+
+	size_t pos = value.find(".");
+
+	string integer = value.substr(0,pos);
+  	string decimals= value.substr(pos+1);
+  	cout << db << " = " << value << " = " << integer << "." << decimals;
+  	long number = stol(integer+decimals);
+  	Fraction res(number, pow(10.0, decimals.size()));
+  	cout << " = " << res << endl;
+  	return res;
 }
