@@ -4,6 +4,9 @@
 #include <cmath> 	//better than math.h
 #include <iostream>
 #include <climits>
+#include <limits>       // std::numeric_limits
+#include <string>         // std::string
+#include <sstream>      // std::ostringstream
 
 using namespace std;
 
@@ -21,6 +24,7 @@ public:
 	Fraction(long n){num = n; den = 1;}
 	Fraction(const Fraction& f){num = f.num; den = f.den;}
 	Fraction(long n, long d);
+	Fraction(double db){*this = doubleToFraction(db);}
 	~Fraction();
 
 	long numerator(){return num;}
@@ -30,6 +34,7 @@ public:
 	friend ostream& operator<<(ostream& os, const Fraction &f){os << f.num << "/" << f.den; return os;}
 
 	Fraction& operator()(long a, long b);
+	Fraction& operator()(double db){*this = doubleToFraction(db); return *this;}
 
 	void operator=(Fraction f){num = f.num; den = f.den;}
 	void operator=(int i){num = i; den = 1;}
@@ -124,7 +129,7 @@ public:
 private:
 	Fraction normal(long n, long d);
 	void normalize();
-	Fraction doubleToFraction(double db);	//need to improve. it doesn't look that easy, as i have to asume wich fraction the double is aproximating.
+	Fraction doubleToFraction(double db);
 	long gcd(long a, long b){return (b == 0) ? a : gcd (b, a % b);}
 	long num;
 	long den;

@@ -2,6 +2,8 @@
 #include <cfloat>
 #include <assert.h>
 
+#include <time.h>
+
 void testBasicFractions()
 {
 	cout << "Minimum representable positive double  : " << DBL_MIN << endl;
@@ -15,7 +17,7 @@ void testBasicFractions()
 	assert(aaa == a);
 	assert(!(aaa != a));
 	Fraction b;
-	cout << "Debe dar error: ";
+	cout << "Testing if wrong constructor give an error: ";
 	b(1,0);
 	b = 0.5;
 	assert(a == b);
@@ -128,7 +130,6 @@ void testCommonMistakes()
 	assert(b > 0);
 	assert(a.denominator() > 0);
 
-
 	// zeros
 
 	//normalized fractions
@@ -137,18 +138,42 @@ void testCommonMistakes()
 
 void testBetterFractions()
 {
-	Fraction a(1,3);
-	double da = 1.0/3.0;
+	Fraction a;
+	double da;
+	Fraction b;
+
+	a(1,3);
+	da = 1.0/3.0;
+	b(da);
+	assert(a == b);
 	assert(a == da);
+	
 	a(136,99);
 	da = 136.0/99.0;
+	b(da);
+	//cout << "double: " << da << endl;
+	//cout << "fraction: " << b << endl;
+	//cout << (double)a << " = " << (double)b << endl;
+	assert(a == b);
+	assert(a == da);
+
+	a(14,55);
+	da = 14.0/55.0;
+	b(da);
+	assert(a == b);
+	assert(a == da);
+
+	a(1571,550);
+	da = 1571.0/550.0;
+	b(da);
+	assert(a == b);
 	assert(a == da);
 }
 
 int main()
 {
-	testBasicFractions();
-	testCommonMistakes();
-	//testBetterFractions();
+	testBasicFractions();	//basic tests for every operation
+	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
+	testBetterFractions();	//searching for periodic rational numbers when defining a Fraction with a double
 	return 0;
 }

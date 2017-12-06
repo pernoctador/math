@@ -1,7 +1,4 @@
 #include "Fraction.h"
-#include <string>         // std::string
-
-
 
 Fraction::Fraction(long n, long d)
 {
@@ -14,7 +11,10 @@ Fraction::~Fraction(){}
 
 Fraction& Fraction::operator()(long n, long d)
 {
-	return normal(n,d);
+	num = n;
+	den = d;
+	normalize();
+	return *this;
 }
 
 Fraction Fraction::normal(long n, long d)
@@ -36,10 +36,9 @@ Fraction Fraction::normal(long n, long d)
 	}
 	else
 	{
-		cout << "Error: denominador = 0" << endl;	//this could be an exception
+		cout << "Error: denominator = 0" << endl;	//this could be an exception
 		return Fraction(0,1);
 	}
-	return Fraction(n,d);
 }
 
 void Fraction::normalize()
@@ -61,7 +60,7 @@ void Fraction::normalize()
 		}
 	}
 	else
-		cout << "Error: denominador = 0" << endl;	//this could be an exception
+		cout << "Error: denominator = 0" << endl;	//this could be an exception
 }
 
 void Fraction::operator=(double db)
@@ -89,7 +88,7 @@ Fraction Fraction::operator/(Fraction f)
 		return normal(num*f.den, den*f.num);
 	else
 	{
-		cout << "Error: division por 0" << endl;	//this could be an exception
+		cout << "Error: divide by 0" << endl;	//this could be an exception
 		return Fraction(1,1);
 	}
 }
@@ -103,9 +102,7 @@ void Fraction::operator/=(Fraction f)
 		normalize();
 	}
 	else
-	{
-		cout << "Error: division por 0" << endl;	//this could be an exception
-	}
+		cout << "Error: divide by 0" << endl;	//this could be an exception
 }
 
 Fraction Fraction::operator/(long l)
@@ -118,7 +115,7 @@ Fraction Fraction::operator/(long l)
 	}
 	else
 	{
-		cout << "Error: division por 0" << endl;	//this could be an exception
+		cout << "Error: divide by 0" << endl;	//this could be an exception
 		return Fraction(1,1);
 	}
 }
@@ -131,9 +128,7 @@ void Fraction::operator/=(long l)
 		normalize();
 	}
 	else
-	{
-		cout << "Error: division por 0" << endl;	//this could be an exception
-	}
+		cout << "Error: divide by 0" << endl;	//this could be an exception
 }
 
 Fraction Fraction::operator/(int i)
@@ -146,7 +141,7 @@ Fraction Fraction::operator/(int i)
 	}
 	else
 	{
-		cout << "Error: division por 0" << endl;	//this could be an exception
+		cout << "Error: divide by 0" << endl;	//this could be an exception
 		return Fraction(1,1);
 	}
 }
@@ -159,9 +154,7 @@ void Fraction::operator/=(int i)
 		normalize();
 	}
 	else
-	{
-		cout << "Error: division por 0" << endl;	//this could be an exception
-	}
+		cout << "Error: divide by 0" << endl;	//this could be an exception
 }
 
 Fraction Fraction::powF(Fraction f, long l){
@@ -172,7 +165,7 @@ Fraction Fraction::powF(Fraction f, long l){
 double Fraction::powF(long l, Fraction f)
 {
 	double res = pow(l, f.num);
-	res = pow(res, 1/f.den);
+	res = pow(res, 1/f.den); 
 	return res;
 }
 double Fraction::powF(double db, Fraction f){
@@ -200,32 +193,70 @@ double Fraction::log10(Fraction f)
 	return res;
 }
 
+template<typename T>
+inline string tostr(T value) {
+    ostringstream s;
+    s.precision(numeric_limits<T>::digits10);
+    s << value;
+    return s.str();
+}
+
 Fraction Fraction::doubleToFraction(double db)
 {
-	/*
-	if(db*9 == floor(db*9))
-		return Fraction(db*9,9);	//actually, i should chech for shortest period (cycle detection) to chech if it's a periodic number 
-
-
-	double decimals = 0;
-	while(db != floor(db))
-	{
-		db *= 10;
-		decimals++;
-	}
-	double ten = 10;
-	return Fraction(db, pow(ten,decimals));
-	*/
-
-	string value = to_string(db);
+	string value = tostr(db);
 
 	size_t pos = value.find(".");
-
 	string integer = value.substr(0,pos);
   	string decimals= value.substr(pos+1);
-  	cout << db << " = " << value << " = " << integer << "." << decimals;
-  	long number = stol(integer+decimals);
-  	Fraction res(number, pow(10.0, decimals.size()));
-  	cout << " = " << res << endl;
-  	return res;
+
+	//now, search for a period in decimals
+
+  	// First try: O(n^3). Even if it's ugly, n <= 14, so it's like O(1). I have to check Floyd's tortoise and hare.
+  	if(decimals.size() > 12)	//if not, makes more sense to just divide by 10^|decimals|
+  	{
+  		int maxCicles= -1, start = 0, finish = 0, cicles = -1;
+	  	for (int init = 0; init < decimals.size()-2; init++)
+	  	{
+	  		cicles = -1;
+	  		for (int end = init+1; end < decimals.size()-1; end++)
+	  		{
+	  			//period = [init,end)
+	  			if(decimals[end] == decimals[init])
+	  			{
+	  				//i found a possible cicle
+	  				cicles = 0;
+	  				for (int elem = 1; end + elem < decimals.size() && cicles > -1; elem++)	//check if elements match
+	  				{
+	  					if(decimals[init + elem] != decimals[end + elem] || end + elem == decimals.size()-1)//gotta save the cicle's data
+	  					{
+	  						if(cicles > maxCicles)
+	  						{
+	  							start = init;
+	  							finish = end;
+	  							maxCicles= cicles;
+	  						}
+	  						cicles = -1;
+	  						break;
+	  					}
+	  					if(decimals[init + elem] == decimals[end + elem] && decimals[init] == decimals[end + elem])
+	  						cicles++;
+	  				}
+	  			}
+	  		}
+	  	}
+	  	//cout << "start = " << start << " ; finish = " << finish << " ; maxCicles " << maxCicles<< " ; periodo = " << decimals.substr(start, finish-start) << endl;
+
+	  	if(maxCicles > 0)
+	  	{
+	  		string num2S = integer + decimals.substr(0, finish);
+	  		long den2 = pow(10, finish - start)-1;
+	  		long num2 = stol(num2S) - stol(integer + decimals.substr(0, start));
+
+	  		return Fraction( num2, den2 * pow(10, start));
+	  	}
+	}
+
+
+	long number = stol(integer+decimals);
+	return Fraction(number, pow(10.0, decimals.size()));
 }
