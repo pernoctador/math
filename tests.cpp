@@ -145,6 +145,17 @@ void testBasicFractions()
 	dc = log10(b);
 	assert((dc-1.00000000000001) < bb && bb < (dc+1.00000000000001));
 
+	//root
+	a(4,9);
+	a = root(a,2);
+	b(2,3);
+	assert(a == b);
+
+	a(2744,19683);
+	a = root(a,3);
+	b(14,27);
+	assert(a == b);
+
 	// casting
 	double da = a(9,8);
 	assert(da == 1.125);
@@ -167,10 +178,34 @@ void testCommonMistakes()
 	assert(a < 0);
 	assert(b > 0);
 	assert(a.denominator() > 0);
+	b /= a;
+	assert(b < 0);
+	assert(b.denominator() > 0);
 
 	// zeros
+	a(0);
+	b(0,5);
+	assert(a == b);
+	assert(a.denominator() == 1);
+	assert(b.denominator() == 1);
+	a(3,5);
+	b(3,5);
+	a-=b;
+	Fraction c(0.0);
+	assert(a == 0);
+	assert(a == c);
+	assert(a.denominator() == 1);
 
-	//normalized fractions
+	//normalized fractions (kind of already tested in other tests)
+	a(103*2161, 31*1009);
+	assert(a.numerator() == (103*2161));
+
+	a(4093*5869, 4093*4397);
+	assert(a.numerator() == 5869);
+
+	a(103*103*197*197, 103*197*197*197);
+	assert(a.numerator() == 103);
+	assert(a.denominator() == 197);
 }
 
 
