@@ -105,7 +105,45 @@ void testBasicFractions()
 	c(-2,9);
 	assert(a == c);
 
-	// idiv, pow, invert, log
+	// idiv, invert
+	a(1,3);
+	assert(a.idiv(3,a) == 9);	
+	a(2,3);
+	assert(a.idiv(4,a) == 6);
+
+	a(7,9);
+	b(9,7);
+	a = a.invert();
+	assert(a == b);
+
+	// pow
+	a(2,3);
+	b = pow(a, 3);
+	a(8,27);
+	assert(a == b);
+	
+	c(2,3);
+	long lc = 27;
+	double dc = pow(lc, c);
+	double dcc = 9;
+	assert(dc == dcc);
+	lc = -3;
+	dc = pow(lc, c);
+	assert(dc > 0);
+
+	//log
+	b(64,8);
+	bb = logb(b,2);
+	assert(bb == 3);
+
+	b(4,8);
+	bb = log(4) - log(8);
+	dc = log(b);
+	assert((dc-1.00000000000001) < bb && bb < (dc+1.00000000000001));	//also, with doubles there is a tiny difference, so never use ==
+
+	bb = log10(4) - log10(8);
+	dc = log10(b);
+	assert((dc-1.00000000000001) < bb && bb < (dc+1.00000000000001));
 
 	// casting
 	double da = a(9,8);

@@ -157,39 +157,43 @@ void Fraction::operator/=(int i)
 		cout << "Error: divide by 0" << endl;	//this could be an exception
 }
 
-Fraction Fraction::powF(Fraction f, long l){
-	double n = pow(f.num, l);
-	double d = pow(f.den, l);
+Fraction pow(Fraction f, long l){
+	double n = pow(f.numerator(), l);
+	double d = pow(f.denominator(), l);
 	return Fraction((long)n,(long)d);
 }
-double Fraction::powF(long l, Fraction f)
+double pow(long l, Fraction f)
 {
-	double res = pow(l, f.num);
-	res = pow(res, 1/f.den); 
-	return res;
+	double res = pow(l, f.numerator());
+	double root = 1.0/f.denominator();
+	res = pow(res, root);
+	Fraction buff(res);	//needed. Otherwise will have an presicion error. i tested pow(27, Fraction(2,3)), it gives me 9 if i do cout, but if i do pow() == 9 returns false.
+	return (double)buff;
 }
-double Fraction::powF(double db, Fraction f){
-	double res = pow(db, f.num);
-	res = pow(res, 1/f.den);
-	return res;
+double pow(double db, Fraction f){
+	double res = pow(db, f.numerator());
+	double root = 1.0/f.denominator();
+	res = pow(res, root);
+	Fraction buff(res);
+	return (double)buff;
 }
 
-double Fraction::logb(Fraction f, long base)
+double logb(Fraction f, long base)
 {
-	double res = log(f.num)/log(base);
-	res -= log(f.den)/log(base);
+	double res = log(f.numerator())/log(base);
+	res -= log(f.denominator())/log(base);
 	return res;
 }
-double Fraction::log(Fraction f)
+double log(Fraction f)
 {
-	double res = log((double)f.num);
-	res -= log((double)f.den);
+	double res = log((double)f.numerator());
+	res -= log((double)f.denominator());
 	return res;
 }
-double Fraction::log10(Fraction f)
+double log10(Fraction f)
 {
-	double res = log10((double)f.num);
-	res -= log10((double)f.den);
+	double res = log10((double)f.numerator());
+	res -= log10((double)f.denominator());
 	return res;
 }
 
@@ -204,28 +208,28 @@ inline string tostr(T value) {
 Fraction Fraction::doubleToFraction(double db)
 {
 	string value = tostr(db);
-
 	size_t pos = value.find(".");
 	string integer = value.substr(0,pos);
   	string decimals= value.substr(pos+1);
-
+  	if(pos == string::npos)
+  		decimals = "0";
 	//now, search for a period in decimals
 
   	// First try: O(n^3). Even if it's ugly, n <= 14, so it's like O(1). I have to check Floyd's tortoise and hare.
   	if(decimals.size() > 12)	//if not, makes more sense to just divide by 10^|decimals|
   	{
   		int maxCicles= -1, start = 0, finish = 0, cicles = -1;
-	  	for (int init = 0; init < decimals.size()-2; init++)
+	  	for (uint init = 0; init < decimals.size()-2; init++)
 	  	{
 	  		cicles = -1;
-	  		for (int end = init+1; end < decimals.size()-1; end++)
+	  		for (uint end = init+1; end < decimals.size()-1; end++)
 	  		{
 	  			//period = [init,end)
 	  			if(decimals[end] == decimals[init])
 	  			{
 	  				//i found a possible cicle
 	  				cicles = 0;
-	  				for (int elem = 1; end + elem < decimals.size() && cicles > -1; elem++)	//check if elements match
+	  				for (uint elem = 1; end + elem < decimals.size() && cicles > -1; elem++)	//check if elements match
 	  				{
 	  					if(decimals[init + elem] != decimals[end + elem] || end + elem == decimals.size()-1)//gotta save the cicle's data
 	  					{

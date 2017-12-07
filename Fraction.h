@@ -110,18 +110,9 @@ public:
 	void operator/=(long);
 	void operator/=(double db){*this /= doubleToFraction(db);}
 
-	Fraction idiv(int i, Fraction f){return normal(f.den*i, f.num);}	//not very usefull, as i / f = 1/f * i
-
-	Fraction powF(Fraction f, long l);	//unfortunately gives weird error when overloading pow(). Compiler stop finding cmath pow() and only try to match with Fraction::pow()
-	double powF(long l, Fraction f);	//don't know how good is pow(x,1/root), maybe a Newton would be better (it's like binary search for real numbers) using the integer root rather than the double 1/root
-	double powF(double db, Fraction f);
-
 	Fraction invert(){return Fraction(den,num);}
 
-	double logb(Fraction f, long base);	//here i had the same problem as pow(), but it got magically fix.. unfortunately i don't know hoy to fix pow() overloading yet
-	double log(Fraction f);
-	double log10(Fraction f);
-
+	Fraction idiv(long i, Fraction f){return normal(f.denominator()*i, f.numerator());}	//not very usefull, as i / f = 1/f * i
 	
 	operator int(){return num/den;}
 	operator long(){return num/den;}
@@ -134,5 +125,16 @@ private:
 	long num;
 	long den;
 };
+
+Fraction pow(Fraction f, long l);
+double pow(long l, Fraction f);	//pow(x,1/root) is not very good to find roots, maybe a Newton would be better (it's like binary search for real numbers) using the integer root rather than the double 1/root
+double pow(double db, Fraction f);
+
+Fraction root(Fraction f, long l){double n = pow(f.numerator(), 1.0/l); double d = pow(f.denominator(), 1.0/l); Fraction nf(n); Fraction df(d); return (nf / df);}
+//like i say with pow, it might be better to do a double root(double, double) function, as pow(x, 1/root) works a bit weird
+
+double logb(Fraction f, long base);
+double log(Fraction f);
+double log10(Fraction f);
 
 #endif
