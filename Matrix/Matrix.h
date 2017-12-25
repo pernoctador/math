@@ -28,7 +28,7 @@ public:
 
 	T& operator()(int row, int col){if(transpose) return matrix[col][row]; else return matrix[row][col];}	//WIP. needs refactoring
 	T elem(int row, int col) const {if(transpose) return matrix[col][row]; else return matrix[row][col];}
-	//Idk the refactoring's name, but the idea is to take away the if and make: t(){/*change what operator() does*/}
+	//Idk the refactor's name, but the idea is to take away the if and make: t(){/*change what operator() does*/}
 
 	Matrix<T> operator+(Matrix<T>& m);
 	Matrix<T> operator+(T e);
