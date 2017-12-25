@@ -1,7 +1,7 @@
 # Math classes
 Some math stuff I wanted to code. Each folder has a different math class, with the exception of 'utilities'. Some of these classes needs math_utilities (inside /utilities/) to work. I try to make a good balance between clear code and eficient code. WIP.
 
-##Fraction (Beta)
+## Fraction (Beta)
 
 C++ class for fractions, for better use of rational non-integer numbers. Trying to make it as complete as possible.
 
@@ -14,13 +14,13 @@ Improvements: Instead of Long i could use Ulong to represent more numbers. Long 
 Also, I should made (as i believe it doesn't exist) a "double root(double, double)" with either binary search (good for integer values) or Newton's algoritm (for rational numbers).
 	That would go to math_utilities, and be used wherever i need.
 
-##Matrix (WIP)
+## Matrix (WIP)
 
 C++ class for math matrices, with the standard operations and other more interesting operations like LU, LDLt and QR factorization, Gauss method, eigenvalues and eigenvectors, etc (WIP: all that in the near future).
 
 The first cool think i did is to transpose a matrix in O(1) (i know, is not that crazy, but i'm somewhat proud). Is still a WIP as i still need to make some refactoring
 
-##math_utilities
+## math_utilities
 
 Some usefull things i needed along the construction of the clases, that doesn't belong there. Is not the most optimized option, but is easy to get that through copy and paste
 
