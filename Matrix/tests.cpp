@@ -1,10 +1,11 @@
 #include "Matrix.h"
+#include "../Fraction/Fraction.h"
 #include <cfloat>
 #include <assert.h>
 
 #include <time.h>
 
-int main()
+void basicMatrixOperations()
 {
 	Matrix<double> first(4,15);
 	first.t();
@@ -60,5 +61,41 @@ int main()
 	c.print();
 
 	c = a + b;
+}
+
+void GaussianEliminationTest()
+{
+	Matrix<Fraction> a = Id<Fraction>(3);
+	a(0,0) = 4;
+	a(0,1) = 16;
+	a(0,2) = 12;
+
+	a(1,0) = 2;
+	a(1,1) = 9;
+	a(1,2) = 8;
+
+	a(2,0) = 3;
+	a(2,1) = 12;
+	a(2,2) = 10;
+
+	a.print();
+	
+	Fraction det = a.GaussianElimination();
+	
+	a.print();
+
+	cout << "determinant = ";
+
+	for(int i = 0; i < a.size().first; i++)
+		det *= a(i,i);
+
+	cout << det << endl;
+}
+
+int main()
+{
+	//basicMatrixOperations();
+	GaussianEliminationTest();
+	
 	return 0;
 }

@@ -22,6 +22,7 @@ class Fraction {
 public:
 
 	Fraction(){num = 1; den = 1;}
+	Fraction(int n){num = n; den = 1;}
 	Fraction(long n){num = n; den = 1;}
 	Fraction(const Fraction& f){num = f.num; den = f.den;}
 	Fraction(long n, long d);
@@ -31,8 +32,8 @@ public:
 	long numerator(){return num;}
 	long denominator(){return den;}
 	
-	void print(){cout << num << "/" << den;}
-	friend ostream& operator<<(ostream& os, const Fraction &f){os << f.num << "/" << f.den; return os;}
+	void print(){if(den > 1){cout << num << "/" << den;}else{cout << num;}}
+	friend ostream& operator<<(ostream& os, const Fraction &f){if(f.den > 1){os << f.num << "/" << f.den;}else{os << f.num;}return os;}
 
 	Fraction& operator()(long a, long b);
 	Fraction& operator()(double db){*this = doubleToFraction(db); return *this;}

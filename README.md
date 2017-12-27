@@ -1,5 +1,5 @@
 # Math classes
-Some math stuff I wanted to code. Each folder has a different math class, with the exception of 'utilities'. Some of these classes needs math_utilities (inside /utilities/) to work. I try to make a good balance between clear code and eficient code. WIP.
+Some math classes I wanted to code. Each folder has a different math class, with the exception of 'utilities'. Some of these classes needs math_utilities (inside /utilities/) to work. I try to make a good balance between clear code and eficient code. WIP.
 
 ## Fraction (Beta)
 
@@ -7,11 +7,11 @@ C++ class for fractions, for better use of rational non-integer numbers. Trying 
 
 Right now is pretty okay. Besides the obvious, it checks if it's being constructed with a floating point approximation of a periodic number. If so, it shows the right fraction (the algorithm is straightforward and clumsy, but i might improve it in the future)
 
-    i.e. if recibes 0.33333333333333 deduces the actual number is 1/3, not 33333333333333/100000000000000
+    Example: If receives 0.33333333333333 deduces the actual number is 1/3, not 33333333333333/100000000000000
 
 Improvements: Instead of Long i could use Ulong to represent more numbers. Long Long is not needed, asi in a 64x pc is the same. doubleToFraction() could be improved.
 
-Also, I should made (as i believe it doesn't exist) a "double root(double, double)" with either binary search (good for integer values) or Newton's algoritm (for rational numbers).
+Also, I should made (as i believe it doesn't exist) a "double root(long, long)" with either binary search (only good for integer values) or Newton's algoritm (for rational roots).
 	That would go to math_utilities, and be used wherever i need.
 
 ## Matrix (WIP)
@@ -27,4 +27,4 @@ Some usefull things i needed along the construction of the clases, that doesn't 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details

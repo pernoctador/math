@@ -31,9 +31,24 @@ void testBasicFractions()
 	b(5,4);
 	assert(b == bb);
 
+	//cout, print
+	a = 3;
+	b(9,3);
+	b.print();
+	cout << " = " <<  a << endl;
+	a /= 4;
+	b /= 4;
+	b.print();
+	cout << " = " <<  a << endl;
+	a(0,7);
+	b(5,-5);
+	b.print();
+	cout << " = " <<  a << "-1 " << endl;
+
 	// <, >, <= and >=
 	a = 4;
 	a = a / 3;
+	b(5,4);
 	assert(a > b);	//1+1/3 > 1+1/4
 	assert(a >= b);
 	assert(b < a);
