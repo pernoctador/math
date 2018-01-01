@@ -195,15 +195,15 @@ Fraction Fraction::doubleToFraction(double value)
     value = abs(value);
 
     // Accuracy is the maximum relative error; convert to absolute maxError
-    double maxError =  value * 0.00000000000001;	//doesn't work propperly with more accuracy than 1e-14
+    double maxError =  value * 1e-15;	//doesn't work propperly with more accuracy than 1e-15
 
     double integer = floor(value);
     double decimal = value - integer;
 
-    if (decimal < 0.00000000000001)
+    if (decimal < 1e-15)
         return Fraction((long)integer*sign, 1);
 
-    if (decimal > 0.99999999999999)
+    if (decimal > 1 - 1e-15)
         return Fraction((long)(integer + 1)*sign, 1);
 
     double z = value;

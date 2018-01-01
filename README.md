@@ -9,7 +9,7 @@ Right now is pretty okay. Besides the obvious, it checks if it's being construct
 
     Example: If receives 0.33333333333333 deduces the actual number is 1/3, not 33333333333333/100000000000000
 
-This is made by [John Kennedy's iterative algorithm](https://sites.google.com/site/johnkennedyshome/home/downloadable-papers/dec2frac.pdf) with an accuracy of 1e-14, as i found problems with higher precision for double.
+This is made by [John Kennedy's iterative algorithm](https://sites.google.com/site/johnkennedyshome/home/downloadable-papers/dec2frac.pdf) with an accuracy of 1e-15, wich is the max accuracy for doubles.
 
 Improvements: Instead of Long i could use Ulong to represent more numbers. Long Long is not needed, asi in a 64x pc is the same.
 

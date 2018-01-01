@@ -165,7 +165,7 @@ void testBasicFractions()
 	double dcc = 9;
 	//cout << dc << " = " << dcc << " , dif = " << dc - dcc << endl;
 	//assert(dc == dcc);
-	assert((dc-0.00000000000001) < dcc && dcc < (dc+0.00000000000001));
+	assert((dc-1e-15) < dcc && dcc < (dc+1e-15));
 	lc = -3;
 	dc = pow(lc, c);
 	assert(dc > 0);
@@ -178,11 +178,11 @@ void testBasicFractions()
 	b(4,8);
 	bb = log(4) - log(8);
 	dc = log(b);
-	assert((dc-0.000000000000001) < bb && bb < (dc+0.000000000000001));	//also, with doubles there is a tiny difference, so never use == outside tests
+	assert((dc-1e-15) < bb && bb < (dc+1e-15));	//also, with doubles there is a tiny difference, so never use == outside tests
 
 	bb = log10(4) - log10(8);
 	dc = log10(b);
-	assert((dc-0.000000000000001) < bb && bb < (dc+0.000000000000001));
+	assert((dc-1e-15) < bb && bb < (dc+1e-15));
 
 	//root
 	a(4,9);
@@ -194,7 +194,7 @@ void testBasicFractions()
 	a(2744,19683);
 	a = root(a,3);
 	b(14,27);
-	assert((a-0.00000000000001) < b && b < (a+0.00000000000001));
+	assert((a-1e-15) < b && b < (a+1e-15));
 
 	// casting
 	double da = a(9,8);
@@ -285,13 +285,13 @@ void testBetterperiodics()
 	da = 15.23232345678910;	//must not transform da into 15.232323232323232323
 	a(da);
 	double db = a;
-	assert(abs(da-db) < 0.0000000000001);
+	assert(abs(da-db) < 1e-13);
 
 	a(5,19);
 	da = 5.0/19.0;	//doubles can't represent this number, and is not a recurring decimal
 	b(da);
-	assert(abs(a - b) < 0.000000000000001);
-	assert(abs(a - da) < 0.000000000000001);
+	assert(abs(a - b) < 1e-15);
+	assert(abs(a - da) < 1e-15);
 }
 
 void compareDecimalConversions()
@@ -330,10 +330,10 @@ void compareDecimalConversions()
 		totRTF += realFunctionTime/1000;
 	}
 	cout << "Time:" << endl;
-	cout << "Handwritten metod + checking for recurring decimal = " << totDTF/100000 << endl;
+	cout << "Handwrite metod + checking for recurring decimal = " << totDTF/100000 << endl;
 	cout << "Iterative John Kennedy's method = " << totRTF/100000 << endl << endl;
 	cout << "Precision:" << endl;
-	cout << "Handwritten metod + checking for recurring decimal = " << dFPrecc/100000 << endl;
+	cout << "Handwrite metod + checking for recurring decimal = " << dFPrecc/100000 << endl;
 	cout << "Iterative John Kennedy's method = " << rFPrecc/100000 << endl;
 }
 
@@ -346,11 +346,7 @@ int main()
 	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
 	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
 
-	//checkForOptimalAccuracy(); 
-		/*deprecated with latests changes: the result was 1e-16 was needed as accuracy
-		However, using a lower number than 1e-14 gives precision errors.
-		The reason is underflow, as doubles have around 15 decimal digits*/
-	//compareDecimalConversions(); //deprecated with latests changes: the result was JK's iterative algoritm was faster and more accurate on average with 1e-16 accuracy.
+	//compareDecimalConversions(); //deprecated with latests changes: the result was JK's iterative algoritm was faster and more accurate on average with 1e-15 accuracy.
 		
 	
 
