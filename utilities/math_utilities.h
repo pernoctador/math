@@ -27,7 +27,7 @@ inline double root(long base, long root)
 	const long long bias = (1 << (ebits-1))-1;
 	i = (i - (bias << fbits)) / root + (bias << fbits);
 
-	//now i apply Newton method x4 or halley x3
+	//now i apply Newton method x4
 
 	return 0;	//WIP
 }

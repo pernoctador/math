@@ -5,7 +5,7 @@
 #include "../utilities/math_utilities.h"
 #include <cmath> 	//better than math.h
 #include <iostream>
-#include <climits>
+#include <climits>	//LONG_MAX
 
 using namespace std;
 
@@ -41,12 +41,12 @@ public:
 	void operator=(Fraction f){num = f.num; den = f.den;}
 	void operator=(int i){num = i; den = 1;}
 	void operator=(long l){num = l; den = 1;}
-	void operator=(double db);
+	void operator=(double db){*this = doubleToFraction(db);}
 
 	bool operator==(Fraction f){return (num == f.num && den == f.den);}
 	bool operator==(int i){return (num == i && den == 1);}
 	bool operator==(long i){return (num == i && den == 1);}
-	bool operator==(double db);
+	bool operator==(double db){return *this == doubleToFraction(db);}
 
 	bool operator!=(Fraction f){return !(*this == f);}
 	bool operator!=(int i){return !(*this == i);}
@@ -120,14 +120,24 @@ public:
 	operator int(){return num/den;}
 	operator long(){return num/den;}
 	operator double(){return (double)num/(double)den;}
-private:
+
+private:	
+	Fraction doubleToFraction(double db);	//conversion from the handwritten method + check for recurring decimals.
 	Fraction normal(long n, long d);
 	void normalize();
-	Fraction doubleToFraction(double db);
+	
 	long gcd(long a, long b){return (b == 0) ? a : gcd (b, a % b);}
 	long num;
 	long den;
 };
+
+inline Fraction abs(Fraction f) //abs(Fraction& f) gives weird compiler errors
+{
+	if(f < 0)
+		return Fraction(0-f.numerator(), f.denominator());
+	else
+		return Fraction(f);
+}
 
 Fraction pow(Fraction f, long l);
 double pow(long l, Fraction f);	//pow(x,1/root) is not very good to find roots, maybe a Newton would be better (it's like binary search for real numbers) using the integer root rather than the double 1/root

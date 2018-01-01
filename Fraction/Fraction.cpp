@@ -63,25 +63,6 @@ void Fraction::normalize()
 		cout << "Error: denominator = 0" << endl;	//this could be an exception
 }
 
-void Fraction::operator=(double db)
-{
-	double decimals = 0;
-	double ten = 10;
-	while(db != floor(db))
-	{
-		db *= 10;
-		decimals++;
-	}
-	num = db;
-	den = pow(ten,decimals);
-	normalize();
-}
-
-bool Fraction::operator==(double db)
-{
-	return *this == doubleToFraction(db);
-}
-
 Fraction Fraction::operator/(Fraction f)
 {
 	if(f.num != 0)
@@ -206,62 +187,39 @@ double log10(Fraction f)
 	return res;
 }
 
-Fraction Fraction::doubleToFraction(double db)
+Fraction Fraction::doubleToFraction(double value)
 {
-	string value = tostr(db);
-	size_t pos = value.find(".");
-	string integer = value.substr(0,pos);
-  	string decimals= value.substr(pos+1);
-  	if(pos == string::npos)
-  		decimals = "0";
-	//now, search for a period in decimals
+	long sign = (value >= 0);	//0 if value is neg. 1 if 0 or greater
+    sign = sign*2 -1;		//0 or 2, then -1 or 1
 
-  	// First try: O(n^3). Even if it's ugly, n <= 15 (18 if in the future i use long double), so it's like O(1). I have to check Floyd's tortoise and hare.
-  	if(decimals.size() > 12)	//if not, makes more sense to just divide by 10^|decimals|
-  	{
-  		int maxCicles= -1, start = 0, finish = 0, cicles = -1;
-	  	for (uint init = 0; init < decimals.size()-2; init++)
-	  	{
-	  		cicles = -1;
-	  		for (uint end = init+1; end < decimals.size()-1; end++)
-	  		{
-	  			//period = [init,end)
-	  			if(decimals[end] == decimals[init])
-	  			{
-	  				//i found a possible cicle
-	  				cicles = 0;
-	  				for (uint elem = 1; end + elem < decimals.size() && cicles > -1; elem++)	//check if elements match
-	  				{
-	  					if(decimals[init + elem] != decimals[end + elem] || end + elem == decimals.size()-1)//gotta save the cicle's data
-	  					{
-	  						if(cicles > maxCicles)
-	  						{
-	  							start = init;
-	  							finish = end;
-	  							maxCicles= cicles;
-	  						}
-	  						cicles = -1;
-	  						break;
-	  					}
-	  					if(decimals[init + elem] == decimals[end + elem] && decimals[init] == decimals[end + elem])
-	  						cicles++;
-	  				}
-	  			}
-	  		}
-	  	}
-	  	//cout << "start = " << start << " ; finish = " << finish << " ; maxCicles " << maxCicles<< " ; periodo = " << decimals.substr(start, finish-start) << endl;
+    value = abs(value);
 
-	  	if(maxCicles > 0)
-	  	{
-	  		string num2S = integer + decimals.substr(0, finish);
-	  		long den2 = pow(10, finish - start)-1;
-	  		long num2 = stol(num2S) - stol(integer + decimals.substr(0, start));
+    // Accuracy is the maximum relative error; convert to absolute maxError
+    double maxError =  value * 0.00000000000001;	//doesn't work propperly with more accuracy than 1e-14
 
-	  		return Fraction( num2, den2 * pow(10, start));
-	  	}
-	}
+    double integer = floor(value);
+    double decimal = value - integer;
 
+    if (decimal < 0.00000000000001)
+        return Fraction((long)integer*sign, 1);
 
-	long number = stol(integer+decimals);
-	return Fraction(number, pow(10.0, decimals.size()));
+    if (decimal > 0.99999999999999)
+        return Fraction((long)(integer + 1)*sign, 1);
+
+    double z = value;
+    long previousDenominator = 0;
+    long denominator = 1;
+    long numerator, temp;
+
+    do
+    {
+        z = 1.0 / (z - floor(z));
+        temp = denominator;
+        denominator = denominator * floor(z) + previousDenominator;
+        previousDenominator = temp;
+        numerator = round(value * denominator);
+    }
+    while (abs(value - (double)numerator / (double)denominator) > maxError && z != floor(z));
+
+    return Fraction(numerator * sign, denominator);
 }

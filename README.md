@@ -5,13 +5,15 @@ Some math classes I wanted to code. Each folder has a different math class, with
 
 C++ class for fractions, for better use of rational non-integer numbers. Trying to make it as complete as possible.
 
-Right now is pretty okay. Besides the obvious, it checks if it's being constructed with a floating point approximation of a periodic number. If so, it shows the right fraction (the algorithm is straightforward and clumsy, but i might improve it in the future)
+Right now is pretty okay. Besides the obvious, it checks if it's being constructed with a floating point approximation of a repeating decimal. If so, it shows the right fraction
 
     Example: If receives 0.33333333333333 deduces the actual number is 1/3, not 33333333333333/100000000000000
 
-Improvements: Instead of Long i could use Ulong to represent more numbers. Long Long is not needed, asi in a 64x pc is the same. doubleToFraction() could be improved.
+This is made by [John Kennedy's iterative algorithm](https://sites.google.com/site/johnkennedyshome/home/downloadable-papers/dec2frac.pdf) with an accuracy of 1e-14, as i found problems with higher precision for double.
 
-Also, I should made (as i believe it doesn't exist) a "double root(long, long)" with either binary search (only good for integer values) or Newton's algoritm (for rational roots).
+Improvements: Instead of Long i could use Ulong to represent more numbers. Long Long is not needed, asi in a 64x pc is the same.
+
+Also, I should made (as i believe it doesn't exist) a "double root(long, long)" with Newton's algoritm (for rational roots) or similar.
 	That would go to math_utilities, and be used wherever i need.
 
 ## Matrix (WIP)

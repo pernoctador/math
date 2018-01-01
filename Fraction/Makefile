@@ -19,8 +19,8 @@ all: tests
 tests: Fraction.o tests.o
 	$(CC) $(CFLAGS) Fraction.o tests.o -o tests
 
-tests.o: tests.cpp
-	$(CC) $(OFLAGS) tests.cpp
+tests.o: tests.cpp deprecated.h
+	$(CC) $(OFLAGS) tests.cpp deprecated.h
 
 Fraction.o: Fraction.cpp Fraction.h ../utilities/math_utilities.h
 	$(CC) $(OFLAGS) Fraction.cpp Fraction.h ../utilities/math_utilities.h
