@@ -9,10 +9,7 @@
 
 using namespace std;
 
-/*
-	I know I could use templates, but it's not the same if I recive an Integer (int, long) or a Floating Point Rational (float, double).
- 	I read there is a way using BOOST_STATIC_ASSERT, but it looks a pain in the back for just 3 types (i don't care for more atm)
-*/
+
 const double FRAC_MIN = (double)1/(double)LONG_MAX;
 const long FRAC_MAX = LONG_MAX;
 
@@ -115,14 +112,14 @@ public:
 
 	Fraction invert(){return Fraction(den,num);}
 
-	Fraction idiv(long i, Fraction f){return normal(f.denominator()*i, f.numerator());}	//not very usefull, as i / f = 1/f * i
+	Fraction idiv(long i, Fraction& f){return normal(f.denominator()*i, f.numerator());}	//not very usefull, as i / f = 1/f * i
 	
 	operator int(){return num/den;}
 	operator long(){return num/den;}
 	operator double(){return (double)num/(double)den;}
 
 private:	
-	Fraction doubleToFraction(double db);	//conversion from the handwritten method + check for recurring decimals.
+	Fraction doubleToFraction(double db);
 	Fraction normal(long n, long d);
 	void normalize();
 	
@@ -131,16 +128,19 @@ private:
 	long den;
 };
 
-inline Fraction abs(Fraction f) //abs(Fraction& f) gives weird compiler errors
+inline Fraction& abs(Fraction& f) //abs(Fraction& f) gives weird compiler errors
 {
 	if(f < 0)
-		return Fraction(0-f.numerator(), f.denominator());
+	{
+		Fraction r;
+		return r(0-f.numerator(), f.denominator());
+	}
 	else
-		return Fraction(f);
+		return f;
 }
 
 Fraction pow(Fraction f, long l);
-double pow(long l, Fraction f);	//pow(x,1/root) is not very good to find roots, maybe a Newton would be better (it's like binary search for real numbers) using the integer root rather than the double 1/root
+double pow(long l, Fraction f);	//pow(x,1/root) is not very good to find roots, maybe a Newton would be better.
 double pow(double db, Fraction f);
 
 Fraction root(Fraction f, long l);

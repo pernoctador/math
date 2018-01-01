@@ -14,6 +14,8 @@ void someInfo()
 	cout << "Range of positive fraction: " << FRAC_MIN << "   to " << FRAC_MAX << endl << endl;
 
 	cout << "If I use long long:         " << (double)1/(double)LLONG_MAX << "   to " << LLONG_MAX << endl;
+	cout << "If I use int:               " << (double)1/(double)INT_MAX << "  to " << INT_MAX << endl;
+	cout << "If I use uint:              " << (double)1/(double)UINT_MAX << "  to " << UINT_MAX << endl;
 	cout << "If I use ulong:             " << (double)1/(double)ULONG_MAX << "  to " << ULONG_MAX << endl;
 	cout << "If I use ulonglong:         " << (double)1/(double)ULLONG_MAX << "  to " << ULLONG_MAX << endl << endl;
 
@@ -294,6 +296,39 @@ void testBetterperiodics()
 	assert(abs(a - da) < 1e-15);
 }
 
+void testCloseToZeroNumbers()
+{
+	double t, df, diff, maxErr=0, averageErr=0;
+	Fraction f;
+	for(double i = 1000; i >= 1; i--)
+	{
+		t = i / 1e-15;
+		f(t);
+		df = f;
+		diff = abs(df - t);
+		if(diff > maxErr)
+			maxErr = diff;
+		averageErr+=diff;
+	}
+	cout << "Max error found in conversion from double close to zero: " <<  maxErr << endl;
+	cout << "Average error found in conversion from double close to zero: " << (averageErr/1000) << endl;
+
+	maxErr=0;
+	averageErr=0;
+	
+	for(long i = LONG_MAX/10 - 10000; i < LONG_MAX/10; i++)
+	{
+		f(1,i);
+		df = 1.0/i;
+		diff = abs(df - (double)f);
+		if(diff > maxErr)
+			maxErr = diff;
+		averageErr+=diff;
+	}
+	cout << endl << "Max error found in conversion to double close to zero: " <<  maxErr << endl;
+	cout << "Average error found in conversion to double close to zero: " << (averageErr/10000) << endl;
+}
+
 void compareDecimalConversions()
 {
 	double num, den;
@@ -345,6 +380,7 @@ int main()
 	testBasicFractions();	//basic tests for every operation
 	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
 	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
+	testCloseToZeroNumbers();
 
 	//compareDecimalConversions(); //deprecated with latests changes: the result was JK's iterative algoritm was faster and more accurate on average with 1e-15 accuracy.
 		

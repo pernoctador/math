@@ -195,7 +195,7 @@ Fraction Fraction::doubleToFraction(double value)
     value = abs(value);
 
     // Accuracy is the maximum relative error; convert to absolute maxError
-    double maxError =  value * 1e-15;	//doesn't work propperly with more accuracy than 1e-15
+    double maxError =  value * 1e-15;	//max accuracy for double: 1e-15. For long double should be 1e-18.
 
     double integer = floor(value);
     double decimal = value - integer;

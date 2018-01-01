@@ -11,7 +11,9 @@ Right now is pretty okay. Besides the obvious, it checks if it's being construct
 
 This is made by [John Kennedy's iterative algorithm](https://sites.google.com/site/johnkennedyshome/home/downloadable-papers/dec2frac.pdf) with an accuracy of 1e-15, wich is the max accuracy for doubles.
 
-Improvements: Instead of Long i could use Ulong to represent more numbers. Long Long is not needed, asi in a 64x pc is the same.
+In deprecated.h there is another way, a translation of the human way of finding a fraction from a decimal, searching for a repetend. Is straightforward and of reasonable time, but the iterative method seems better on average. I will study if adding some ideas of the old algorithm improve JK's.
+
+Improvements: Instead of Long i could use Ulong to represent more numbers. Long Long is not needed, as in a 64x pc is the same.
 
 Also, I should made (as i believe it doesn't exist) a "double root(long, long)" with Newton's algoritm (for rational roots) or similar.
 	That would go to math_utilities, and be used wherever i need.
