@@ -70,7 +70,17 @@ public:
 	bool operator>=(long l){return *this > l || *this == l;}
 	bool operator>=(double db){return *this > db || *this == db;}
 	
-	Fraction operator+(Fraction f){return normal(num*f.den + f.num*den, den*f.den);}
+	Fraction operator+(Fraction f){
+		if(LONG_MAX/num <= f.den || LONG_MAX/f.num <= den || LONG_MAX/den <= f.den || LONG_MAX-num*f.den >= f.num*den)	//mmm better check this 
+		{
+			double d = den*f.den;
+			double a = (double)(num/d)*f.den;
+			double b = (double)(f.num/d)*den;
+			return Fraction(a+b);
+		}
+		else
+			return normal(num*f.den + f.num*den, den*f.den);
+	}
 	Fraction operator+(int i){return normal(num + i*den, den);}
 	Fraction operator+(long l){return normal(num + l*den, den);}
 	Fraction operator+(double db){return *this + doubleToFraction(db);}
@@ -90,7 +100,28 @@ public:
 	void operator-=(long l){num -= l*den; normalize();}
 	void operator-=(double db){*this -= doubleToFraction(db);}
 
-	Fraction operator*(Fraction f){return normal(num*f.num, den*f.den);}
+	// num * f.num < max => num < max/f.num => check if num >= max/f.num
+	Fraction operator*(Fraction f){
+		//check for simplifications
+
+		Fraction a = normal(f.num,den);
+		Fraction b = normal(num, f.den);
+		
+		if(LONG_MAX/b.num <= num || LONG_MAX/b.den <= den)
+		{
+			cerr << "aproximating " << a.num << "/" << a.den << " * " << b.num << "/" << b.den;
+			double newDen = a.den;
+			newDen *= b.den;
+			double newNum = max(a.num, b.num) / newDen;
+			newNum *= min(a.num, b.num);
+			Fraction h(newNum);
+			cerr << " as " << h << endl;
+			return h;
+		}
+		else
+			return Fraction(a.num*b.num, a.den*b.den);
+	}
+
 	Fraction operator*(int i){Fraction f(i, den); f.num *= num; return f;}
 	Fraction operator*(long l){Fraction f(l, den); f.num *= num; return f;}
 	Fraction operator*(double db){return *this * doubleToFraction(db);}
@@ -113,6 +144,7 @@ public:
 	Fraction invert(){return Fraction(den,num);}
 
 	Fraction idiv(long i, Fraction& f){return normal(f.denominator()*i, f.numerator());}	//not very usefull, as i / f = 1/f * i
+
 	
 	operator int(){return num/den;}
 	operator long(){return num/den;}
@@ -128,7 +160,7 @@ private:
 	long den;
 };
 
-inline Fraction& abs(Fraction& f) //abs(Fraction& f) gives weird compiler errors
+inline Fraction abs(Fraction f) //abs(Fraction& f) gives weird compiler errors
 {
 	if(f < 0)
 	{
@@ -140,7 +172,8 @@ inline Fraction& abs(Fraction& f) //abs(Fraction& f) gives weird compiler errors
 }
 
 Fraction pow(Fraction f, long l);
-double pow(long l, Fraction f);	//pow(x,1/root) is not very good to find roots, maybe a Newton would be better.
+Fraction pow(Fraction base, Fraction exp);
+double pow(long l, Fraction f);	//pow(x,1.0/root) is not very good to find roots, maybe a Newton would be better.
 double pow(double db, Fraction f);
 
 Fraction root(Fraction f, long l);
@@ -148,5 +181,66 @@ Fraction root(Fraction f, long l);
 double logb(Fraction f, long base);
 double log(Fraction f);
 double log10(Fraction f);
+
+inline double root(long base, long root)
+{
+	Fraction x(base,root);	//maybe binary search?
+
+	/*
+	double i = base/root;
+	while(true)
+	{
+		if(pow(i,root) < base)
+			i + (base - );
+		else
+		{
+			if(pow(i,root) > base)
+				i--;
+			else
+				break;
+	}
+	*/
+
+	//second: Newton
+	Fraction a,b,d, prevX = 0;
+	double c;
+	a(1,root);
+	//cout << "a: " << a << endl;
+
+	
+	//cout << "x: " << x << endl;
+
+	int cont = 0;
+	double dif = base;
+	//cout << "	****	dist = " << (double)abs(x - prevX) << endl << endl;
+	while((double)abs(x - prevX) > 1e-14 && abs(x - prevX) < dif && cont < 1000)
+	{
+		dif = (double)abs(x - prevX);
+		prevX = x;
+		cont++;
+
+		b((root-1));
+		b = b * x;
+		//cout << "b: " << b << endl;
+		c = pow(x,root-1);
+		//cout << "c: " << c << endl;
+		//cout << c << " = pow(" << x << ", " << root-1 << ")" << endl;
+		d(base, round(c));
+		//cout << "d: " << d << endl;
+		x = a * (b + d);
+		//cout << "x: " << x << " = " << (double)x << " , prevX = " << prevX << endl << endl;
+		//cout << "	****	dist = " << (double)abs(x - prevX) << endl << endl;
+	}
+
+	if (abs(x - prevX) >= dif)
+	{
+		//cout << "*** actualDif: " << (double)abs(x - prevX) << " , prevDif: " << dif << endl;
+		return (double)prevX;
+	}
+
+	//cout << " -- : " << (double)abs(x - prevX) << " , " << dif << " , " << cont << endl;
+
+	return (double)x;
+}
 
 #endif

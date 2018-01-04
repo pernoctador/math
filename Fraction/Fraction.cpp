@@ -36,7 +36,7 @@ Fraction Fraction::normal(long n, long d)
 	}
 	else
 	{
-		cout << "Error: denominator = 0" << endl;	//this could be an exception
+		cerr << "Error: denominator = 0. n = " << n << ", d = " << d << endl;	//this could be an exception
 		return Fraction(0,1);
 	}
 }
@@ -60,7 +60,7 @@ void Fraction::normalize()
 		}
 	}
 	else
-		cout << "Error: denominator = 0" << endl;	//this could be an exception
+		cerr << "Error: denominator = 0. n = " << num << ", d = " << den << endl;	//this could be an exception
 }
 
 Fraction Fraction::operator/(Fraction f)
@@ -69,7 +69,7 @@ Fraction Fraction::operator/(Fraction f)
 		return normal(num*f.den, den*f.num);
 	else
 	{
-		cout << "Error: divide by 0" << endl;	//this could be an exception
+		cerr << "Error: divide by 0" << endl;	//this could be an exception
 		return Fraction(1,1);
 	}
 }
@@ -83,7 +83,7 @@ void Fraction::operator/=(Fraction f)
 		normalize();
 	}
 	else
-		cout << "Error: divide by 0" << endl;	//this could be an exception
+		cerr << "Error: divide by 0" << endl;	//this could be an exception
 }
 
 Fraction Fraction::operator/(long l)
@@ -96,7 +96,7 @@ Fraction Fraction::operator/(long l)
 	}
 	else
 	{
-		cout << "Error: divide by 0" << endl;	//this could be an exception
+		cerr << "Error: divide by 0" << endl;	//this could be an exception
 		return Fraction(1,1);
 	}
 }
@@ -109,7 +109,7 @@ void Fraction::operator/=(long l)
 		normalize();
 	}
 	else
-		cout << "Error: divide by 0" << endl;	//this could be an exception
+		cerr << "Error: divide by 0" << endl;	//this could be an exception
 }
 
 Fraction Fraction::operator/(int i)
@@ -122,7 +122,7 @@ Fraction Fraction::operator/(int i)
 	}
 	else
 	{
-		cout << "Error: divide by 0" << endl;	//this could be an exception
+		cerr << "Error: divide by 0" << endl;	//this could be an exception
 		return Fraction(1,1);
 	}
 }
@@ -135,13 +135,13 @@ void Fraction::operator/=(int i)
 		normalize();
 	}
 	else
-		cout << "Error: divide by 0" << endl;	//this could be an exception
+		cerr << "Error: divide by 0" << endl;	//this could be an exception
 }
 
 Fraction pow(Fraction f, long l){
 	double n = pow(f.numerator(), l);
 	double d = pow(f.denominator(), l);
-	return Fraction((long)n,(long)d);
+	return Fraction(n/d);
 }
 double pow(long l, Fraction f)
 {
@@ -157,6 +157,13 @@ double pow(double db, Fraction f){
 	res = pow(res, root);
 	Fraction buff(res);
 	return (double)buff;
+}
+
+Fraction pow(Fraction base, Fraction exp)
+{
+	Fraction f = pow(base, exp.numerator());
+	f = root(f,exp.denominator());
+	return f;
 }
 
 Fraction root(Fraction f, long l)

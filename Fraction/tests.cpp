@@ -4,7 +4,6 @@
 #include <assert.h>
 #include <time.h>
 #include <random>
-#include <time.h>
 #include <limits>       // std::numeric_limits
 
 
@@ -79,6 +78,7 @@ void testBasicFractions()
 	a(1,3);
 	b(1,2);
 	Fraction c(5,6);
+	//cout << a+b << endl;
 	assert(a + b == c);
 	assert(a + 0.5 == c);
 	assert(b + 2 == 2.5);
@@ -298,35 +298,61 @@ void testBetterperiodics()
 
 void testCloseToZeroNumbers()
 {
-	double t, df, diff, maxErr=0, averageErr=0;
-	Fraction f;
+	double t, df, dif, maxErr=0, averageErr=0;
+	Fraction f,g;
 	for(double i = 1000; i >= 1; i--)
 	{
-		t = i / 1e-15;
+		t = i/LONG_MAX;
 		f(t);
-		df = f;
-		diff = abs(df - t);
-		if(diff > maxErr)
-			maxErr = diff;
-		averageErr+=diff;
-	}
+		g(i,LONG_MAX);
+		
+		dif = abs((double)f - (double)g);
+		if(dif > maxErr)
+			maxErr = dif;
+		averageErr+=dif;
+
+		t = 1/(LONG_MAX-i);
+		f(t);
+		g(1,LONG_MAX-i);
+		dif = abs((double)f - (double)g);
+		if(dif > maxErr)
+			maxErr = dif;
+		averageErr+=dif;
+	} 
+	averageErr /= 2000;
 	cout << "Max error found in conversion from double close to zero: " <<  maxErr << endl;
-	cout << "Average error found in conversion from double close to zero: " << (averageErr/1000) << endl;
+	cout << "Average error found in conversion from double close to zero: " << averageErr << endl;
 
 	maxErr=0;
 	averageErr=0;
 	
-	for(long i = LONG_MAX/10 - 10000; i < LONG_MAX/10; i++)
+	for(double i = 1000; i >= 1; i--)
 	{
-		f(1,i);
-		df = 1.0/i;
-		diff = abs(df - (double)f);
-		if(diff > maxErr)
-			maxErr = diff;
-		averageErr+=diff;
+		t = 1e-15*i;
+		f(t);
+		df = f;
+		dif = abs(df - t);
+		if(dif > maxErr)
+			maxErr = dif;
+		averageErr+=dif;
 	}
-	cout << endl << "Max error found in conversion to double close to zero: " <<  maxErr << endl;
-	cout << "Average error found in conversion to double close to zero: " << (averageErr/10000) << endl;
+	averageErr /= 1000;
+	cout << "Max error found in conversion to double close to zero: " <<  maxErr << endl;
+	cout << "Average error found in conversion to double close to zero: " << averageErr << endl;
+}
+
+void testNewtonRootWithFractions()
+{
+	for(long base = 2; base < 20; base++)
+	{
+		for(long exp = 2; exp < 7; exp++)
+		{
+			long power = pow(base,exp); //ok
+			double res = root(power, exp);
+			cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
+		}
+	}
+	
 }
 
 void compareDecimalConversions()
@@ -372,19 +398,17 @@ void compareDecimalConversions()
 	cout << "Iterative John Kennedy's method = " << rFPrecc/100000 << endl;
 }
 
-
 int main()
 {
 	//someInfo();
 	//testPrint();
-	testBasicFractions();	//basic tests for every operation
-	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
-	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
-	testCloseToZeroNumbers();
+	//testBasicFractions();	//basic tests for every operation
+	//testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
+	//testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
+	//testCloseToZeroNumbers();
 
+	testNewtonRootWithFractions();
 	//compareDecimalConversions(); //deprecated with latests changes: the result was JK's iterative algoritm was faster and more accurate on average with 1e-15 accuracy.
-		
-	
-
+			
 	return 0;
 }

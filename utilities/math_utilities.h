@@ -16,22 +16,6 @@ ostream& operator<<(ostream& os, const pair<U,V> &p)
 	return os;
 }
 
-inline double root(long base, long root)
-{
-	//based on https://web.archive.org/web/20131227144655/http://metamerist.com/cbrt/cbrt.htm
-
-	const int ebits = 11;
-	const int fbits = 52;
-
-	long long i = (long long) base;
-	const long long bias = (1 << (ebits-1))-1;
-	i = (i - (bias << fbits)) / root + (bias << fbits);
-
-	//now i apply Newton method x4
-
-	return 0;	//WIP
-}
-
 template<typename T>
 inline string tostr(T value) {
     ostringstream s;
