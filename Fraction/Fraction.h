@@ -63,39 +63,58 @@ public:
 	bool operator<=(Fraction f){return *this < f || *this == f;}
 	bool operator<=(int i){return *this < i || *this == i;}
 	bool operator<=(long l){return *this < l || *this == l;}
+
 	bool operator<=(double db){return *this < db || *this == db;}
 	
 	bool operator>=(Fraction f){return *this > f || *this == f;}
 	bool operator>=(int i){return *this > i || *this == i;}
 	bool operator>=(long l){return *this > l || *this == l;}
 	bool operator>=(double db){return *this > db || *this == db;}
+
+	Fraction operator-(){return Fraction(-num,den);}
 	
+	// a = f.den * num, b = den * f.num, f.den * den, b + a  <= LONG_MAX
+	// f.num * den + num * f.den, f.den * den
 	Fraction operator+(Fraction f){
-		if(LONG_MAX/num <= f.den || LONG_MAX/f.num <= den || LONG_MAX/den <= f.den || LONG_MAX-num*f.den >= f.num*den)	//mmm better check this 
+		double lcm = max(den,f.den);
+		lcm /= gcd(den, f.den);
+		lcm *= min(den,f.den);
+
+		// a/c + b/d = [a*(lcd/d) + b*(lcd/c)] / lcd	//use to create normal fractions
+
+		// a/c + b/d = [a/lcd * (lcd/c)] + [b/lcd * (lcd/d)]	//use to create fractions through double
+		double p = (double)num;
+		p *= lcm / (double)den;
+		double q = (double)f.num;
+		q *= lcm / (double)f.den;
+
+		if(lcm >= LONG_MAX || (p + q) >= LONG_MAX)	//tested in testOverflow() over tests.cpp
 		{
-			double d = den*f.den;
-			double a = (double)(num/d)*f.den;
-			double b = (double)(f.num/d)*den;
-			return Fraction(a+b);
+			cerr << "aproximating " << num << "/" << den << " + " << f.num << "/" << f.den;
+			p = (double)num / lcm;
+			p *= lcm / (double)den;
+			q = (double)f.num / lcm;
+			q *= lcm / (double)f.den;
+			return Fraction(p + q);
 		}
 		else
-			return normal(num*f.den + f.num*den, den*f.den);
+			return normal(p + q, (long)lcm);
 	}
 	Fraction operator+(int i){return normal(num + i*den, den);}
 	Fraction operator+(long l){return normal(num + l*den, den);}
 	Fraction operator+(double db){return *this + doubleToFraction(db);}
 
-	void operator+=(Fraction f){num *= f.den; num += f.num*den, den*=f.den; normalize();}
+	void operator+=(Fraction f){*this = *this + f;}
 	void operator+=(int i){num += i*den; normalize();}
 	void operator+=(long l){num += l*den; normalize();}
 	void operator+=(double db){*this += doubleToFraction(db);}
 
-	Fraction operator-(Fraction f){return normal(num*f.den - f.num*den, den*f.den);}
+	Fraction operator-(Fraction f){return *this + (-f);}
 	Fraction operator-(long i){return normal(num - i*den, den);}	
 	Fraction operator-(int l){return normal(num - l*den, den);}	
 	Fraction operator-(double db){return *this - doubleToFraction(db);}
 
-	void operator-=(Fraction f){num *= f.den; num -= f.num*den, den*=f.den; normalize();}
+	void operator-=(Fraction f){*this = *this + (-f);}
 	void operator-=(int i){num -= i*den; normalize();}
 	void operator-=(long l){num -= l*den; normalize();}
 	void operator-=(double db){*this -= doubleToFraction(db);}
@@ -126,7 +145,7 @@ public:
 	Fraction operator*(long l){Fraction f(l, den); f.num *= num; return f;}
 	Fraction operator*(double db){return *this * doubleToFraction(db);}
 
-	void operator*=(Fraction f){num *= f.num; den*=f.den; normalize();}
+	void operator*=(Fraction f){*this = *this * f;}
 	void operator*=(int i){num *= i; normalize();}
 	void operator*=(long l){num *= l; normalize();}
 	void operator*=(double db){*this *= doubleToFraction(db);}

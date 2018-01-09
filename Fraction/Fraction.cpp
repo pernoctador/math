@@ -66,7 +66,26 @@ void Fraction::normalize()
 Fraction Fraction::operator/(Fraction f)
 {
 	if(f.num != 0)
-		return normal(num*f.den, den*f.num);
+	{
+		//check for simplifications
+
+		Fraction a = normal(num, f.num);
+		Fraction b = normal(f.den, den);
+		
+		if(LONG_MAX/b.num <= num || LONG_MAX/b.den <= den)
+		{
+			cerr << "aproximating " << a.num << "/" << a.den << " / " << b.den << "/" << b.num;
+			double newDen = a.den;
+			newDen *= b.den;
+			double newNum = max(a.num, b.num) / newDen;
+			newNum *= min(a.num, b.num);
+			Fraction h(newNum);
+			cerr << " as " << h << endl;
+			return h;
+		}
+		else
+			return Fraction(a.num*b.num, a.den*b.den);
+	}
 	else
 	{
 		cerr << "Error: divide by 0" << endl;	//this could be an exception
@@ -76,14 +95,7 @@ Fraction Fraction::operator/(Fraction f)
 
 void Fraction::operator/=(Fraction f)
 {
-	if(f.num != 0)
-	{
-		num*=f.den;
-		den*=f.num;
-		normalize();
-	}
-	else
-		cerr << "Error: divide by 0" << endl;	//this could be an exception
+	*this = *this / f;
 }
 
 Fraction Fraction::operator/(long l)

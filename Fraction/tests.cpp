@@ -42,6 +42,9 @@ void testPrint()
 	b(5,-5);
 	b.print();
 	cout << " = " <<  a << "-1 " << endl;
+
+	cout << "Testing if wrong constructor give an error: ";
+	b(1,0);
 }
 
 void testBasicFractions()
@@ -54,8 +57,6 @@ void testBasicFractions()
 	assert(aaa == a);
 	assert(!(aaa != a));
 	Fraction b;
-	cout << "Testing if wrong constructor give an error: ";
-	b(1,0);
 	b = 0.5;
 	assert(a == b);
 	assert(!(a != b));
@@ -341,6 +342,74 @@ void testCloseToZeroNumbers()
 	cout << "Average error found in conversion to double close to zero: " << averageErr << endl;
 }
 
+void testInfoOverflow()
+{	
+	cout.precision(numeric_limits<double>::max_digits10);
+	
+	double a, b, c;
+	long e;
+
+	double m,n;
+
+
+	cout << "Can I operate with long overflow, casting to double?: "; 
+
+	e = LONG_MAX;
+	m = e + 1;
+	n = e;
+	n++;
+	a = e;
+	a += e;
+	b = a;
+	b -= 1;
+	c = a - b;
+
+	cout << boolalpha << (c == 1) << endl;
+
+	a = e;
+	a++;
+	cout << "Can I detect strict overflow casting to double?: " << boolalpha << (a > LONG_MAX) << endl << endl;
+	cout << "Can I detect overflow casting to double?: " << boolalpha << ((a >= LONG_MAX) && (e == LONG_MAX)) << endl; 
+	a = e;
+	a *= a;
+	a += a;
+	cout << "Can I detect max overflow in fractions casting to double?: " << boolalpha << ((a >= LONG_MAX) && (e == LONG_MAX)) << endl << endl; 
+
+/*
+	cout << "+) 1 = " << fixed << c << " ; a: " << a << " ; b: " << b << endl << endl;
+
+	a = e;
+	a * e;
+	b = a;
+	b--;
+	c = a - b;
+	
+	cout << "*) 1 = " << fixed <<  c << " ; a: " << a << " ; b: " << b << endl << endl;
+*/
+	e+=1;
+	cout.precision(numeric_limits<double>::max_digits10);
+	cout << "WARNING! (double)LONG_MAX + 1 is still overflow: " << fixed << m << endl << "	But double e = LONG_MAX; e+1 is OK: " << n << endl << "Must always explicitly cast to double" << endl << endl;
+	cout << "overflow: 1 + " << LONG_MAX << " = (long)" << e << " = (double)" << n << endl;
+
+	unsigned long long p = ULLONG_MAX;
+	p++;
+	n = ULLONG_MAX;
+	n+=1;
+	cout << "overflow: 1 + " << ULLONG_MAX << " = (unsigned long long) " << p << "  =  (double)" << n << endl << endl;
+
+	e = LONG_MAX;
+
+	cout << "Testing e*e: " << e << " * " << e << " = " << (e*e) << endl;
+	cout << "	Detected with division: " << boolalpha << (LONG_MAX/e <= e) << endl;
+	e = 1e9;
+	cout << "Testing e*e: " << e << " * " << e << " = " << (e*e) << endl;
+	cout << "	Detected with division: " << boolalpha << (LONG_MAX/e > e) << endl;
+	e = 1e10;
+	cout << "Testing e*e: " << e << " * " << e << " = " << (e*e) << endl;
+	cout << "	Detected with division: " << boolalpha << (LONG_MAX/e <= e) << endl;
+	
+}
+
 void testNewtonRootWithFractions()
 {
 	for(long base = 2; base < 20; base++)
@@ -355,60 +424,20 @@ void testNewtonRootWithFractions()
 	
 }
 
-void compareDecimalConversions()
-{
-	double num, den;
-	double floatpoint, doubleFunctionTime, realFunctionTime, totDTF=0, totRTF=0;
-	double dFPrecc=0, rFPrecc=0;
-	Fraction frac, dToFrac, realToFrac;
-	clock_t start;
-	for(int i = 1; i < 100000; i++)
-	{
-		clock_t extra = clock();
-		srand(time(NULL) * (double)extra);	//ayuda a evitar seeds repetidas.
-		num = (rand() % 100000000000000) + 1;
-		den = (rand() % 100000000000000) + 1;
-		floatpoint = num/den;
-		frac(num,den);
-		doubleFunctionTime = 0;
-		realFunctionTime = 0;
-		
-		for(int j = 1; j < 1000; j++)
-		{
-			start = clock();
-			dToFrac = MyOldDoubleToFraction(floatpoint);
-			doubleFunctionTime += clock() - start;
-
-			start = clock();
-			realToFrac(floatpoint);
-			realFunctionTime += clock() - start;
-		}
-		
-		dFPrecc += abs((double)(frac - dToFrac));
-		rFPrecc += abs((double)(frac - realToFrac));
-
-		totDTF += doubleFunctionTime/1000;
-		totRTF += realFunctionTime/1000;
-	}
-	cout << "Time:" << endl;
-	cout << "Handwrite metod + checking for recurring decimal = " << totDTF/100000 << endl;
-	cout << "Iterative John Kennedy's method = " << totRTF/100000 << endl << endl;
-	cout << "Precision:" << endl;
-	cout << "Handwrite metod + checking for recurring decimal = " << dFPrecc/100000 << endl;
-	cout << "Iterative John Kennedy's method = " << rFPrecc/100000 << endl;
-}
 
 int main()
 {
 	//someInfo();
 	//testPrint();
-	//testBasicFractions();	//basic tests for every operation
-	//testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
-	//testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
+	
+	testBasicFractions();	//basic tests for every operation
+	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
+	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
+	
+	//testNewtonRootWithFractions();
+	
 	//testCloseToZeroNumbers();
-
-	testNewtonRootWithFractions();
-	//compareDecimalConversions(); //deprecated with latests changes: the result was JK's iterative algoritm was faster and more accurate on average with 1e-15 accuracy.
-			
+	//testInfoOverflow();
+	
 	return 0;
 }
