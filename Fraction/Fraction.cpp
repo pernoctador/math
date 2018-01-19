@@ -63,6 +63,82 @@ void Fraction::normalize()
 		cerr << "Error: denominator = 0. n = " << num << ", d = " << den << endl;	//this could be an exception
 }
 
+Fraction Fraction::operator+(Fraction f)
+{
+	double lcm = max(den,f.den);
+	lcm /= gcd(den, f.den);
+	lcm *= min(den,f.den);
+
+	// a/c + b/d = [a*(lcd/d) + b*(lcd/c)] / lcd	//use to create normal fractions
+
+	// a/c + b/d = [a/lcd * (lcd/c)] + [b/lcd * (lcd/d)]	//use to create fractions through double
+	double p = (double)num;
+	p *= lcm / (double)den;
+	double q = (double)f.num;
+	q *= lcm / (double)f.den;
+
+	if(lcm >= LONG_MAX || (p + q) >= LONG_MAX)	//tested in testOverflow() over tests.cpp
+	{
+		//cerr << "Aproximating " << num << "/" << den << " + " << f.num << "/" << f.den << endl;
+		p = (double)num / lcm;
+		p *= lcm / (double)den;
+		q = (double)f.num / lcm;
+		q *= lcm / (double)f.den;
+		return Fraction(p + q);
+	}
+	else
+		return normal(p + q, (long)lcm);
+}
+
+Fraction Fraction::operator-(Fraction f)
+{
+	double lcm = max(den,f.den);
+	lcm /= gcd(den, f.den);
+	lcm *= min(den,f.den);
+
+	// a/c + b/d = [a*(lcd/d) + b*(lcd/c)] / lcd	//use to create normal fractions
+
+	// a/c + b/d = [a/lcd * (lcd/c)] + [b/lcd * (lcd/d)]	//use to create fractions through double
+	double p = (double)num;
+	p *= lcm / (double)den;
+	double q = (double)f.num;
+	q *= lcm / (double)f.den;
+
+	if(lcm >= LONG_MAX || (p - q) >= LONG_MAX)	//tested in testOverflow() over tests.cpp
+	{
+		//cerr << "Aproximating " << num << "/" << den << " - " << f.num << "/" << f.den << endl;
+		p = (double)num / lcm;
+		p *= lcm / (double)den;
+		q = (double)f.num / lcm;
+		q *= lcm / (double)f.den;
+		return Fraction(p - q);
+	}
+	else
+		return normal(p - q, (long)lcm);
+}
+
+Fraction Fraction::operator*(Fraction f)
+{
+	//check for simplifications
+
+	Fraction a = normal(f.num,den);
+	Fraction b = normal(num, f.den);
+	
+	if(LONG_MAX/b.num <= num || LONG_MAX/b.den <= den)
+	{
+		cerr << "aproximating " << a.num << "/" << a.den << " * " << b.num << "/" << b.den << endl;
+		double newDen = a.den;
+		newDen *= b.den;
+		double newNum = max(a.num, b.num) / newDen;
+		newNum *= min(a.num, b.num);
+		Fraction h(newNum);
+		cerr << " as " << h << endl;
+		return h;
+	}
+	else
+		return Fraction(a.num*b.num, a.den*b.den);
+}
+
 Fraction Fraction::operator/(Fraction f)
 {
 	if(f.num != 0)

@@ -14,19 +14,13 @@ CFLAGS = -g -Wall -std=c++11
 
 #SOURCES = Fraction.o Matrix.o
 
-all: tests doubleDensityTest
-
-doubleDensityTest: doubleDensityTest.o
-	$(CC) $(CFLAGS) doubleDensityTest.o -o doubleDensityTest
-
-doubleDensityTest.o: doubleDensityTest.cpp 
-	$(CC) $(OFLAGS) doubleDensityTest.cpp
+all: tests
 
 tests: Fraction.o tests.o
 	$(CC) $(CFLAGS) Fraction.o tests.o -o tests
 
-tests.o: tests.cpp deprecated.h
-	$(CC) $(OFLAGS) tests.cpp deprecated.h
+tests.o: tests.cpp
+	$(CC) $(OFLAGS) tests.cpp
 
 Fraction.o: Fraction.cpp Fraction.h ../utilities/math_utilities.h
 	$(CC) $(OFLAGS) Fraction.cpp Fraction.h ../utilities/math_utilities.h

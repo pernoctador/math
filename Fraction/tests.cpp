@@ -1,5 +1,4 @@
 #include "Fraction.h"
-#include "deprecated.h"
 #include <cfloat>
 #include <assert.h>
 #include <time.h>
@@ -21,7 +20,7 @@ void someInfo()
 	//cout << "I don't have as many integers as double, but i have more rationals between integers" << endl;
 
 	cout << "Digits in double: " << numeric_limits<double>::digits10 << endl;
-	cout << "Digits in long: " << numeric_limits<long>::digits10 << endl;
+	cout << "Digits in long: " << numeric_limits<long>::digits10 << endl << endl;
 
 }
 
@@ -339,7 +338,7 @@ void testCloseToZeroNumbers()
 	}
 	averageErr /= 1000;
 	cout << "Max error found in conversion to double close to zero: " <<  maxErr << endl;
-	cout << "Average error found in conversion to double close to zero: " << averageErr << endl;
+	cout << "Average error found in conversion to double close to zero: " << averageErr << endl << endl;
 }
 
 void testInfoOverflow()
@@ -375,17 +374,6 @@ void testInfoOverflow()
 	a += a;
 	cout << "Can I detect max overflow in fractions casting to double?: " << boolalpha << ((a >= LONG_MAX) && (e == LONG_MAX)) << endl << endl; 
 
-/*
-	cout << "+) 1 = " << fixed << c << " ; a: " << a << " ; b: " << b << endl << endl;
-
-	a = e;
-	a * e;
-	b = a;
-	b--;
-	c = a - b;
-	
-	cout << "*) 1 = " << fixed <<  c << " ; a: " << a << " ; b: " << b << endl << endl;
-*/
 	e+=1;
 	cout.precision(numeric_limits<double>::max_digits10);
 	cout << "WARNING! (double)LONG_MAX + 1 is still overflow: " << fixed << m << endl << "	But double e = LONG_MAX; e+1 is OK: " << n << endl << "Must always explicitly cast to double" << endl << endl;
@@ -407,27 +395,52 @@ void testInfoOverflow()
 	e = 1e10;
 	cout << "Testing e*e: " << e << " * " << e << " = " << (e*e) << endl;
 	cout << "	Detected with division: " << boolalpha << (LONG_MAX/e <= e) << endl;
+
+	cout << "Partial casting: " << endl << (double)e*LONG_MAX << " == " << endl << e*(double)LONG_MAX << endl;
 	
 }
 
 void testNewtonRootWithFractions()
 {
-	for(long base = 2; base < 20; base++)
+	
+	for(long base = 2; base < 30; base++)
 	{
-		for(long exp = 2; exp < 7; exp++)
+		for(long exp = 2; exp < 10; exp++)
 		{
 			long power = pow(base,exp); //ok
 			double res = root(power, exp);
-			cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
+			if(abs(res-base) > 1e-10)
+				cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
 		}
 	}
 	
+	/*
+	long base = 26;
+	long exp = 7;
+	long power = pow(base,exp); //ok
+	double res = root(power, exp);
+	cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
+	*/
 }
 
 
+void testDensity()
+{
+	cout << "Density between 0,1:                | 1,2              | 1e6,1e6+1   | 1e14,1e14+1 | 1e15-1,1e15 | 1e17-10,1e17 | 1e19-10000,1e19 | 1e19-1000,1e19" << endl;
+	cout << "    Doubles:    " << doublesIn(0,1) << " | " << doublesIn(1,2) << " | " << doublesIn(1e6,1e6+1) << "  | " << doublesIn(1e14,1e14+1) << "          | ";
+	cout << doublesIn(1e15-1,1e15) << "           | " << doublesIn(1e17-10,1e17) << "            | " << doublesIn(1e19-10000,1e19) << "               | " << doublesIn(1e19-1000,1e19) << endl;
+
+	cout << "    Fractions:  " << fractionsIn(0,1) << "         | " << fractionsIn(1,2) << "      | " << fractionsIn(1e6,1e6+1) << " | " << fractionsIn(1e14,1e14+1) << " | ";
+	cout << fractionsIn(1e15-1,1e15) << " | " << fractionsIn(1e17-10,1e17) << "         | " << fractionsIn(1e19-10000,1e19) << "               | " << fractionsIn(1e19-1000,1e19) << endl << endl;
+}
+
 int main()
 {
-	//someInfo();
+	someInfo();
+	testDensity();
+	testCloseToZeroNumbers();
+	//testInfoOverflow();
+
 	//testPrint();
 	
 	testBasicFractions();	//basic tests for every operation
@@ -436,8 +449,10 @@ int main()
 	
 	//testNewtonRootWithFractions();
 	
-	//testCloseToZeroNumbers();
-	//testInfoOverflow();
+	
+	
+
+	
 	
 	return 0;
 }
