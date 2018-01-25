@@ -1,4 +1,21 @@
 #include "Fraction.h"
+#include <exception>
+
+class dividedByZero: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Error: Fraction divided by 0.";
+  }
+} divByZ;
+
+class dividendIsZero: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Error: Dividend is 0.";
+  }
+} divZ;
 
 Fraction::Fraction(long n, long d)
 {
@@ -35,10 +52,7 @@ Fraction Fraction::normal(long n, long d)
 		return Fraction(n,d);
 	}
 	else
-	{
-		cerr << "Error: denominator = 0. n = " << n << ", d = " << d << endl;	//this could be an exception
-		return Fraction(0,1);
-	}
+		throw divZ;
 }
 
 void Fraction::normalize()
@@ -60,7 +74,7 @@ void Fraction::normalize()
 		}
 	}
 	else
-		cerr << "Error: denominator = 0. n = " << num << ", d = " << den << endl;	//this could be an exception
+		throw divZ;
 }
 
 Fraction Fraction::operator+(Fraction f)
@@ -163,10 +177,7 @@ Fraction Fraction::operator/(Fraction f)
 			return Fraction(a.num*b.num, a.den*b.den);
 	}
 	else
-	{
-		cerr << "Error: divide by 0" << endl;	//this could be an exception
-		return Fraction(1,1);
-	}
+		throw divByZ;
 }
 
 void Fraction::operator/=(Fraction f)
@@ -183,10 +194,7 @@ Fraction Fraction::operator/(long l)
 		return f;
 	}
 	else
-	{
-		cerr << "Error: divide by 0" << endl;	//this could be an exception
-		return Fraction(1,1);
-	}
+		throw divByZ;
 }
 
 void Fraction::operator/=(long l)
@@ -197,7 +205,7 @@ void Fraction::operator/=(long l)
 		normalize();
 	}
 	else
-		cerr << "Error: divide by 0" << endl;	//this could be an exception
+		throw divByZ;
 }
 
 Fraction Fraction::operator/(int i)
@@ -209,10 +217,7 @@ Fraction Fraction::operator/(int i)
 		return f;
 	}
 	else
-	{
-		cerr << "Error: divide by 0" << endl;	//this could be an exception
-		return Fraction(1,1);
-	}
+		throw divByZ;
 }
 
 void Fraction::operator/=(int i)
@@ -223,7 +228,7 @@ void Fraction::operator/=(int i)
 		normalize();
 	}
 	else
-		cerr << "Error: divide by 0" << endl;	//this could be an exception
+		throw divByZ;
 }
 
 Fraction pow(Fraction f, long l){

@@ -3,8 +3,7 @@
 #include <assert.h>
 #include <time.h>
 #include <random>
-#include <limits>       // std::numeric_limits
-
+#include "../utilities/fractions_extra.h"
 
 void someInfo()
 {
@@ -403,23 +402,50 @@ void testInfoOverflow()
 void testNewtonRootWithFractions()
 {
 	
-	for(long base = 2; base < 30; base++)
+	for(double base = 2; base < 20; base += 0.5)
 	{
 		for(long exp = 2; exp < 10; exp++)
 		{
 			long power = pow(base,exp); //ok
 			double res = root(power, exp);
+			cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
 			if(abs(res-base) > 1e-10)
-				cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
+			{
+				
+				double s=1, t = power, r = 0;
+				int i;
+				for(i = 0; i < exp*2 && s <= t && abs(r-power) > exp; i++)
+				{
+					r = pow((t+s)/2, exp);
+					if(r < power)
+						s = floor((t+s)/2);
+					if(r > power)
+						t = ceil((t+s)/2);
+					if(r == power)
+						break;
+				}
+				cout << "    X1 = " << round((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
+			}
 		}
 	}
-	
 	/*
-	long base = 26;
-	long exp = 7;
-	long power = pow(base,exp); //ok
-	double res = root(power, exp);
-	cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
+	long power = 27, exp = 3;
+	double s=1, t = power, r = 0;
+	int i;
+	for(i = 0; i < power && s <= t && abs(r-power) > exp; i++)
+	{
+		r = pow((t+s)/2, exp);
+		cout << "        r = " << r;
+		if(r < power)
+			s = floor((t+s)/2);
+		if(r > power)
+			t = ceil((t+s)/2);
+		if(r == power)
+			break;
+
+		cout << " , s = " << s << " , t = " << t << endl;
+	}
+	cout << "    X1 = " << ((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
 	*/
 }
 
@@ -436,6 +462,7 @@ void testDensity()
 
 int main()
 {
+	/*
 	someInfo();
 	testDensity();
 	testCloseToZeroNumbers();
@@ -446,13 +473,9 @@ int main()
 	testBasicFractions();	//basic tests for every operation
 	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
 	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
-	
-	//testNewtonRootWithFractions();
-	
-	
-	
+	*/
 
-	
+	//testNewtonRootWithFractions();	//I can't make it work
 	
 	return 0;
 }

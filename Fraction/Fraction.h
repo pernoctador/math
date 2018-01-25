@@ -71,9 +71,7 @@ public:
 	bool operator>=(double db){return *this > db || *this == db;}
 
 	Fraction operator-(){return Fraction(-num,den);}
-	
-	// a = f.den * num, b = den * f.num, f.den * den, b + a  <= LONG_MAX
-	// f.num * den + num * f.den, f.den * den
+
 	Fraction operator+(Fraction f);
 	Fraction operator+(int i){return normal(num + i*den, den);}
 	Fraction operator+(long l){return normal(num + l*den, den);}
@@ -156,26 +154,26 @@ double logb(Fraction f, long base);
 double log(Fraction f);
 double log10(Fraction f);
 
-inline double root(long base, long root)
+/*
+inline double root(long base, long exp)
 {
-	//aproxing log_root(base)
-	double s=1, t = base/root,r;
-	for(int i = 0; i < root*2 && s <= t; i++)
+	double s=1, t = base, r = 0;
+	for(int i = 0; i < exp*2 && s <= t && abs(r-base) > exp; i++)
 	{
-		r = pow((t+s)/root, root);
+		r = pow(round((t+s)/2), exp);
 		if(r < base)
-			s = (t+s)/root;
+			s = floor((t+s)/2);
 		if(r > base)
-			t = (t+s)/root;
+			t = ceil((t+s)/2);
 		if(r == base)
-			return t+s/root;
+			return round((t+s)/2);
 	}
-	Fraction x = t+s/root;
+
+	Fraction x = round((t+s)/2);
 
 	//second: Newton
-	Fraction a,b,d, prevX = 0;
-	double c;
-	a(1,root);
+	Fraction a,b,c,d, prevX = 0, baseF = base;
+	a(1,exp);
 	//cout << "a: " << a << endl;
 
 	
@@ -186,19 +184,19 @@ inline double root(long base, long root)
 	//cout << "	****	dist = " << (double)abs(x - prevX) << endl << endl;
 	while((double)abs(x - prevX) > 1e-14 && abs(x - prevX) < dif && cont < 100000)
 	{
-		try
-		{
+		try{
 			dif = (double)abs(x - prevX);
 			prevX = x;
 			cont++;
 
-			b((root-1));
+			b((exp-1));
 			b = b * x;
 			//cout << "b: " << b << endl;
-			c = pow(x,root-1);
+			c = pow(x,exp-1);
 			//cout << "c: " << c << endl;
-			//cout << c << " = pow(" << x << ", " << root-1 << ")" << endl;
-			d(base, round(c));
+			//cout << c << " = pow(" << x << ", " << exp-1 << ")" << endl;
+			//check here:
+			d = baseF/c;
 			//cout << "d: " << d << endl;
 			x = a * (b + d);
 			//cout << "x: " << x << " = " << (double)x << " , prevX = " << prevX << endl << endl;
@@ -206,23 +204,13 @@ inline double root(long base, long root)
 		}
 		catch(exception& e)
 		{
-			cout << "vars: " << endl;
-			cout << "	x = " << x << endl;
-			cout << "	b = " << b << endl;
-			b = b * x; //if fails, shows x and b;
-			cout << "	c = " << c << endl;
-			c = pow(x,root-1);
-			cout << "	d = " << d << endl;
-			d(base, round(c));
-			cout << "(b + d)" << (b + d) << endl;
-			cout << "fail when performing a*(b+d)" << endl;
-			x = a * (b + d);
+			cout << e.what() << endl;
 		}
 	}
 
 	if (abs(x - prevX) >= dif)
 	{
-		cout << "	*** actualDif: " << (double)abs(x - prevX) << " , prevDif: " << dif << endl;
+		//cout << "	Getting worst: actualDif: " << (double)abs(x - prevX) << " , prevDif: " << dif << endl;
 		return (double)prevX;
 	}
 
@@ -230,38 +218,6 @@ inline double root(long base, long root)
 
 	return (double)x;
 }
-
-inline long doublesIn(double first, double last) 
-{
-    long res;
-
-	// *reinterpret_cast<long *>(&first) return the bit pattern representing a double as a 64-bit unsigned integer.
-    res = *reinterpret_cast<long *>(&last) - *reinterpret_cast<long *>(&first);
-    return res;
-}
-
-//this should give the density of fractions between first and last, or less.
-inline double fractionsIn(unsigned long long first, unsigned long long last) 
-{
-    double pi = 3.141592653589793238462643383279502884;
-    double max = LONG_MAX;	//i can't use LONG_MAX directly
-    double zeroToOne = max/pi * max/pi * 3;	// = approx. amount of numbers in Farey's secuence of order LONG_MAX. 
-    double res = 0;
-
-    if(first == 0)
-    {
-        res = zeroToOne;
-        first++;
-    }
-
-    for(double i = first; i < last; i++)
-    {
-        res += zeroToOne/(i * i+1);
-        if(i == i+1)
-            i = nextafter(i+1, last);	//if this happens, i might not count some fractions, but i have no other choice
-    }
-	
-    return floor(res);
-}
+*/
 
 #endif
