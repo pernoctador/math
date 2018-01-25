@@ -16,17 +16,15 @@ CFLAGS = -g -Wall -std=c++11
 
 all: tests
 
-tests: Matrix.o ../Fraction/Fraction.o tests.o
-	$(CC) $(CFLAGS) Matrix.o ../Fraction/Fraction.o tests.o -o tests
+tests: Fraction.o tests.o 
+	$(CC) $(CFLAGS) Fraction.o tests.o -o tests
 
-tests.o: tests.cpp
-	$(CC) $(OFLAGS) tests.cpp
-
-Matrix.o: Matrix.cpp Matrix.h ../utilities/math_utilities.h
-	$(CC) $(OFLAGS) Matrix.cpp Matrix.h ../utilities/math_utilities.h
+tests.o: Matrix.h tests.cpp
+	$(CC) $(OFLAGS) Matrix.h tests.cpp
 
 Fraction.o: ../Fraction/Fraction.cpp ../Fraction/Fraction.h ../utilities/math_utilities.h
 	$(CC) $(OFLAGS) ../Fraction/Fraction.cpp ../Fraction/Fraction.h ../utilities/math_utilities.h
+
 
 clean:
 	rm *.gch

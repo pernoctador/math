@@ -7,8 +7,17 @@
 #include <vector>
 #include <iostream>
 #include <iomanip>		//setw
+#include <exception>
 
 using namespace std;
+
+class wrongDImensions: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Error: wrong dimensions in matrix operation.";
+  }
+} wrongDim;
 
 template <class T>
 class Matrix {	//intended for math matrix
@@ -24,6 +33,10 @@ public:
 	void print() const;
 	
 	pair<int,int> size(){return pair<int,int>(rows, cols);}
+
+	void operator=(vector<T>& v);
+	void operator=(T v[]);
+	bool operator==(Matrix<T>& m);
 
 	void t(){transpose = !transpose; int aux = cols; cols = rows; rows = aux;} //transpose Matrix  //WIP. needs refactoring
 
@@ -101,6 +114,53 @@ Matrix<T>::Matrix(int size)
 }
 
 template <class T>
+void Matrix<T>::operator=(vector<T>& v)
+{
+	if(v.size() != rows*cols)
+		throw wrongDim;
+
+	for(int i = 0; i < rows; i++)
+	{
+		for(int j = 0; j < cols; j++)
+		{
+			elem(i,j) = v[(i*rows)+j];
+		}
+	}
+}
+
+template <class T>
+void Matrix<T>::operator=(T v[])
+{
+	//WARNING: can't check for size
+	
+	for(int i = 0; i < rows; i++)
+	{
+		for(int j = 0; j < cols; j++)
+		{
+			elem(i,j) = v[(i*cols)+j];
+		}
+	}
+}
+
+template <class T>
+bool Matrix<T>::operator==(Matrix<T>& m)
+{
+	if(rows == m.rows && cols == m.cols)
+	{
+		for(int i = 0; i < rows; i++)
+		{
+			for(int j = 0; j < cols; j++)
+			{
+				if(elem(i,j) != m(i,j))
+					return false;
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
+template <class T>
 void Matrix<T>::print() const
 {
 	/*
@@ -153,7 +213,7 @@ Matrix<T> Matrix<T>::operator+(Matrix<T>& m)
 	Matrix<T> res(*this);
 
 	if(this->size() != m.size())
-		cout << "Error: in matrix addition, dimensions doesn't match: " << this->size() << " != " << m.size() << endl;
+		throw wrongDim;
 	else
 	{
 		for(int i = 0; i < rows; i++)
@@ -171,7 +231,7 @@ template <class T>
 void Matrix<T>::operator+=(Matrix<T>& m)
 {
 	if(this->size() != m.size())
-		cout << "Error: in matrix addition, dimensions doesn't match: " << this->size() << " != " << m.size() << endl;
+		throw wrongDim;
 	else
 	{
 		for(int i = 0; i < rows; i++)
@@ -217,7 +277,7 @@ Matrix<T> Matrix<T>::operator-(Matrix<T>& m)
 	Matrix<T> res(*this);
 
 	if(this->size() != m.size())
-		cout << "Error: in matrix substraction, dimensions doesn't match: " << this->size() << " != " << m.size() << endl;
+		throw wrongDim;
 	else
 	{
 		for(int i = 0; i < rows; i++)
@@ -235,7 +295,7 @@ template <class T>
 void Matrix<T>::operator-=(Matrix<T>& m)
 {
 	if(this->size() != m.size())
-		cout << "Error: in matrix substraction, dimensions doesn't match: " << this->size() << " != " << m.size() << endl;
+		throw wrongDim;
 	else
 	{
 		for(int i = 0; i < rows; i++)
@@ -280,7 +340,7 @@ Matrix<T> Matrix<T>::operator*(Matrix<T>& m)
 {
 	Matrix<T> res(rows, m.cols);
 	if(cols != m.rows)
-		cout << "Error: in matrix multiplication, dimensions doesn't match: " << cols << " != " << m.rows << endl;
+		throw wrongDim;
 	else
 	{
 		for(int i = 0; i < rows; i++)

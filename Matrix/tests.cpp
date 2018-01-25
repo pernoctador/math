@@ -14,7 +14,7 @@ void printTest()
 	cout << "matrix A^t:" << endl;
 	first.print();
 	first.t();
-	cout << "matrix A^(t*t):" << endl;
+	cout << "matrix (A^t)^t:" << endl;
 	first.print();
 	cout << endl;
 
@@ -26,11 +26,18 @@ void printTest()
 	third(1,2) = Fraction(41,53);	//don't know how to improve it
 	third.print();
 
-	cout << "Should give errors:" << endl;
+	try{
 	first += second;
+	}
+	catch(exception &e){cout << "Forced exception: " << endl << "	" <<  e.what() << endl;}
+	try{
 	first -= second;
+	}
+	catch(exception &e){}
+	try{
 	first = first * second;
-	cout << "Should work:" << endl;
+	}
+	catch(exception &e){}
 	first = second * first;
 }
 void basicMatrixOperations()
@@ -44,8 +51,8 @@ void basicMatrixOperations()
 			a(i,j) = i*2+j;
 		}
 	}
-	cout << "a: " << endl;
-	a.print();
+	//cout << "a: " << endl;
+	//a.print();
 	for(int i = 0; i < 2; i++)
 	{
 		for(int j = 0; j < 3; j++)
@@ -53,10 +60,14 @@ void basicMatrixOperations()
 			b(i,j) = i*3+j;
 		}
 	}
-	cout << "b: " << endl;
-	b.print();
+	//cout << "b: " << endl;
+	//b.print();
+
 	Matrix<double> c = a * b;
-	c.print();
+	Matrix<double> r(4,3);
+	double v[] = {3,  4,  5, 9, 14, 19, 15, 24, 33, 21, 34, 47};
+	r = v;
+	assert(r == c);
 
 	Matrix<double> d(4,2);
 	for(int i = 0; i < 4; i++)
@@ -66,16 +77,21 @@ void basicMatrixOperations()
 			d(i,j) = (i+1) * (j+1);
 		}
 	}
-	cout << "d: " << endl;
-	d.print(); 
+	//cout << "d: " << endl;
+	//d.print(); 
 
 	c = a + d;
-	c.print();
+	double v2[] = {1,  3, 4, 7, 7, 11, 10, 15};
+
+	Matrix<double> r2(4,2);
+	r2 = v2;
+	assert(r2 == c);
 
 	c = a - d;
-	c.print();
-
-	c = a + b;
+	double v3[] = {-1, -1, 0, -1, 1, -1, 2, -1};
+	Matrix<double> r3(4,2);
+	r3 = v3;
+	assert(r3 == c);
 }
 
 void GaussianEliminationTest()
@@ -109,8 +125,8 @@ void GaussianEliminationTest()
 
 int main()
 {
-	printTest();
-	//basicMatrixOperations();
+	//printTest();
+	basicMatrixOperations();
 	//GaussianEliminationTest();
 	
 	return 0;
