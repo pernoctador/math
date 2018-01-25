@@ -41,18 +41,8 @@ void testPrint()
 	b.print();
 	cout << " = " <<  a << "-1 " << endl;
 
-	try{
-		b(1,0);
-		cout << "Error: no exception fired when dividend is 0" << endl;
-	}
-	catch(exception &e){}
-	try{
-		b = 0;
-		a /= b;
-		cout << "Error: no exception fired when dividing by 0" << endl;
-	}
-	catch(exception &e){}
-	
+	cout << "Testing if wrong constructor give an error: ";
+	b(1,0);
 }
 
 void testBasicFractions()
@@ -472,6 +462,7 @@ void testDensity()
 
 int main()
 {
+	/*
 	someInfo();
 	testDensity();
 	testCloseToZeroNumbers();
@@ -482,6 +473,9 @@ int main()
 	testBasicFractions();	//basic tests for every operation
 	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
 	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
+	*/
 
+	//testNewtonRootWithFractions();	//I can't make it work
+	
 	return 0;
 }

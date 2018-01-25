@@ -1,7 +1,7 @@
 # Math classes
 Some math classes I wanted to code. Each folder has a different math class, with the exception of 'utilities'. Some of these classes needs math_utilities (inside /utilities/) to work. I try to make a good balance between clear code and eficient code. WIP.
 
-## Fraction (Beta)
+## Fraction 1.0
 
 C++ class for fractions, for better use of rational non-integer numbers. Trying to make it as complete as possible.
 
@@ -17,8 +17,9 @@ Another propperty it has is to avoid overflow as much as possible.
 
 There is a couple of functions and constants to show properties of the class.
 
-WIP: I'm working on a "double root(long, long)" with Newton's algoritm (for rational roots) or similar.
-	That would go to math_utilities, and be used wherever i need.
+## Fraction 1.1 Beta
+
+Working on a Nweton's algorithm for roots. It should be better than std::pow(base, 1/root) and would also be improved with fractions. 
 
 ## Matrix (WIP)
 
