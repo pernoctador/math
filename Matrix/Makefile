@@ -29,6 +29,6 @@ Fraction.o: ../Fraction/Fraction.cpp ../Fraction/Fraction.h ../utilities/math_ut
 	$(CC) $(OFLAGS) ../Fraction/Fraction.cpp ../Fraction/Fraction.h ../utilities/math_utilities.h
 
 clean:
-	rm *.o
 	rm *.gch
+	rm *.o
 	rm tests

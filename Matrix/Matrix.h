@@ -25,7 +25,7 @@ public:
 	
 	pair<int,int> size(){return pair<int,int>(rows, cols);}
 
-	void t(){transpose = -transpose; int aux = cols; cols = rows; rows = aux;} //transpose Matrix  //WIP. needs refactoring
+	void t(){transpose = !transpose; int aux = cols; cols = rows; rows = aux;} //transpose Matrix  //WIP. needs refactoring
 
 	T& operator()(int row, int col){if(transpose) return matrix[col][row]; else return matrix[row][col];}	//WIP. needs refactoring
 	T elemConst(int row, int col) const {if(transpose) return matrix[col][row]; else return matrix[row][col];}
@@ -51,8 +51,6 @@ public:
 	void swapRow(int,int);
 
 private:
-		
-
 	vector<vector<T> > matrix;
 	bool transpose;
 	int cols;
@@ -105,9 +103,11 @@ Matrix<T>::Matrix(int size)
 template <class T>
 void Matrix<T>::print() const
 {
-	//cout << "rows: " << rows << ", cols: " << cols << endl;
-	//cout << "rows: " << matrix.size() << ", cols: " << matrix[0].size() << endl;
-
+	/*
+	cout << "rows: " << rows << ", cols: " << cols << endl;
+	cout << "rows: " << matrix.size() << ", cols: " << matrix[0].size() << endl;
+	cout << "transpose = " << boolalpha << transpose << endl;
+	*/
 	int maxSize = 1;
 	int elemSize;
 	for(int i = 0; i < rows; i++)
@@ -118,7 +118,7 @@ void Matrix<T>::print() const
 			maxSize = max(maxSize, elemSize);
 		}
 	}
-	cout << "maxSize: " << maxSize << endl;
+	//cout << "maxSize: " << maxSize << endl;
 
 	cout << "╭";
 
@@ -144,7 +144,7 @@ void Matrix<T>::print() const
 		cout << setw(maxSize) << elemConst(rows-1, j) << ", ";
 	}
 
-	cout << setw(maxSize) << elemConst(rows-1, cols-1) << "╯" << endl;
+	cout << setw(maxSize) << elemConst(rows-1, cols-1) << "╯" << endl << endl;
 }
 
 template <class T>
@@ -178,7 +178,7 @@ void Matrix<T>::operator+=(Matrix<T>& m)
 		{
 			for(int j = 0; j < cols; j++)
 			{
-				*this(i,j) += m(i,j);
+				elem(i,j) += m(i,j);
 			}
 		}
 	}
@@ -206,7 +206,7 @@ void Matrix<T>::operator+=(T e)
 	{
 		for(int j = 0; j < cols; j++)
 		{
-			*this(i,j) *= e; 
+			elem(i,j) *= e; 
 		}
 	}
 }
@@ -242,7 +242,7 @@ void Matrix<T>::operator-=(Matrix<T>& m)
 		{
 			for(int j = 0; j < cols; j++)
 			{
-				*this(i,j) -= m(i,j);
+				elem(i,j) -= m(i,j);
 			}
 		}
 	}
@@ -270,7 +270,7 @@ void Matrix<T>::operator-=(T e)
 	{
 		for(int j = 0; j < cols; j++)
 		{
-			*this(i,j) -= e; 
+			elem(i,j) -= e; 
 		}
 	}
 }
@@ -319,7 +319,7 @@ void Matrix<T>::operator*=(T e)
 	{
 		for(int j = 0; j < cols; j++)
 		{
-			*this(i,j) *= e; 
+			elem(i,j) *= e; 
 		}
 	}
 }
@@ -337,7 +337,6 @@ inline T abs(T e)
 template <class T>
 int Matrix<T>::GaussianElimination(/*Matrix<T>& Extra = Matrix<T>()*/)	//extra is optional
 {
-	//Extra should be a vector.
 	int det = 1;
 	for(int k = 0; k < min(rows, cols); k++)
 	{
@@ -353,8 +352,9 @@ int Matrix<T>::GaussianElimination(/*Matrix<T>& Extra = Matrix<T>()*/)	//extra i
 		}
 		if(elem(pibot,k) == 0)
 		{
-			cout << "Matrix is singular" << endl;
-			return det;
+			cout << "Matrix is singular" << endl;	//in Gaussian Elimination this should not always be an exception
+			det = 0;
+			continue;	//can check if this happens with det = 0
 		}
 
 		if(k != pibot)

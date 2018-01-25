@@ -5,21 +5,36 @@
 
 #include <time.h>
 
-void basicMatrixOperations()
+void printTest()
 {
 	Matrix<double> first(4,15);
-	first.t();
-	first.t();
+	cout << "matrix A:" << endl;
 	first.print();
+	first.t();
+	cout << "matrix A^t:" << endl;
+	first.print();
+	first.t();
+	cout << "matrix A^(t*t):" << endl;
+	first.print();
+	cout << endl;
 
-	Matrix<double> second = Id<double>(5);
-	second(1,2) = 4.3;
+	Matrix<double> second = Id<double>(4);
+	second(1,2) = 46.2654;
 	second.print();
 
-	Matrix<double> third = Id<double>(4);
-	third(1,2) = 46.2654;
+	Matrix<Fraction> third = Id<Fraction>(5);
+	third(1,2) = Fraction(41,53);	//don't know how to improve it
 	third.print();
 
+	cout << "Should give errors:" << endl;
+	first += second;
+	first -= second;
+	first = first * second;
+	cout << "Should work:" << endl;
+	first = second * first;
+}
+void basicMatrixOperations()
+{
 	Matrix<double> a(4,2);
 	Matrix<double> b(2,3);
 	for(int i = 0; i < 4; i++)
@@ -94,8 +109,9 @@ void GaussianEliminationTest()
 
 int main()
 {
+	printTest();
 	//basicMatrixOperations();
-	GaussianEliminationTest();
+	//GaussianEliminationTest();
 	
 	return 0;
 }
