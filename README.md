@@ -19,13 +19,15 @@ There is a couple of functions and constants to show properties of the class.
 
 ## Fraction 1.1 Beta
 
-Working on a Nweton's algorithm for roots. It should be better than std::pow(base, 1/root) and would also be improved with fractions. 
+Working on a Newton's algorithm for roots. It should be better than std::pow(base, 1/root) and would also be improved with fractions. 
 
 ## Matrix (WIP)
 
-C++ class for math matrices, with the standard operations and other more interesting operations
-Done: Transpose in O(1) WIP, GaussianElimination
-TODO: LU, LDLt and QR factorization, eigenvalues and eigenvectors, inverse...
+C++ class for math matrices, with the standard operations and other more interesting operations  
+
+ * Done: Transpose in O(1), GaussianElimination  
+
+ * TODO: LU, LDLt and QR factorization, eigenvalues and eigenvectors, inverse...
 
 ## math_utilities
 
