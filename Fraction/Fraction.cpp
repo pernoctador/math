@@ -138,15 +138,15 @@ Fraction Fraction::operator*(Fraction f)
 	Fraction a = normal(f.num,den);
 	Fraction b = normal(num, f.den);
 	
-	if(LONG_MAX/b.num <= num || LONG_MAX/b.den <= den)
+	if(b.num == 0) return Fraction(0);
+	if(LONG_MAX/abs(b.num) <= abs(num) || LONG_MAX/abs(b.den) <= abs(den))
 	{
-		cerr << "aproximating " << a.num << "/" << a.den << " * " << b.num << "/" << b.den << endl;
 		double newDen = a.den;
 		newDen *= b.den;
 		double newNum = max(a.num, b.num) / newDen;
 		newNum *= min(a.num, b.num);
 		Fraction h(newNum);
-		cerr << " as " << h << endl;
+		cerr << "aproximating " << a.num << "/" << a.den << " / " << b.den << "/" << b.num << " as " << h << endl;
 		return h;
 	}
 	else
@@ -162,15 +162,15 @@ Fraction Fraction::operator/(Fraction f)
 		Fraction a = normal(num, f.num);
 		Fraction b = normal(f.den, den);
 		
-		if(LONG_MAX/b.num <= num || LONG_MAX/b.den <= den)
+		if(b.num == 0) return Fraction(0);
+		if(LONG_MAX/abs(b.num) <= abs(num) || LONG_MAX/abs(b.den) <= (den))
 		{
-			cerr << "aproximating " << a.num << "/" << a.den << " / " << b.den << "/" << b.num;
 			double newDen = a.den;
 			newDen *= b.den;
 			double newNum = max(a.num, b.num) / newDen;
 			newNum *= min(a.num, b.num);
 			Fraction h(newNum);
-			cerr << " as " << h << endl;
+			cerr << "aproximating " << a.num << "/" << a.den << " / " << b.den << "/" << b.num << " as " << h << endl;
 			return h;
 		}
 		else

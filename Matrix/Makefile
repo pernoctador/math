@@ -3,8 +3,8 @@
 CC=g++
 # Hey!, I am comment number 2. I want to say that CFLAGS will be the
 # options I'll pass to the compiler.
-OFLAGS= -c -g  -Wall -std=c++11
-CFLAGS = -g -Wall -std=c++11
+OFLAGS= -c -g -ggdb -Wall -std=c++11
+CFLAGS = -g -ggdb -Wall -std=c++11
 #For threads: 
 # needed: -pthread
 # might be needed  -lpthread -Wl,--no-as-needed

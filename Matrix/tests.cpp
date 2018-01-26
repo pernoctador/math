@@ -145,37 +145,32 @@ void basicMatrixOperations()
 
 void GaussianEliminationTest()
 {
-	Matrix<Fraction> a = Id<Fraction>(3);
-	a(0,0) = 4;
-	a(0,1) = 16;
-	a(0,2) = 12;
-
-	a(1,0) = 2;
-	a(1,1) = 9;
-	a(1,2) = 8;
-
-	a(2,0) = 3;
-	a(2,1) = 12;
-	a(2,2) = 10;
-
-	a.print();
+	Fraction first[] = {4, 16, 3, 2, 9, 8, 4, 12, 7};
+	Matrix<Fraction> a(3.3);
+	a = first;
 	
 	Fraction det = a.GaussianElimination();
-	
-	a.print();
-
-	cout << "determinant = ";
 
 	for(unsigned i = 0; i < a.size().first; i++)
 		det *= a(i,i);
 
-	cout << det << endl;
+	assert(det == 120);
+
+	Fraction second[] = {10,6,30,5,3,15,4,8,9};
+	a = second;
+
+	det = a.GaussianElimination();
+
+	for(unsigned i = 0; i < a.size().first; i++)
+		det *= a(i,i);
+
+	assert(det == 0);
 }
 
 int main()
 {
 	//printTest();
-	basicMatrixOperations();
+	//basicMatrixOperations();
 	GaussianEliminationTest();
 	
 	return 0;

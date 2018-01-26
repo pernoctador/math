@@ -36,7 +36,7 @@ public:
 	Matrix(unsigned size);
 	~Matrix();
 
-	void operator=(Matrix B);
+	void operator=(Matrix<T> B);
 	void operator=(vector<T>& v);
 	void operator=(T v[]);
 
@@ -137,7 +137,7 @@ Matrix<T>::~Matrix()
 }
 
 template <class T>
-void Matrix<T>::operator=(Matrix B)	//if B was transposed in O(1), *this will be equal to B but without the flag
+void Matrix<T>::operator=(Matrix<T> B)	//if B was transposed in O(1), *this will be equal to B but without the flag
 {
 	//if(rows*cols != B.rows*B.cols)	//This is the least B must ensure
 
@@ -562,25 +562,26 @@ int Matrix<T>::GaussianElimination()
 		{
 			cout << "Matrix is singular" << endl;	//in Gaussian Elimination this should not always be an exception
 			det = 0;
-			continue;	//can check if this happens with det = 0
 		}
-
-		if(k != pibot)
+		else
 		{
-			swapRow(k,pibot);
-			det = -det;
-		}
-
-		for(unsigned i = k+1; i < rows; i++)
-		{
-			T f = elem(i,k) / elem(k,k);
-
-			for(unsigned j = k+1; j < cols; j++)
+			if(k != pibot)
 			{
-				elem(i,j) -= elem(k,j) * f;
+				swapRow(k,pibot);
+				det = -det;
 			}
 
-			elem(i,k) = 0;
+			for(unsigned i = k+1; i < rows; i++)
+			{
+				T f = elem(i,k) / elem(k,k);
+
+				for(unsigned j = k+1; j < cols; j++)
+				{
+					elem(i,j) -= elem(k,j) * f;
+				}
+
+				elem(i,k) = 0;
+			}
 		}
 	}
 
