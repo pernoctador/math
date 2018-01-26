@@ -1,7 +1,6 @@
 #ifndef _Matrix_H_
 #define _Matrix_H_
 
-
 #include "../utilities/math_utilities.h"
 #include <cmath> 	//better than math.h
 #include <vector>
@@ -11,7 +10,15 @@
 
 using namespace std;
 
-class wrongDImensions: public exception
+class zeroRowsOrCols: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Error: ammount of rows and columns must be greater than 0.";
+  }
+} zeroCells;
+
+class wrongDimensions: public exception
 {
   virtual const char* what() const throw()
   {
@@ -22,28 +29,32 @@ class wrongDImensions: public exception
 template <class T>
 class Matrix {	//intended for math matrix
 public:
-	//all constructors are null matrix
-	Matrix(){matrix = vector<vector<T> >(1, vector<T>(1,0)); transpose = false; cols = 0; rows = 0;}
-	Matrix(int Rows, int Cols){matrix = vector<vector<T> >(Rows, vector<T>(Cols,0)); transpose = false; cols = Cols; rows = Rows;}
-	Matrix(const Matrix<T> &M){matrix = M.matrix; transpose = M.transpose; cols = M.cols; rows = M.rows;}
-	Matrix(vector<T> &horizontal){matrix = vector<vector<T> >(1, vector<T>(horizontal)); transpose = false; cols = horizontal.size(); rows = 1;}
-	Matrix(int size);
-	~Matrix(){}
+	//all constructors are uninitialized matrixes
+	Matrix(unsigned rows, unsigned cols);
+	Matrix(const Matrix<T> &B);
+	Matrix(vector<T> &horizontal);
+	Matrix(unsigned size);
+	~Matrix();
 
-	void print() const;
-	
-	pair<int,int> size(){return pair<int,int>(rows, cols);}
-
+	void operator=(Matrix B);
 	void operator=(vector<T>& v);
 	void operator=(T v[]);
-	bool operator==(Matrix<T>& m);
 
-	void t(){transpose = !transpose; int aux = cols; cols = rows; rows = aux;} //transpose Matrix  //WIP. needs refactoring
+	void Zero();
+	void nameElements();
 
-	T& operator()(int row, int col){if(transpose) return matrix[col][row]; else return matrix[row][col];}	//WIP. needs refactoring
-	T elemConst(int row, int col) const {if(transpose) return matrix[col][row]; else return matrix[row][col];}
-	T& elem(int row, int col){if(transpose) return matrix[col][row]; else return matrix[row][col];}	//WIP. needs refactoring
-	//Idk the refactor's name, but the idea is to take away the if and make: t(){/*change what operator() does*/}
+	bool operator==(Matrix<T> B);
+
+	pair<unsigned,unsigned> size(){return pair<unsigned,unsigned>(rows, cols);}
+
+	void t();
+	Matrix<T> tr() const;
+
+	T& operator() (unsigned row, unsigned col){return M[row*rcont + col*ccont];}	//i won't check for limits to improve performance... later i'll check if it makes sense
+	T  operator() (unsigned row, unsigned col) const {return M[row*rcont + col*ccont];}
+
+	void print() const;
+
 
 	Matrix<T> operator+(Matrix<T>& m);
 	void operator+=(Matrix<T>& m);
@@ -61,57 +72,102 @@ public:
 
 	int GaussianElimination();
 
-	void swapRow(int,int);
-
 private:
-	vector<vector<T> > matrix;
-	bool transpose;
-	int cols;
-	int rows;
+	T* M;
+	bool transpose = false;
+	unsigned rows;
+	unsigned cols;
+	unsigned rcont;
+	unsigned ccont = 1;
+
+	T& elem (unsigned row, unsigned col){return M[row*rcont + col*ccont];}
+	T  elemConst (unsigned row, unsigned col) const {return M[row*rcont + col*ccont];}
+	void swapRow(unsigned ,unsigned );
 };
 
 template <class T>
-void Matrix<T>::swapRow(int i, int j)
+Matrix<T>::Matrix(unsigned r, unsigned c)
 {
-	if(i != j && i >= 0 && j >= 0 && i < rows && j < cols)
+	if(r < 1 || c < 1)
+		throw zeroCells;
+	rows = r;
+	cols = c;
+	rcont = cols;
+	M = new T[r*c];
+}
+
+template <class T>
+Matrix<T>::Matrix(const Matrix<T> &B)
+{
+	rows = B.rows;
+	cols = B.cols;
+	rcont = B.rcont;
+	ccont = B.ccont;
+	M = new T[rows * cols];
+	for(unsigned i = 0; i < rows*cols; i++)
+		M[i] = B.M[i];
+	transpose = B.transpose;
+}
+
+template <class T>
+Matrix<T>::Matrix(vector<T> &horizontal)
+{
+	if(horizontal.size() < 1)
+		throw zeroCells;
+	rows = 1;
+	cols = horizontal.size();
+	rcont = cols;
+	M = new T[rows * cols];
+}
+template <class T>
+Matrix<T>::Matrix(unsigned size)
+{
+	if(size < 1)
+		throw zeroCells;
+	rows = size;
+	cols = size;
+	rcont = cols;
+	M = new T[size*size];
+}
+
+template <class T>
+Matrix<T>::~Matrix()
+{
+	delete[] M;
+}
+
+template <class T>
+void Matrix<T>::operator=(Matrix B)	//if B was transposed in O(1), *this will be equal to B but without the flag
+{
+	//if(rows*cols != B.rows*B.cols)	//This is the least B must ensure
+
+	if(rows != B.rows || cols != B.cols)//However, this might help avoid mistakes
+		throw wrongDim;
+
+	if(!B.transpose)
 	{
-		if(!transpose)
+		for(unsigned i = 0; i < rows*cols; i++)
 		{
-			vector<T> v = move(matrix[i]);	//this cast matrix[] as rvalue, and use the move assignment. O(1)?
-			matrix[i] = move(matrix[j]);
-			matrix[j] = move(v);
-			
+			M[i] = B.M[i];
+			//cout << "M[" << i <<  "] = B.M[" << i << "] => " << M[i] << " = " << B.M[i] << endl;
 		}
-		else
+
+	}
+	else
+	{
+		for(unsigned i = 0; i < rows; i++)
 		{
-			T aux;
-			for(int k = 0; k < cols; k++)	//here I have elements from different vectors.
+			for(unsigned j = 0; j < cols; j++)
 			{
-				aux = elem(i,k);
-				elem(i,k) = elem(j,k);
-				elem(j,k) = aux;
+				M[i*cols + j] = B.M[j*rows + i];
 			}
 		}
 	}
+	rcont = cols;
+	ccont = 1;
+	transpose = false;
 }
 
-template <class T>
-Matrix<T> Id(int size)
-{
-	Matrix<T> res(size);
-	for(int i = 0; i < size; i++)
-	{
-		res(i,i) = T(1.0);
-	}
-	return res;
-}
-
-template <class T>
-Matrix<T>::Matrix(int size)
-{
-	matrix = vector<vector<T> >(size, vector<T>(size,T(0.0)));
-	transpose = false; cols = size; rows = size;
-}
 
 template <class T>
 void Matrix<T>::operator=(vector<T>& v)
@@ -119,11 +175,11 @@ void Matrix<T>::operator=(vector<T>& v)
 	if(v.size() != rows*cols)
 		throw wrongDim;
 
-	for(int i = 0; i < rows; i++)
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(int j = 0; j < cols; j++)
+		for(unsigned j = 0; j < cols; j++)
 		{
-			elem(i,j) = v[(i*rows)+j];
+			elem(i,j) = v[(i*cols)+j];
 		}
 	}
 }
@@ -132,10 +188,10 @@ template <class T>
 void Matrix<T>::operator=(T v[])
 {
 	//WARNING: can't check for size
-	
-	for(int i = 0; i < rows; i++)
+
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(int j = 0; j < cols; j++)
+		for(unsigned j = 0; j < cols; j++)
 		{
 			elem(i,j) = v[(i*cols)+j];
 		}
@@ -143,36 +199,110 @@ void Matrix<T>::operator=(T v[])
 }
 
 template <class T>
-bool Matrix<T>::operator==(Matrix<T>& m)
+bool Matrix<T>::operator==(Matrix<T> B)
 {
-	if(rows == m.rows && cols == m.cols)
+	if(rows != B.rows || cols != B.cols)
+		return false;
+
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(int i = 0; i < rows; i++)
+		for(unsigned j = 0; j < cols; j++)
 		{
-			for(int j = 0; j < cols; j++)
+			if(elem(i,j) != B(i,j))
 			{
-				if(elem(i,j) != m(i,j))
-					return false;
+				//cout << i << ", " << j << " : elem=" << elem(i,j) << " , B=" << B(i,j) << endl; 
+				return false;
 			}
 		}
-		return true;
 	}
-	return false;
+	return true;
+}
+
+template <class T>
+Matrix<T> Id(unsigned size)
+{
+	Matrix<T> res(size);
+	for(unsigned i = 0; i < size; i++)
+	{
+		for(unsigned j = 0; j < size; j++)
+		{
+			res(i,j) = (i==j);
+		}
+	}
+	return res;
+}
+
+template <class T>
+Matrix<T> Zero(unsigned size)
+{
+	Matrix<T> res(size);
+	for(unsigned i = 0; i < size; i++)
+	{
+		for(unsigned j = 0; j < size; j++)
+		{
+			res(i,j) = 0;
+		}
+	}
+	return res;
+}
+
+template <class T>
+void Matrix<T>::Zero()
+{
+	for(unsigned i = 0; i < rows * cols; i++)
+	{
+		M[i] = 0;
+	}
+}
+
+template <class T>
+void Matrix<T>::nameElements()
+{
+	for(unsigned i = 0; i < rows*cols; i++)
+	{
+		M[i] = i;
+	}
+}
+
+template <class T>
+void Matrix<T>::t()
+{
+	swap(rows, cols);
+	swap(rcont, ccont);
+	transpose = !transpose;
+}
+
+template <class T>
+Matrix<T> Matrix<T>::tr() const
+{
+	if(transpose)	//was transposed in O(1), so i just need to copy what i have in memory and mark it as not transposed.
+	{
+		Matrix<T> res(*this);
+		res.t();
+		return res;
+	}
+	else		
+	{
+		Matrix<T> res(this->cols, this->rows);
+		for(unsigned i = 0; i < rows; i++)
+		{
+			for(unsigned j = 0; j < cols; j++)
+			{
+				res.M[j*rows + i] = M[i*cols + j];
+			}
+		}
+		return res;
+	}
 }
 
 template <class T>
 void Matrix<T>::print() const
 {
-	/*
-	cout << "rows: " << rows << ", cols: " << cols << endl;
-	cout << "rows: " << matrix.size() << ", cols: " << matrix[0].size() << endl;
-	cout << "transpose = " << boolalpha << transpose << endl;
-	*/
-	int maxSize = 1;
-	int elemSize;
-	for(int i = 0; i < rows; i++)
+	unsigned maxSize = 1;
+	unsigned elemSize;
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(int j = 0; j < cols; j++)
+		for(unsigned j = 0; j < cols; j++)
 		{
 			elemSize = tostr(elemConst(i,j)).size();
 			maxSize = max(maxSize, elemSize);
@@ -182,16 +312,16 @@ void Matrix<T>::print() const
 
 	cout << "╭";
 
-	for (int j = 0; j < cols - 1; j++) {
+	for (unsigned j = 0; j < cols - 1; j++) {
 		cout << setw(maxSize) << elemConst(0, j) << ", ";
 	}
 
 	cout << setw(maxSize) << elemConst(0, cols-1) << "╮" << endl;
 
-	for (int i = 1; i < rows - 1; i++) {
+	for (unsigned i = 1; i < rows - 1; i++) {
 		cout << "│";
 
-		for (int j = 0; j < cols - 1; j++) {
+		for (unsigned j = 0; j < cols - 1; j++) {
 			cout << setw(maxSize) << elemConst(i, j) << ", ";
 		}
 
@@ -200,25 +330,27 @@ void Matrix<T>::print() const
 
 	cout << "╰";
 
-	for (int j = 0; j < cols - 1; j++) {
+	for (unsigned j = 0; j < cols - 1; j++) {
 		cout << setw(maxSize) << elemConst(rows-1, j) << ", ";
 	}
 
-	cout << setw(maxSize) << elemConst(rows-1, cols-1) << "╯" << endl << endl;
+	cout << setw(maxSize) << elemConst(rows-1, cols-1) << "╯" << endl/*;
+
+	cout << "***********" << endl << "t = " << boolalpha << transpose << endl << "rows = " << rows << endl << "cols = " << cols << endl << "rcont = " << rcont << endl;
+	cout << "ccont = " << ccont << endl*/ << endl;
 }
 
 template <class T>
 Matrix<T> Matrix<T>::operator+(Matrix<T>& m)
 {
 	Matrix<T> res(*this);
-
-	if(this->size() != m.size())
+	if(rows != m.rows || cols != m.cols)
 		throw wrongDim;
 	else
 	{
-		for(int i = 0; i < rows; i++)
+		for(unsigned i = 0; i < rows; i++)
 		{
-			for(int j = 0; j < cols; j++)
+			for(unsigned j = 0; j < cols; j++)
 			{
 				res(i,j) = elemConst(i,j) + m(i,j);
 			}
@@ -234,9 +366,9 @@ void Matrix<T>::operator+=(Matrix<T>& m)
 		throw wrongDim;
 	else
 	{
-		for(int i = 0; i < rows; i++)
+		for(unsigned i = 0; i < rows; i++)
 		{
-			for(int j = 0; j < cols; j++)
+			for(unsigned j = 0; j < cols; j++)
 			{
 				elem(i,j) += m(i,j);
 			}
@@ -249,9 +381,9 @@ Matrix<T> Matrix<T>::operator+(T e)
 {
 	Matrix<T> res(*this);
 
-	for(int i = 0; i < rows; i++)
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(int j = 0; j < cols; j++)
+		for(unsigned j = 0; j < cols; j++)
 		{
 			res(i,j) *= e; 
 		}
@@ -262,9 +394,9 @@ Matrix<T> Matrix<T>::operator+(T e)
 template <class T>
 void Matrix<T>::operator+=(T e)
 {
-	for(int i = 0; i < rows; i++)
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(int j = 0; j < cols; j++)
+		for(unsigned j = 0; j < cols; j++)
 		{
 			elem(i,j) *= e; 
 		}
@@ -280,9 +412,9 @@ Matrix<T> Matrix<T>::operator-(Matrix<T>& m)
 		throw wrongDim;
 	else
 	{
-		for(int i = 0; i < rows; i++)
+		for(unsigned i = 0; i < rows; i++)
 		{
-			for(int j = 0; j < cols; j++)
+			for(unsigned j = 0; j < cols; j++)
 			{
 				res(i,j) = elemConst(i,j) - m(i,j);
 			}
@@ -298,9 +430,9 @@ void Matrix<T>::operator-=(Matrix<T>& m)
 		throw wrongDim;
 	else
 	{
-		for(int i = 0; i < rows; i++)
+		for(unsigned i = 0; i < rows; i++)
 		{
-			for(int j = 0; j < cols; j++)
+			for(unsigned j = 0; j < cols; j++)
 			{
 				elem(i,j) -= m(i,j);
 			}
@@ -313,9 +445,9 @@ Matrix<T> Matrix<T>::operator-(T e)
 {
 	Matrix<T> res(*this);
 
-	for(int i = 0; i < rows; i++)
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(int j = 0; j < cols; j++)
+		for(unsigned j = 0; j < cols; j++)
 		{
 			res(i,j) = elemConst(i,j) - e; 
 		}
@@ -326,9 +458,9 @@ Matrix<T> Matrix<T>::operator-(T e)
 template <class T>
 void Matrix<T>::operator-=(T e)
 {
-	for(int i = 0; i < rows; i++)
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(int j = 0; j < cols; j++)
+		for(unsigned j = 0; j < cols; j++)
 		{
 			elem(i,j) -= e; 
 		}
@@ -343,11 +475,12 @@ Matrix<T> Matrix<T>::operator*(Matrix<T>& m)
 		throw wrongDim;
 	else
 	{
-		for(int i = 0; i < rows; i++)
+		for(unsigned i = 0; i < rows; i++)
 		{
-			for(int j = 0; j < m.cols; j++)
+			for(unsigned j = 0; j < m.cols; j++)
 			{
-				for(int k = 0; k < cols; k++)
+				res(i,j) = 0;
+				for(unsigned k = 0; k < cols; k++)
 				{
 					res(i,j) += elemConst(i,k) * m(k,j);
 				}
@@ -362,9 +495,9 @@ Matrix<T> Matrix<T>::operator*(T e)
 {
 	Matrix<T> res(*this);
 
-	for(int i = 0; i < rows; i++)
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(int j = 0; j < cols; j++)
+		for(unsigned j = 0; j < cols; j++)
 		{
 			res(i,j) *= e; 
 		}
@@ -375,9 +508,9 @@ Matrix<T> Matrix<T>::operator*(T e)
 template <class T>
 void Matrix<T>::operator*=(T e)
 {
-	for(int i = 0; i < rows; i++)
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(int j = 0; j < cols; j++)
+		for(unsigned j = 0; j < cols; j++)
 		{
 			elem(i,j) *= e; 
 		}
@@ -392,17 +525,32 @@ inline T abs(T e)
 	return e;
 }
 
+template <class T>
+void Matrix<T>::swapRow(unsigned i, unsigned j)
+{
+	if(i != j && i >= 0 && j >= 0 && i < rows && j < cols)
+	{
+		T aux;
+		for(unsigned k = 0; k < cols; k++)
+		{
+			aux = elem(i,k);
+			elem(i,k) = elem(j,k);
+			elem(j,k) = aux;
+		}
+	}
+}
+
 //replace original matrix. Returns operations value (for determinant).
 //I advice to use Fraction as T if the original matrices have only integers.
 template <class T>
-int Matrix<T>::GaussianElimination(/*Matrix<T>& Extra = Matrix<T>()*/)	//extra is optional
+int Matrix<T>::GaussianElimination()
 {
 	int det = 1;
-	for(int k = 0; k < min(rows, cols); k++)
+	for(unsigned k = 0; k < min(rows, cols); k++)
 	{
 		T maxAbs = abs<T>(elem(k,k));
-		int pibot = k;
-		for(int m = k+1; m < rows; m++)
+		unsigned pibot = k;
+		for(unsigned m = k+1; m < rows; m++)
 		{
 			if(abs<T>(elem(m,k)) > maxAbs)
 			{
@@ -423,15 +571,14 @@ int Matrix<T>::GaussianElimination(/*Matrix<T>& Extra = Matrix<T>()*/)	//extra i
 			det = -det;
 		}
 
-		for(int i = k+1; i < rows; i++)
+		for(unsigned i = k+1; i < rows; i++)
 		{
 			T f = elem(i,k) / elem(k,k);
 
-			for(int j = k+1; j < cols; j++)
+			for(unsigned j = k+1; j < cols; j++)
 			{
 				elem(i,j) -= elem(k,j) * f;
 			}
-			//Extra(i,1) -= Extra(k,1) * f;
 
 			elem(i,k) = 0;
 		}
