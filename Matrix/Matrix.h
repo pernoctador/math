@@ -560,7 +560,7 @@ int Matrix<T>::GaussianElimination()
 		}
 		if(elem(pibot,k) == 0)
 		{
-			cout << "Matrix is singular" << endl;	//in Gaussian Elimination this should not always be an exception
+			cerr << "Matrix is singular" << endl;	//in Gaussian Elimination this should not always be an exception
 			det = 0;
 		}
 		else

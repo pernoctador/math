@@ -156,7 +156,7 @@ void GaussianEliminationTest()
 
 	assert(det == 120);
 
-	Fraction second[] = {10,6,30,5,3,15,4,8,9};
+	Fraction second[] = {4,8,9,5,3,15,10,6,30};
 	a = second;
 
 	det = a.GaussianElimination();
@@ -170,7 +170,7 @@ void GaussianEliminationTest()
 int main()
 {
 	//printTest();
-	//basicMatrixOperations();
+	basicMatrixOperations();
 	GaussianEliminationTest();
 	
 	return 0;

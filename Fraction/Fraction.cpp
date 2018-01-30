@@ -162,7 +162,7 @@ Fraction Fraction::operator/(Fraction f)
 		Fraction a = normal(num, f.num);
 		Fraction b = normal(f.den, den);
 		
-		if(b.num == 0) return Fraction(0);
+		if(b.num == 0) return Fraction(0);	//should NEVER happen: b is f.den/den so both should be non-zero
 		if(LONG_MAX/abs(b.num) <= abs(num) || LONG_MAX/abs(b.den) <= (den))
 		{
 			double newDen = a.den;

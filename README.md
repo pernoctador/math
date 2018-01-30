@@ -21,11 +21,11 @@ There is a couple of functions and constants to show properties of the class.
 
 Working on a Newton's algorithm for roots. It should be better than std::pow(base, 1/root) and would also be improved with fractions. 
 
-## Matrix (WIP)
+## Matrix Beta
 
 C++ class for math matrices, with the standard operations and other more interesting operations  
 
- * Done: Transpose in O(1), GaussianElimination  
+ * Done: Basic opeartions, transpose in O(1), fixing transpose at copy, GaussianElimination  
 
  * TODO: LU, LDLt and QR factorization, eigenvalues and eigenvectors, inverse...
 
