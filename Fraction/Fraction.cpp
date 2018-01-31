@@ -41,13 +41,14 @@ Fraction Fraction::normal(long n, long d)
 		if(n == 0)
 			return Fraction(0,1);
 
-		if(d < 1e-18)	//if absolute values are way too big, they create a lot of problems
+		//if absolute values are way too big, they create a lot of problems. LONG_MIN is a specific troublesome case.
+		if(d < 1e-18)
 		{
 			//cerr << "Fraction aproximation" << endl;
 			long double fix;
-			if(n > 0)	//i'm doing this because abs(-LONG_MAX) is still -LONG_MAX
+			if(n > 0)	//i'm doing this because abs(LONG_MIN) is still LONG_MIN
 			{
-				if(-n > d)
+				if(-n > d)	//I'll reduce both numbers to as much as 17 digits.
 				{
 					fix = d/99999999999999999;
 					d = 99999999999999999;
@@ -76,7 +77,7 @@ Fraction Fraction::normal(long n, long d)
 				}
 			}
 		}
-		if(d > 1e18)	//if absolute values are way too big, they create a lot of problems
+		if(d > 1e18)
 		{
 			//cerr << "Fraction aproximation" << endl;
 			long double fix;
@@ -113,7 +114,8 @@ Fraction Fraction::normal(long n, long d)
 		}
 
 		long g = gcd(n,d); 
-		cout << "num = " << num << " , den = " << den  << " , g = " << g << endl; 
+		//cout << "num = " << num << " , den = " << den  << " , g = " << g << endl;
+		g = abs(g);
 		n/=g; 
 		d/=g; 
 		if(d < 0)
@@ -135,11 +137,12 @@ void Fraction::normalize()
 			den = 1;
 		else
 		{
-			if(den < 1e-18)	//if absolute values are way too big, they create a lot of problems
+			//if absolute values are way too big, they create a lot of problems. LONG_MIN is a specific troublesome case.
+			if(den < 1e-18)
 			{
 				//cerr << "Fraction aproximation" << endl;
 				long double fix;
-				if(num > 0)	//i'm doing this because abs(-LONG_MAX) is still -LONG_MAX
+				if(num > 0)	//i'm doing this because abs(LONG_MIN) is still LONG_MIN
 				{
 					if(-num > den)
 					{
@@ -208,6 +211,7 @@ void Fraction::normalize()
 
 			long g = gcd(num,den); 
 			//cout << "num = " << num << " , den = " << den  << " , g = " << g << endl;
+			g = abs(g);
 			num/=g; 
 			den/=g; 
 			if(den < 0)

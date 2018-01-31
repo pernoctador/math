@@ -411,9 +411,9 @@ void testInfoOverflow()
 
 void testNewtonRoot()
 {
-	for(double base = 8.5; base < 20; base += 0.5)
+	for(double base = 6; base < 16; base += 0.5)
 	{
-		for(long exp = 2; exp < 10; exp++)
+		for(long exp = 2; exp < 6; exp++)
 		{
 			long power = pow(base,exp); //ok
 
@@ -436,8 +436,8 @@ void testNewtonRoot()
 						break;
 				}
 				cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
-				cout << "dif = " << abs(res-base) << endl;
-				cout << "    X1 = " << round((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
+				//cout << "dif = " << abs(res-base) << endl;
+				//cout << "    X1 = " << round((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
 			}
 		}
 	}
@@ -445,8 +445,8 @@ void testNewtonRoot()
 
 void testNewtonRootWithFractions()
 {
-	/*
-	for(double base = 8.5; base < 20; base += 0.5)
+	
+	for(double base = 2; base < 20; base += 0.5)
 	{
 		for(long exp = 2; exp < 10; exp++)
 		{
@@ -471,11 +471,11 @@ void testNewtonRootWithFractions()
 						break;
 				}
 				cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
-				cout << "    X1 = " << round((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
+				//cout << "    X1 = " << round((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
 			}
 		}
 	}
-	
+	/*
 	long power = pow(9,9), exp = 9;
 	double s=1, t = power, r = 0;
 	int i;
@@ -493,10 +493,11 @@ void testNewtonRootWithFractions()
 		cout << " , s = " << s << " , t = " << t << endl;
 	}
 	cout << "    X1 = " << ((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
-	*/
-	long power = pow(9,9), exp = 9;
+	
+	long power = pow(17.5,9), exp = 9;
 	double res = root(power, exp);
 	cout << res << endl;
+	*/
 }
 
 
@@ -525,7 +526,7 @@ int main()
 	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
 	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
 */
-	//testNewtonRoot();
-	testNewtonRootWithFractions();
+	testNewtonRoot();
+	//testNewtonRootWithFractions();
 	return 0;
 }
