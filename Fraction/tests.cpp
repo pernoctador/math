@@ -409,19 +409,20 @@ void testInfoOverflow()
 	
 }
 
-void testNewtonRootWithFractions()
+void testNewtonRoot()
 {
-	
-	for(double base = 2; base < 20; base += 0.5)
+	for(double base = 8.5; base < 20; base += 0.5)
 	{
 		for(long exp = 2; exp < 10; exp++)
 		{
 			long power = pow(base,exp); //ok
-			double res = root(power, exp);
-			cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
-			if(abs(res-base) > 1e-10)
+
+			//cout << "root(" << base << "^" << exp << ", " << exp << "):" << endl;
+			double res = root_d(power, exp);
+			//cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
+			if(abs(res-base) > 1e-5)
 			{
-				
+				//cout << "dif = " << abs(res-base) << endl;
 				double s=1, t = power, r = 0;
 				int i;
 				for(i = 0; i < exp*2 && s <= t && abs(r-power) > exp; i++)
@@ -434,12 +435,48 @@ void testNewtonRootWithFractions()
 					if(r == power)
 						break;
 				}
+				cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
+				cout << "dif = " << abs(res-base) << endl;
 				cout << "    X1 = " << round((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
 			}
 		}
 	}
+}
+
+void testNewtonRootWithFractions()
+{
 	/*
-	long power = 27, exp = 3;
+	for(double base = 8.5; base < 20; base += 0.5)
+	{
+		for(long exp = 2; exp < 10; exp++)
+		{
+			long power = pow(base,exp); //ok
+
+			//cout << "root(" << base << "^" << exp << ", " << exp << "):" << endl;
+			double res = root(power, exp);
+			//cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
+			if(abs(res-base) > 1e-10)
+			{
+				//cout << "dif = " << abs(res-base) << endl;
+				double s=1, t = power, r = 0;
+				int i;
+				for(i = 0; i < exp*2 && s <= t && abs(r-power) > exp; i++)
+				{
+					r = pow((t+s)/2, exp);
+					if(r < power)
+						s = floor((t+s)/2);
+					if(r > power)
+						t = ceil((t+s)/2);
+					if(r == power)
+						break;
+				}
+				cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
+				cout << "    X1 = " << round((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
+			}
+		}
+	}
+	
+	long power = pow(9,9), exp = 9;
 	double s=1, t = power, r = 0;
 	int i;
 	for(i = 0; i < power && s <= t && abs(r-power) > exp; i++)
@@ -457,6 +494,9 @@ void testNewtonRootWithFractions()
 	}
 	cout << "    X1 = " << ((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
 	*/
+	long power = pow(9,9), exp = 9;
+	double res = root(power, exp);
+	cout << res << endl;
 }
 
 
@@ -472,16 +512,20 @@ void testDensity()
 
 int main()
 {
+	/*
 	someInfo();
 	testDensity();
 	testCloseToZeroNumbers();
+	*/
 	//testInfoOverflow();
 
 	//testPrint();
-	
+	/*
 	testBasicFractions();	//basic tests for every operation
 	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
 	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
-
+*/
+	//testNewtonRoot();
+	testNewtonRootWithFractions();
 	return 0;
 }

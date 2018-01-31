@@ -117,6 +117,8 @@ public:
 
 	Fraction idiv(long i, Fraction& f){return normal(f.denominator()*i, f.numerator());}	//not very usefull, as i / f = 1/f * i
 
+	//vector<int> continuedForm();
+
 	
 	operator int(){return num/den;}
 	operator long(){return num/den;}
@@ -153,5 +155,69 @@ Fraction root(Fraction f, long l);
 double logb(Fraction f, long base);
 double log(Fraction f);
 double log10(Fraction f);
+
+inline double root(long base, long exp)
+{
+	double s=1, t = base, r = 0;
+	for(int i = 0; i < exp*2 && s <= t && abs(r-base) > exp; i++)
+	{
+		r = pow(round((t+s)/2), exp);
+		if(r < base)
+			s = floor((t+s)/2);
+		if(r > base)
+			t = ceil((t+s)/2);
+		if(r == base)
+			return round((t+s)/2);
+	}
+
+	Fraction x = round((t+s)/2);
+
+	//second: Newton
+	Fraction a,b,c,d, prevX = 0, baseF = base;
+	a(1,exp);
+	//cout << "a: " << a << endl;
+
+	
+	//cout << "x: " << x << endl;
+
+	int cont = 0;
+	double dif = base;
+	//cout << "	****	dist = " << (double)abs(x - prevX) << endl << endl;
+	while((double)abs(x - prevX) > 1e-14 && abs(x - prevX) < dif && cont < 100000)
+	{
+		try{
+			dif = (double)abs(x - prevX);
+			prevX = x;
+			cont++;
+
+			b((exp-1));
+			b = b * x;
+			//cout << "b: " << b << endl;
+			c = pow(x,exp-1);
+			//cout << "c: " << c << endl;
+			//cout << c << " = pow(" << x << ", " << exp-1 << ")" << endl;
+			//check here:
+			d = baseF/c;
+			//cout << "d: " << d << endl;
+			x = a * (b + d);
+			//cout << "x: " << x << " = " << (double)x << " , prevX = " << prevX << endl << endl;
+			//cout << "	****	dist = " << (double)abs(x - prevX) << endl << endl;
+		}
+		catch(exception& e)
+		{
+			cout << e.what() << endl;
+		}
+	}
+
+	if (abs(x - prevX) >= dif)
+	{
+		//cout << "	Getting worst: actualDif: " << (double)abs(x - prevX) << " , prevDif: " << dif << endl;
+		return (double)prevX;
+	}
+
+	//cout << "	 -- : " << (double)abs(x - prevX) << " , " << dif << " , " << cont << endl;
+
+	return (double)x;
+}
 
 #endif

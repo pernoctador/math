@@ -41,7 +41,79 @@ Fraction Fraction::normal(long n, long d)
 		if(n == 0)
 			return Fraction(0,1);
 
+		if(d < 1e-18)	//if absolute values are way too big, they create a lot of problems
+		{
+			//cerr << "Fraction aproximation" << endl;
+			long double fix;
+			if(n > 0)	//i'm doing this because abs(-LONG_MAX) is still -LONG_MAX
+			{
+				if(-n > d)
+				{
+					fix = d/99999999999999999;
+					d = 99999999999999999;
+					n = round(n/fix);
+				}
+				else
+				{
+					fix = n/99999999999999999;
+					n = 99999999999999999;
+					d = round(d/fix);
+				}
+			}
+			else
+			{
+				if(n > d)
+				{
+					fix = d/99999999999999999;
+					d = 99999999999999999;
+					n = round(n/fix);
+				}
+				else
+				{
+					fix = n/99999999999999999;
+					n = 99999999999999999;
+					d = round(d/fix);
+				}
+			}
+		}
+		if(d > 1e18)	//if absolute values are way too big, they create a lot of problems
+		{
+			//cerr << "Fraction aproximation" << endl;
+			long double fix;
+			if(n > 0)
+			{
+				if(d > n)
+				{
+					fix = d/99999999999999999;
+					d = 99999999999999999;
+					n = round(n/fix);
+				}
+				else
+				{
+					fix = n/99999999999999999;
+					n = 99999999999999999;
+					d = round(d/fix);
+				}
+			}
+			else
+			{
+				if(-d < n)
+				{
+					fix = d/99999999999999999;
+					d = 99999999999999999;
+					n = round(n/fix);
+				}
+				else
+				{
+					fix = n/99999999999999999;
+					n = 99999999999999999;
+					d = round(d/fix);
+				}
+			}
+		}
+
 		long g = gcd(n,d); 
+		cout << "num = " << num << " , den = " << den  << " , g = " << g << endl; 
 		n/=g; 
 		d/=g; 
 		if(d < 0)
@@ -63,7 +135,79 @@ void Fraction::normalize()
 			den = 1;
 		else
 		{
+			if(den < 1e-18)	//if absolute values are way too big, they create a lot of problems
+			{
+				//cerr << "Fraction aproximation" << endl;
+				long double fix;
+				if(num > 0)	//i'm doing this because abs(-LONG_MAX) is still -LONG_MAX
+				{
+					if(-num > den)
+					{
+						fix = den/99999999999999999;
+						den = 99999999999999999;
+						num = round(num/fix);
+					}
+					else
+					{
+						fix = num/99999999999999999;
+						num = 99999999999999999;
+						den = round(den/fix);
+					}
+				}
+				else
+				{
+					if(num > den)
+					{
+						fix = den/99999999999999999;
+						den = 99999999999999999;
+						num = round(num/fix);
+					}
+					else
+					{
+						fix = num/99999999999999999;
+						num = 99999999999999999;
+						den = round(den/fix);
+					}
+				}
+			}
+			if(den > 1e18)	//if absolute values are way too big, they create a lot of problems
+			{
+				//cerr << "Fraction aproximation" << endl;
+				long double fix;
+				if(num > 0)
+				{
+					if(den > num)
+					{
+						fix = den/99999999999999999;
+						den = 99999999999999999;
+						num = round(num/fix);
+					}
+					else
+					{
+						fix = num/99999999999999999;
+						num = 99999999999999999;
+						den = round(den/fix);
+					}
+				}
+				else
+				{
+					if(-den < num)
+					{
+						fix = den/99999999999999999;
+						den = 99999999999999999;
+						num = round(num/fix);
+					}
+					else
+					{
+						fix = num/99999999999999999;
+						num = 99999999999999999;
+						den = round(den/fix);
+					}
+				}
+			}
+
 			long g = gcd(num,den); 
+			//cout << "num = " << num << " , den = " << den  << " , g = " << g << endl;
 			num/=g; 
 			den/=g; 
 			if(den < 0)
