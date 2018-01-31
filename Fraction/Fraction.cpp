@@ -115,7 +115,7 @@ Fraction Fraction::normal(long n, long d)
 
 		long g = gcd(n,d); 
 		//cout << "num = " << num << " , den = " << den  << " , g = " << g << endl;
-		g = abs(g);
+		g = abs(g);	//another thing needed to avoid SIGFPE
 		n/=g; 
 		d/=g; 
 		if(d < 0)
@@ -211,7 +211,7 @@ void Fraction::normalize()
 
 			long g = gcd(num,den); 
 			//cout << "num = " << num << " , den = " << den  << " , g = " << g << endl;
-			g = abs(g);
+			g = abs(g);	//another thing needed to avoid SIGFPE
 			num/=g; 
 			den/=g; 
 			if(den < 0)

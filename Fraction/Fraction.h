@@ -156,23 +156,23 @@ double logb(Fraction f, long base);
 double log(Fraction f);
 double log10(Fraction f);
 
-inline double root(long base, long exp)
+inline double root_f(double base, long exp)
 {
 	double s=1, t = base, r = 0;
-	for(int i = 0; i < exp*2 && s <= t && abs(r-base) > exp; i++)
+	for(int i = 0; i < log(base)/log(2) && s <= t && abs(r-base) > exp; i++)
 	{
-		r = pow(round((t+s)/2), exp);
+		r = pow((t+s)/2, exp);
 		if(r < base)
 			s = floor((t+s)/2);
 		if(r > base)
 			t = ceil((t+s)/2);
 		if(r == base)
-			return round((t+s)/2);
+			return (t+s)/2;
 	}
 
-	Fraction x = round((t+s)/2);
+	Fraction x = (t+s)/2;
 
-	//second: Newton
+	//Newton
 	Fraction a,b,c,d, prevX = 0, baseF = base;
 	a(1,exp);
 	//cout << "a: " << a << endl;
