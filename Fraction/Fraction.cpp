@@ -42,9 +42,8 @@ Fraction Fraction::normal(long n, long d)
 			return Fraction(0,1);
 
 		//if absolute values are way too big, they create a lot of problems. LONG_MIN is a specific troublesome case.
-		if(d < 1e-18)
+		if(d < -1e18)
 		{
-			//cerr << "Fraction aproximation" << endl;
 			long double fix;
 			if(n > 0)	//i'm doing this because abs(LONG_MIN) is still LONG_MIN
 			{
@@ -79,7 +78,6 @@ Fraction Fraction::normal(long n, long d)
 		}
 		if(d > 1e18)
 		{
-			//cerr << "Fraction aproximation" << endl;
 			long double fix;
 			if(n > 0)
 			{
@@ -112,9 +110,7 @@ Fraction Fraction::normal(long n, long d)
 				}
 			}
 		}
-
 		long g = gcd(n,d); 
-		//cout << "num = " << num << " , den = " << den  << " , g = " << g << endl;
 		g = abs(g);	//another thing needed to avoid SIGFPE
 		n/=g; 
 		d/=g; 
@@ -138,9 +134,8 @@ void Fraction::normalize()
 		else
 		{
 			//if absolute values are way too big, they create a lot of problems. LONG_MIN is a specific troublesome case.
-			if(den < 1e-18)
+			if(den < -1e18)
 			{
-				//cerr << "Fraction aproximation" << endl;
 				long double fix;
 				if(num > 0)	//i'm doing this because abs(LONG_MIN) is still LONG_MIN
 				{
@@ -175,7 +170,6 @@ void Fraction::normalize()
 			}
 			if(den > 1e18)	//if absolute values are way too big, they create a lot of problems
 			{
-				//cerr << "Fraction aproximation" << endl;
 				long double fix;
 				if(num > 0)
 				{
@@ -210,7 +204,6 @@ void Fraction::normalize()
 			}
 
 			long g = gcd(num,den); 
-			//cout << "num = " << num << " , den = " << den  << " , g = " << g << endl;
 			g = abs(g);	//another thing needed to avoid SIGFPE
 			num/=g; 
 			den/=g; 
@@ -294,7 +287,6 @@ Fraction Fraction::operator*(Fraction f)
 		double newNum = max(a.num, b.num) / newDen;
 		newNum *= min(a.num, b.num);
 		Fraction h(newNum);
-		cerr << "aproximating " << a.num << "/" << a.den << " / " << b.den << "/" << b.num << " as " << h << endl;
 		return h;
 	}
 	else
@@ -318,7 +310,6 @@ Fraction Fraction::operator/(Fraction f)
 			double newNum = max(a.num, b.num) / newDen;
 			newNum *= min(a.num, b.num);
 			Fraction h(newNum);
-			cerr << "aproximating " << a.num << "/" << a.den << " / " << b.den << "/" << b.num << " as " << h << endl;
 			return h;
 		}
 		else
@@ -379,10 +370,12 @@ void Fraction::operator/=(int i)
 		throw divByZ;
 }
 
-Fraction pow(Fraction f, long l){
+Fraction pow(Fraction f, long l)
+{
 	double n = pow(f.numerator(), l);
 	double d = pow(f.denominator(), l);
-	return Fraction(n/d);
+	return Fraction(n/d);	
+
 }
 double pow(long l, Fraction f)
 {
@@ -418,14 +411,20 @@ Fraction root(Fraction f, long l)
 
 double logb(Fraction f, long base)
 {
-	double res = log(f.numerator())/log(base);
-	res -= log(f.denominator())/log(base);
+	double res = log2(f.numerator())/log2(base);	//log2 is faster than log and log10
+	res -= log2(f.denominator())/log2(base);
 	return res;
 }
 double log(Fraction f)
 {
 	double res = log((double)f.numerator());
 	res -= log((double)f.denominator());
+	return res;
+}
+double log2(Fraction f)
+{
+	double res = log2((double)f.numerator());
+	res -= log2((double)f.denominator());
 	return res;
 }
 double log10(Fraction f)

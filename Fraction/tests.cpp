@@ -23,6 +23,15 @@ void someInfo()
 
 }
 
+void testDensity()
+{
+	cout << "Density between 0,1:                | 1,2              | 1e6,1e6+1   | 1e14,1e14+1 | 1e15-1,1e15 | 1e17-10,1e17 | 1e19-10000,1e19 | 1e19-1000,1e19" << endl;
+	cout << "    Doubles:    " << doublesIn(0,1) << " | " << doublesIn(1,2) << " | " << doublesIn(1e6,1e6+1) << "  | " << doublesIn(1e14,1e14+1) << "          | ";
+	cout << doublesIn(1e15-1,1e15) << "           | " << doublesIn(1e17-10,1e17) << "            | " << doublesIn(1e19-10000,1e19) << "               | " << doublesIn(1e19-1000,1e19) << endl;
+
+	cout << "    Fractions:  " << fractionsIn(0,1) << "         | " << fractionsIn(1,2) << "      | " << fractionsIn(1e6,1e6+1) << " | " << fractionsIn(1e14,1e14+1) << " | ";
+	cout << fractionsIn(1e15-1,1e15) << " | " << fractionsIn(1e17-10,1e17) << "         | " << fractionsIn(1e19-10000,1e19) << "               | " << fractionsIn(1e19-1000,1e19) << endl << endl;
+}
 
 void testPrint()
 {
@@ -93,6 +102,7 @@ void testBasicFractions()
 	assert(b + 2 == 2.5);
 	c(1,-6);
 	assert(a - b == c);
+	
 	assert(a - 0.5 == c);	
 	assert(b - 2 == -1.5);
 	c(1,6);
@@ -409,118 +419,59 @@ void testInfoOverflow()
 	
 }
 
-void testNewtonRoot()
+void logTimes()
 {
-	for(double base = 2; base < 30; base += 0.5)
+	double ttime = 0, ttime2 = 0, ttime2Int = 0, ttime10 = 0;
+	for(double i = 1; i < 10000; i+=0.2)
 	{
-		for(long exp = 2; exp < 20; exp++)
+		double time = 0, time2 = 0, time2Int = 0, time10 = 0;
+		clock_t watcher;
+		for(int k = 0; k < 1000; k++)
 		{
-			double power = pow(base,exp); //ok
-			double res = root_d(power, exp);
-			if(abs(res-base) > 1e-10)
-			{
-				cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
-			}
+			watcher = clock();
+			log(i);
+			watcher = clock() - watcher;
+			time += watcher;
+
+			watcher = clock();
+			log2(i);
+			watcher = clock() - watcher;
+			time2 += watcher;
+
+			watcher = clock();
+			log2Int(i);
+			watcher = clock() - watcher;
+			time2Int += watcher;
+
+			watcher = clock();
+			log10(i);
+			watcher = clock() - watcher;
+			time10 += watcher;
 		}
+		ttime += time/1000;
+		ttime2 += time2/1000;
+		ttime2Int += time2Int/1000;
+		ttime10 += time10/1000;
 	}
 
-	for(double power = 0.1; power < 1; power += 0.000001)
-	{
-		for(long exp = 2; exp < 20; exp++)
-		{
-			double res = root_d(power, exp);
-			if(abs(pow(res,exp)-power) > 1e-10)
-			{
-				cout << power << " =? " << res << "^" << exp << " = " << pow(res,exp) << endl;
-			}
-		}
-	}
-}
-
-void testNewtonRootWithFractions()
-{
-	
-	for(double base = 2; base < 30; base += 0.5)
-	{
-		for(long exp = 2; exp < 20; exp++)
-		{
-			double power = pow(base,exp); //ok
-
-			//cout << "root(" << base << "^" << exp << ", " << exp << "):" << endl;
-			double res = root_f(power, exp);
-			//cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
-			if(abs(res-base) > 1e-10)
-			{
-				//cout << "dif = " << abs(res-base) << endl;
-				double s=1, t = power, r = 0;
-				int i;
-				for(i = 0; i < exp*2 && s <= t && abs(r-power) > exp; i++)
-				{
-					r = pow((t+s)/2, exp);
-					if(r < power)
-						s = floor((t+s)/2);
-					if(r > power)
-						t = ceil((t+s)/2);
-					if(r == power)
-						break;
-				}
-				cout << "root(" << base << "^" << exp << ", " << exp << ") = " << res << endl;
-				//cout << "    X1 = " << round((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
-			}
-		}
-	}
-	/*
-	long power = pow(9,9), exp = 9;
-	double s=1, t = power, r = 0;
-	int i;
-	for(i = 0; i < power && s <= t && abs(r-power) > exp; i++)
-	{
-		r = pow((t+s)/2, exp);
-		cout << "        r = " << r;
-		if(r < power)
-			s = floor((t+s)/2);
-		if(r > power)
-			t = ceil((t+s)/2);
-		if(r == power)
-			break;
-
-		cout << " , s = " << s << " , t = " << t << endl;
-	}
-	cout << "    X1 = " << ((t+s)/2) << " & i = " << i << " & s = " << s << " & t = " << t << endl;
-	
-	long power = pow(17.5,9), exp = 9;
-	double res = root(power, exp);
-	cout << res << endl;
-	*/
-}
-
-
-void testDensity()
-{
-	cout << "Density between 0,1:                | 1,2              | 1e6,1e6+1   | 1e14,1e14+1 | 1e15-1,1e15 | 1e17-10,1e17 | 1e19-10000,1e19 | 1e19-1000,1e19" << endl;
-	cout << "    Doubles:    " << doublesIn(0,1) << " | " << doublesIn(1,2) << " | " << doublesIn(1e6,1e6+1) << "  | " << doublesIn(1e14,1e14+1) << "          | ";
-	cout << doublesIn(1e15-1,1e15) << "           | " << doublesIn(1e17-10,1e17) << "            | " << doublesIn(1e19-10000,1e19) << "               | " << doublesIn(1e19-1000,1e19) << endl;
-
-	cout << "    Fractions:  " << fractionsIn(0,1) << "         | " << fractionsIn(1,2) << "      | " << fractionsIn(1e6,1e6+1) << " | " << fractionsIn(1e14,1e14+1) << " | ";
-	cout << fractionsIn(1e15-1,1e15) << " | " << fractionsIn(1e17-10,1e17) << "         | " << fractionsIn(1e19-10000,1e19) << "               | " << fractionsIn(1e19-1000,1e19) << endl << endl;
+	cout << "ttime = " << ttime << " , ttime2 = " << ttime2 << " , ttime2Int = " << ttime2Int << " , ttime10 = " << ttime10 << endl;
 }
 
 int main()
 {
 	/*
 	someInfo();
+	testPrint();
 	testDensity();
 	testCloseToZeroNumbers();
+	testInfoOverflow();
 	*/
-	//testInfoOverflow();
 
-	//testPrint();
-	/*
 	testBasicFractions();	//basic tests for every operation
 	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
 	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
-*/
-	//testNewtonRoot();
-	testNewtonRootWithFractions();
+
+	//logTimes();
+
 	return 0;
 }

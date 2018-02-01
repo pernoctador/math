@@ -7,7 +7,8 @@
 #include <sstream>      // std::ostringstream
 #include <utility>      // std::pair
 #include <cmath> 	//better than math.h
-#include <iostream>
+
+#define log2Int(X) ((unsigned) (8*sizeof (unsigned long long) - __builtin_clzll((X)) - 1)) 
 
 using namespace std;
 
@@ -24,28 +25,6 @@ inline string tostr(T value) {
     s.precision(numeric_limits<T>::digits10);
     s << value;
     return s.str();
-}
-
-inline double root_d(double base, long exp)
-{
-	double x = log(base)/log(exp);	//cout << "x0 = " << x << endl;
-
-	//Newton
-	double a,b,c,d, prevX = 0;
-	a =1.0/exp;
-
-	int cont = 0;
-	while(abs(x - prevX) > 1e-14 && cont < 100000)
-	{
-		prevX = x;
-		cont++;
-
-		b = (exp-1) * x;
-		c = pow(x,exp-1);
-		d = base/c;
-		x = a * (b + d);
-	}
-	return x;
 }
 
 #endif
