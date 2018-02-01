@@ -41,7 +41,6 @@ Fraction::Fraction(vector<long> v)
 		}
 		*this = d;
 	}
-	
 }
 
 Fraction::~Fraction(){}
@@ -238,6 +237,11 @@ void Fraction::normalize()
 		throw divZ;
 }
 
+void Fraction::operator=(vector<long> v)
+{
+	*this = fromContinuedForm(v);
+}
+
 Fraction invert(Fraction f)
 {
 	if(f.numerator() == 0) 
@@ -355,6 +359,24 @@ Fraction Fraction::operator/(Fraction f)
 		throw divByZ;
 }
 
+Fraction fromContinuedForm(vector<long> v)
+{
+	if(v.size() == 0)
+	{
+		return Fraction(1,0);
+	}
+	else
+	{
+		Fraction d = v[v.size()-1]-1;
+		for(int i = v.size()-2; i >= 0; i--)
+		{
+			d.invert();
+			d += v[i];
+		}
+		return Fraction(d);
+	}
+}
+
 void Fraction::operator/=(Fraction f)
 {
 	*this = *this / f;
@@ -409,16 +431,15 @@ void Fraction::operator/=(int i)
 vector<long> Fraction::continuedForm()
 {
 	vector<long> res;
-	double floatp, decim;
+	long integerPart;
 	Fraction d(num,den);
 	double maxSize = floor(log2(den)/log2(1.61));
 
 	while(abs(d) > 1e-8 && res.size() < maxSize)
 	{
-		floatp = (double)d;
-		res.push_back(floor(floatp));
-		decim = floatp - floor(floatp);
-		d = decim;
+		integerPart = (long)d;
+		res.push_back(integerPart);
+		d -= integerPart;
 		if(abs(d) > 1e-8)
 			d.invert();
 	}

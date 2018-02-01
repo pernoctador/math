@@ -39,6 +39,7 @@ public:
 	void operator=(int i){num = i; den = 1;}
 	void operator=(long l){num = l; den = 1;}
 	void operator=(double db){*this = doubleToFraction(db);}
+	void operator=(vector<long> v);
 
 	bool operator==(Fraction f){return (num == f.num && den == f.den);}
 	bool operator==(int i){return (num == i && den == 1);}
@@ -132,6 +133,9 @@ private:
 	long num;
 	long den;
 };
+
+
+Fraction fromContinuedForm(vector<long>);
 
 inline Fraction abs(Fraction f) //abs(Fraction& f) gives weird compiler errors
 {

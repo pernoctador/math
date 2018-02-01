@@ -240,6 +240,21 @@ void testBasicFractions()
 	assert(b == cb);
 	assert(c == cc);
 
+	srand(time(NULL));
+	for(int i = 0; i < 100000; i++)
+	{
+		
+		long p = (rand() % 9999999999) + 1;
+		long q = (rand() % 9999999999) + 1;
+
+		a(p,q);
+		ca = a.continuedForm();
+
+		if(abs(a - ca) > 1e-14)
+		{
+			cout << (double)abs(a - ca) << endl;
+		}
+	}
 }
 
 void testCommonMistakes()
