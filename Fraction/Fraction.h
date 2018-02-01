@@ -6,14 +6,13 @@
 #include <cmath> 	//better than math.h
 #include <iostream>
 #include <climits>	//LONG_MAX
+#include <vector>
 
 using namespace std;
 
 
 const double FRAC_MIN = (double)1/(double)LONG_MAX;
 const long FRAC_MAX = LONG_MAX;
-
-//FUTURE WORK: use ulong instead of long. long long is not needed, as long in a 64x processor is transformed into long long.
 
 class Fraction {	
 public:
@@ -24,6 +23,7 @@ public:
 	Fraction(const Fraction& f){num = f.num; den = f.den;}
 	Fraction(long n, long d);
 	Fraction(double db){*this = doubleToFraction(db);}
+	Fraction(vector<long>);
 	~Fraction();
 
 	long numerator(){return num;}
@@ -113,13 +113,12 @@ public:
 	void operator/=(long);
 	void operator/=(double db){*this /= doubleToFraction(db);}
 
-	Fraction invert(){return Fraction(den,num);}
+	void invert();
 
 	Fraction idiv(long i, Fraction& f){return normal(f.denominator()*i, f.numerator());}	//not very usefull, as i / f = 1/f * i
 
-	//vector<int> continuedForm();
+	vector<long> continuedForm();
 
-	
 	operator int(){return num/den;}
 	operator long(){return num/den;}
 	operator double(){return (double)num/(double)den;}
@@ -144,6 +143,8 @@ inline Fraction abs(Fraction f) //abs(Fraction& f) gives weird compiler errors
 	else
 		return f;
 }
+
+Fraction invert(Fraction f);
 
 Fraction pow(Fraction f, long l);
 Fraction pow(Fraction base, Fraction exp);

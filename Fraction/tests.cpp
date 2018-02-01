@@ -66,6 +66,7 @@ void testPrint()
 
 void testBasicFractions()
 {
+	cout.precision(numeric_limits<double>::digits10);
 	//constructor, (), = and ==, <= and >=
 	Fraction a(1,2);
 	Fraction aa;
@@ -171,7 +172,10 @@ void testBasicFractions()
 
 	a(7,9);
 	b(9,7);
-	a = a.invert();
+	c = invert(a);
+	assert(c == b);
+
+	a.invert();
 	assert(a == b);
 
 	// pow
@@ -222,7 +226,20 @@ void testBasicFractions()
 	assert(da == 1.125);
 	long la = a;
 	assert(la == 1);
-	
+
+	//continued fractions
+	a(951,8462);
+	b(81958,65199);
+	c(469,327);
+
+	Fraction ca(a.continuedForm());
+	Fraction cb(b.continuedForm());
+	Fraction cc(c.continuedForm());
+
+	assert(a == ca);
+	assert(b == cb);
+	assert(c == cc);
+
 }
 
 void testCommonMistakes()
@@ -268,7 +285,6 @@ void testCommonMistakes()
 	assert(a.numerator() == 103);
 	assert(a.denominator() == 197);
 }
-
 
 void testBetterperiodics()
 {
@@ -325,7 +341,7 @@ void testCloseToZeroNumbers()
 		f(t);
 		g(i,LONG_MAX);
 		
-		dif = abs((double)f - (double)g);
+		dif = abs(f - g);
 		if(dif > maxErr)
 			maxErr = dif;
 		averageErr+=dif;
@@ -333,31 +349,40 @@ void testCloseToZeroNumbers()
 		t = 1/(LONG_MAX-i);
 		f(t);
 		g(1,LONG_MAX-i);
-		dif = abs((double)f - (double)g);
+		dif = abs(f - g);
 		if(dif > maxErr)
 			maxErr = dif;
 		averageErr+=dif;
 	} 
 	averageErr /= 2000;
-	cout << "Max error found in conversion from double close to zero: " <<  maxErr << endl;
-	cout << "Average error found in conversion from double close to zero: " << averageErr << endl;
+	cout << "Max error found in conversion from double to fraction close to zero: " <<  maxErr << endl;
+	cout << "Average error found in conversion from double to fraction close to zero: " << averageErr << endl;
 
 	maxErr=0;
 	averageErr=0;
 	
 	for(double i = 1000; i >= 1; i--)
 	{
-		t = 1e-15*i;
-		f(t);
+		f(i,LONG_MAX);
 		df = f;
+		t = i/LONG_MAX;
+		
 		dif = abs(df - t);
 		if(dif > maxErr)
 			maxErr = dif;
 		averageErr+=dif;
-	}
-	averageErr /= 1000;
-	cout << "Max error found in conversion to double close to zero: " <<  maxErr << endl;
-	cout << "Average error found in conversion to double close to zero: " << averageErr << endl << endl;
+
+		f(1,LONG_MAX-i);
+		df = f;
+		t = 1/(LONG_MAX-i);
+		dif = abs(df - t);
+		if(dif > maxErr)
+			maxErr = dif;
+		averageErr+=dif;
+	} 
+	averageErr /= 2000;
+	cout << "Max error found in conversion from fraction to double close to zero: " <<  maxErr << endl;
+	cout << "Average error found in conversion from fraction to double close to zero: " << averageErr << endl << endl;
 }
 
 void testInfoOverflow()
@@ -466,7 +491,7 @@ int main()
 	testCloseToZeroNumbers();
 	testInfoOverflow();
 	*/
-
+	
 	testBasicFractions();	//basic tests for every operation
 	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
 	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double

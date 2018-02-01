@@ -24,6 +24,26 @@ Fraction::Fraction(long n, long d)
 	normalize();
 }
 
+Fraction::Fraction(vector<long> v)
+{
+	if(v.size() == 0)
+	{
+		num = 0;
+		den = 1;
+	}
+	else
+	{
+		Fraction d = v[v.size()-1]-1;
+		for(int i = v.size()-2; i >= 0; i--)
+		{
+			d.invert();
+			d += v[i];
+		}
+		*this = d;
+	}
+	
+}
+
 Fraction::~Fraction(){}
 
 Fraction& Fraction::operator()(long n, long d)
@@ -44,19 +64,19 @@ Fraction Fraction::normal(long n, long d)
 		//if absolute values are way too big, they create a lot of problems. LONG_MIN is a specific troublesome case.
 		if(d < -1e18)
 		{
-			long double fix;
-			if(n > 0)	//i'm doing this because abs(LONG_MIN) is still LONG_MIN
+			long double fix, max17 = 99999999999999999;
+			if(n > 0)	//i'm doing this because abs(LONG_MIN) is still LONG_MIN (overflow, LONG_MIN = - LONG_MAX + 1)
 			{
-				if(-n > d)	//I'll reduce both numbers to as much as 17 digits.
+				if(-n >= d)	//I'll reduce both numbers to as much as 17 digits.
 				{
-					fix = d/99999999999999999;
-					d = 99999999999999999;
+					fix = d/max17;
+					d = max17;
 					n = round(n/fix);
 				}
 				else
 				{
-					fix = n/99999999999999999;
-					n = 99999999999999999;
+					fix = n/max17;
+					n = max17;
 					d = round(d/fix);
 				}
 			}
@@ -64,33 +84,33 @@ Fraction Fraction::normal(long n, long d)
 			{
 				if(n > d)
 				{
-					fix = d/99999999999999999;
-					d = 99999999999999999;
+					fix = d/max17;
+					d = max17;
 					n = round(n/fix);
 				}
 				else
 				{
-					fix = n/99999999999999999;
-					n = 99999999999999999;
+					fix = n/max17;
+					n = max17;
 					d = round(d/fix);
 				}
 			}
 		}
 		if(d > 1e18)
 		{
-			long double fix;
+			long double fix, max17 = 99999999999999999;
 			if(n > 0)
 			{
-				if(d > n)
+				if(d >= n)
 				{
-					fix = d/99999999999999999;
-					d = 99999999999999999;
+					fix = d/max17;
+					d = max17;
 					n = round(n/fix);
 				}
 				else
 				{
-					fix = n/99999999999999999;
-					n = 99999999999999999;
+					fix = n/max17;
+					n = max17;
 					d = round(d/fix);
 				}
 			}
@@ -98,14 +118,14 @@ Fraction Fraction::normal(long n, long d)
 			{
 				if(-d < n)
 				{
-					fix = d/99999999999999999;
-					d = 99999999999999999;
+					fix = d/max17;
+					d = max17;
 					n = round(n/fix);
 				}
 				else
 				{
-					fix = n/99999999999999999;
-					n = 99999999999999999;
+					fix = n/max17;
+					n = max17;
 					d = round(d/fix);
 				}
 			}
@@ -136,19 +156,19 @@ void Fraction::normalize()
 			//if absolute values are way too big, they create a lot of problems. LONG_MIN is a specific troublesome case.
 			if(den < -1e18)
 			{
-				long double fix;
+				long double fix, max17 = 99999999999999999;
 				if(num > 0)	//i'm doing this because abs(LONG_MIN) is still LONG_MIN
 				{
 					if(-num > den)
 					{
-						fix = den/99999999999999999;
-						den = 99999999999999999;
+						fix = den/max17;
+						den = max17;
 						num = round(num/fix);
 					}
 					else
 					{
-						fix = num/99999999999999999;
-						num = 99999999999999999;
+						fix = num/max17;
+						num = max17;
 						den = round(den/fix);
 					}
 				}
@@ -156,33 +176,33 @@ void Fraction::normalize()
 				{
 					if(num > den)
 					{
-						fix = den/99999999999999999;
-						den = 99999999999999999;
+						fix = den/max17;
+						den = max17;
 						num = round(num/fix);
 					}
 					else
 					{
-						fix = num/99999999999999999;
-						num = 99999999999999999;
+						fix = num/max17;
+						num = max17;
 						den = round(den/fix);
 					}
 				}
 			}
 			if(den > 1e18)	//if absolute values are way too big, they create a lot of problems
 			{
-				long double fix;
+				long double fix, max17 = 99999999999999999;
 				if(num > 0)
 				{
 					if(den > num)
 					{
-						fix = den/99999999999999999;
-						den = 99999999999999999;
+						fix = den/max17;
+						den = max17;
 						num = round(num/fix);
 					}
 					else
 					{
-						fix = num/99999999999999999;
-						num = 99999999999999999;
+						fix = num/max17;
+						num = max17;
 						den = round(den/fix);
 					}
 				}
@@ -190,14 +210,14 @@ void Fraction::normalize()
 				{
 					if(-den < num)
 					{
-						fix = den/99999999999999999;
-						den = 99999999999999999;
+						fix = den/max17;
+						den = max17;
 						num = round(num/fix);
 					}
 					else
 					{
-						fix = num/99999999999999999;
-						num = 99999999999999999;
+						fix = num/max17;
+						num = max17;
 						den = round(den/fix);
 					}
 				}
@@ -216,6 +236,22 @@ void Fraction::normalize()
 	}
 	else
 		throw divZ;
+}
+
+Fraction invert(Fraction f)
+{
+	if(f.numerator() == 0) 
+		throw divZ; 
+	
+	return Fraction(f.denominator(),f.numerator());
+}
+
+void Fraction::invert()
+{
+	if(num == 0) 
+		throw divZ; 
+	
+	swap(num,den);
 }
 
 Fraction Fraction::operator+(Fraction f)
@@ -368,6 +404,26 @@ void Fraction::operator/=(int i)
 	}
 	else
 		throw divByZ;
+}
+
+vector<long> Fraction::continuedForm()
+{
+	vector<long> res;
+	double floatp, decim;
+	Fraction d(num,den);
+	double maxSize = floor(log2(den)/log2(1.61));
+
+	while(abs(d) > 1e-8 && res.size() < maxSize)
+	{
+		floatp = (double)d;
+		res.push_back(floor(floatp));
+		decim = floatp - floor(floatp);
+		d = decim;
+		if(abs(d) > 1e-8)
+			d.invert();
+	}
+	res[res.size()-1] += 1;	//format standard
+	return res;
 }
 
 Fraction pow(Fraction f, long l)
