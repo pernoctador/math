@@ -13,7 +13,7 @@ This is made by [John Kennedy's iterative algorithm](https://sites.google.com/si
 
 In deprecated.h there is another way, a translation of the human way of finding a fraction from a decimal, searching for a repetend. Is straightforward and of reasonable time, but the iterative method seems better on average. I will study if adding some ideas of the old algorithm improve JK's.
 
-Another propperty it has is to avoid overflow as much as possible. Also, I can convert both ways to continued fractions.
+Another propperty it has is to avoid overflow as much as possible. Also, it can convert both ways to continued fractions.
 
 There is a couple of functions and constants to show properties of the class.
 

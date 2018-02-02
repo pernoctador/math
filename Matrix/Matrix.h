@@ -26,6 +26,14 @@ class wrongDimensions: public exception
   }
 } wrongDim;
 
+class needSquareMatrix: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Error: matrix must be square.";
+  }
+} squareMatrix;
+
 template <class T>
 class Matrix {	//intended for math matrix
 public:
@@ -40,6 +48,7 @@ public:
 	void operator=(vector<T>& v);
 	void operator=(T v[]);
 
+	void Id();
 	void Zero();
 	void nameElements();
 
@@ -47,14 +56,13 @@ public:
 
 	pair<unsigned,unsigned> size(){return pair<unsigned,unsigned>(rows, cols);}
 
-	void t();
-	Matrix<T> tr() const;
+	void t();	// transpose matrix in O(1)
+	Matrix<T> tr() const;	// returns transposed matrix properly arranged in memory
 
 	T& operator() (unsigned row, unsigned col){return M[row*rcont + col*ccont];}	//i won't check for limits to improve performance... later i'll check if it makes sense
 	T  operator() (unsigned row, unsigned col) const {return M[row*rcont + col*ccont];}
 
 	void print() const;
-
 
 	Matrix<T> operator+(Matrix<T>& m);
 	void operator+=(Matrix<T>& m);
@@ -233,12 +241,24 @@ Matrix<T> Id(unsigned size)
 }
 
 template <class T>
-Matrix<T> Zero(unsigned size)
+void Matrix<T>::Id()
 {
-	Matrix<T> res(size);
-	for(unsigned i = 0; i < size; i++)
+	for(unsigned i = 0; i < cols; i++)
 	{
-		for(unsigned j = 0; j < size; j++)
+		for(unsigned j = 0; j < rows; j++)
+		{
+			elem(i,j) = (i==j);
+		}
+	}
+}
+
+template <class T>
+Matrix<T> Zero(unsigned rows, unsigned cols)
+{
+	Matrix<T> res(rows,cols);
+	for(unsigned i = 0; i < rows; i++)
+	{
+		for(unsigned j = 0; j < cols; j++)
 		{
 			res(i,j) = 0;
 		}

@@ -53,6 +53,13 @@ Fraction& Fraction::operator()(long n, long d)
 	return *this;
 }
 
+long neg(long x)
+{
+	if(x > 0)
+		x = -x;
+	return x;
+}
+
 Fraction Fraction::normal(long n, long d)
 {
 	if(d != 0)
@@ -61,74 +68,23 @@ Fraction Fraction::normal(long n, long d)
 			return Fraction(0,1);
 
 		//if absolute values are way too big, they create a lot of problems. LONG_MIN is a specific troublesome case.
-		if(d < -1e18)
+		if(d < -1e18 || d > 1e18)
 		{
 			long double fix, max17 = 99999999999999999;
-			if(n > 0)	//i'm doing this because abs(LONG_MIN) is still LONG_MIN (overflow, LONG_MIN = - LONG_MAX + 1)
+			if(neg(d) <= neg(n))	//i'm doing this because abs(LONG_MIN) is still LONG_MIN (overflow, LONG_MIN = LONG_MAX + 1)
 			{
-				if(-n >= d)	//I'll reduce both numbers to as much as 17 digits.
-				{
-					fix = d/max17;
-					d = max17;
-					n = round(n/fix);
-				}
-				else
-				{
-					fix = n/max17;
-					n = max17;
-					d = round(d/fix);
-				}
+				fix = d/max17;	//I'll reduce both numbers to as much as 17 digits.
+				d = max17;
+				n = round(n/fix);
 			}
 			else
 			{
-				if(n > d)
-				{
-					fix = d/max17;
-					d = max17;
-					n = round(n/fix);
-				}
-				else
-				{
-					fix = n/max17;
-					n = max17;
-					d = round(d/fix);
-				}
+				fix = n/max17;
+				n = max17;
+				d = round(d/fix);
 			}
 		}
-		if(d > 1e18)
-		{
-			long double fix, max17 = 99999999999999999;
-			if(n > 0)
-			{
-				if(d >= n)
-				{
-					fix = d/max17;
-					d = max17;
-					n = round(n/fix);
-				}
-				else
-				{
-					fix = n/max17;
-					n = max17;
-					d = round(d/fix);
-				}
-			}
-			else
-			{
-				if(-d < n)
-				{
-					fix = d/max17;
-					d = max17;
-					n = round(n/fix);
-				}
-				else
-				{
-					fix = n/max17;
-					n = max17;
-					d = round(d/fix);
-				}
-			}
-		}
+
 		long g = gcd(n,d); 
 		g = abs(g);	//another thing needed to avoid SIGFPE
 		n/=g; 
@@ -153,72 +109,20 @@ void Fraction::normalize()
 		else
 		{
 			//if absolute values are way too big, they create a lot of problems. LONG_MIN is a specific troublesome case.
-			if(den < -1e18)
+			if(den < -1e18 || den > 1e18)
 			{
 				long double fix, max17 = 99999999999999999;
-				if(num > 0)	//i'm doing this because abs(LONG_MIN) is still LONG_MIN
+				if(neg(den) <= neg(num))	//i'm doing this because abs(LONG_MIN) is still LONG_MIN (overflow, LONG_MIN = LONG_MAX + 1)
 				{
-					if(-num > den)
-					{
-						fix = den/max17;
-						den = max17;
-						num = round(num/fix);
-					}
-					else
-					{
-						fix = num/max17;
-						num = max17;
-						den = round(den/fix);
-					}
+					fix = den/max17;	//I'll reduce both numbers to as much as 17 digits.
+					den = max17;
+					num = round(num/fix);
 				}
 				else
 				{
-					if(num > den)
-					{
-						fix = den/max17;
-						den = max17;
-						num = round(num/fix);
-					}
-					else
-					{
-						fix = num/max17;
-						num = max17;
-						den = round(den/fix);
-					}
-				}
-			}
-			if(den > 1e18)	//if absolute values are way too big, they create a lot of problems
-			{
-				long double fix, max17 = 99999999999999999;
-				if(num > 0)
-				{
-					if(den > num)
-					{
-						fix = den/max17;
-						den = max17;
-						num = round(num/fix);
-					}
-					else
-					{
-						fix = num/max17;
-						num = max17;
-						den = round(den/fix);
-					}
-				}
-				else
-				{
-					if(-den < num)
-					{
-						fix = den/max17;
-						den = max17;
-						num = round(num/fix);
-					}
-					else
-					{
-						fix = num/max17;
-						num = max17;
-						den = round(den/fix);
-					}
+					fix = num/max17;
+					num = max17;
+					den = round(den/fix);
 				}
 			}
 
@@ -264,15 +168,15 @@ Fraction Fraction::operator+(Fraction f)
 	lcm /= gcd(den, f.den);
 	lcm *= min(den,f.den);
 
-	// a/c + b/d = [a*(lcd/d) + b*(lcd/c)] / lcd	//use to create normal fractions
+	// a/c + b/d = [a*(lcm/d) + b*(lcm/c)] / lcm	//use to create normal fractions
 
-	// a/c + b/d = [a/lcd * (lcd/c)] + [b/lcd * (lcd/d)]	//use to create fractions through double
+	// a/c + b/d = [a/lcm * (lcm/c)] + [b/lcm * (lcm/d)]	//use to create fractions through double
 	double p = (double)num;
 	p *= lcm / (double)den;
 	double q = (double)f.num;
 	q *= lcm / (double)f.den;
 
-	if(lcm >= LONG_MAX || (p + q) >= LONG_MAX)	//tested in testOverflow() over tests.cpp
+	if(lcm >= LONG_MAX || (p + q) >= LONG_MAX || (p + q) <= LONG_MIN)	//tested in testOverflow() over tests.cpp
 	{
 		//cerr << "Aproximating " << num << "/" << den << " + " << f.num << "/" << f.den << endl;
 		p = (double)num / lcm;

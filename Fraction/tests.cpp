@@ -512,6 +512,6 @@ int main()
 	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
 
 	//logTimes();
-
+	
 	return 0;
 }
