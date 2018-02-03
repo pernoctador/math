@@ -169,7 +169,7 @@ void GaussianEliminationTest()
 
 int main()
 {
-	//printTest();
+	printTest();
 	basicMatrixOperations();
 	GaussianEliminationTest();
 	

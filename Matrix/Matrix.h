@@ -30,9 +30,17 @@ class needSquareMatrix: public exception
 {
   virtual const char* what() const throw()
   {
-    return "Error: matrix must be square.";
+    return "Error: matrix must be square.";	// QR
   }
 } squareMatrix;
+
+class needPositiveDefinite: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Error: matrix must be positive-definite.";	//for cholesky
+  }
+} posDef;
 
 template <class T>
 class Matrix {	//intended for math matrix
@@ -54,7 +62,7 @@ public:
 
 	bool operator==(Matrix<T> B);
 
-	pair<unsigned,unsigned> size(){return pair<unsigned,unsigned>(rows, cols);}
+	pair<unsigned,unsigned> size() const {return pair<unsigned,unsigned>(rows, cols);}
 
 	void t();	// transpose matrix in O(1)
 	Matrix<T> tr() const;	// returns transposed matrix properly arranged in memory
@@ -358,6 +366,51 @@ void Matrix<T>::print() const
 
 	cout << "***********" << endl << "t = " << boolalpha << transpose << endl << "rows = " << rows << endl << "cols = " << cols << endl << "rcont = " << rcont << endl;
 	cout << "ccont = " << ccont << endl*/ << endl;
+}
+
+template <class T>
+ostream& operator<<(ostream& os, const Matrix<T> &m)
+{
+	unsigned maxSize = 1;
+	unsigned elemSize;
+	for(unsigned i = 0; i < m.size().first; i++)
+	{
+		for(unsigned j = 0; j < m.size().second; j++)
+		{
+			elemSize = tostr(m(i,j)).size();
+			maxSize = max(maxSize, elemSize);
+		}
+	}
+
+	os << "╭";
+
+	for (unsigned j = 0; j < m.size().second - 1; j++) {
+		cout << setw(maxSize) << m(0, j) << ", ";
+	}
+
+	os << setw(maxSize) << m(0, m.size().second-1) << "╮" << endl;
+
+	for (unsigned i = 1; i < m.size().first - 1; i++) {
+		os << "│";
+
+		for (unsigned j = 0; j < m.size().second - 1; j++) {
+			os << setw(maxSize) << m(i, j) << ", ";
+		}
+
+		os << setw(maxSize) << m(i, m.size().second-1) << "│" << endl;
+	}
+
+	os << "╰";
+
+	for (unsigned j = 0; j < m.size().second - 1; j++) {
+		os << setw(maxSize) << m(m.size().first-1, j) << ", ";
+	}
+
+	os << setw(maxSize) << m(m.size().first-1, m.size().second-1) << "╯" << endl/*;
+
+	os << "***********" << endl << "t = " << boolalpha << transpose << endl << "rows = " << rows << endl << "cols = " << cols << endl << "rcont = " << rcont << endl;
+	os << "ccont = " << ccont << endl*/ << endl;
+	return os;
 }
 
 template <class T>
