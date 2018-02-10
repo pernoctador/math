@@ -61,7 +61,7 @@ void basicMatrixOperations()
 {
 	//t, tr, =, ==, constructores
 	Matrix<double> one(4,3);
-	one(2,3) = 4;
+	one(2,1) = 4;
 	Matrix<double> two(3,4);
 	two.nameElements();
 	Matrix<double> three(3,4);
@@ -167,11 +167,44 @@ void GaussianEliminationTest()
 	assert(det == 0);
 }
 
+void timeTestGaussian()
+{
+	Matrix<double> a(100,100);
+	Matrix<double> b(100,100);
+	clock_t watch;
+	double prom = 0, promt = 0;
+	for(int i = 0; i < 10000; i++)
+	{
+		a.Random(-1000, 2000);
+
+		watch = clock();
+		a.GaussianElimination();
+		watch = clock() - watch;
+		prom += watch;
+		
+		b = a.tr();
+		b.t();
+		
+		watch = clock();
+		a.GaussianElimination();
+		watch = clock() - watch;
+		promt += watch;		
+	}
+
+	prom /= 10000;
+	promt /= 10000;
+
+	cout << "GaussianElimination standard takes " << prom << endl;
+	cout << "GaussianElimination transposed takes " << promt << endl << endl;
+}
+
+
 int main()
 {
-	printTest();
+	//printTest();
 	basicMatrixOperations();
-	GaussianEliminationTest();
+	//GaussianEliminationTest();
+	//timeTestGaussian();
 	
 	return 0;
 }

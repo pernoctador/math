@@ -7,6 +7,9 @@
 #include <iostream>
 #include <iomanip>		//setw
 #include <exception>
+// if ur going to use Random():
+#include <time.h>
+#include <random>
 
 using namespace std;
 
@@ -30,7 +33,7 @@ class needSquareMatrix: public exception
 {
   virtual const char* what() const throw()
   {
-    return "Error: matrix must be square.";	// QR
+    return "Error: matrix must be square.";	// QR?
   }
 } squareMatrix;
 
@@ -41,6 +44,14 @@ class needPositiveDefinite: public exception
     return "Error: matrix must be positive-definite.";	//for cholesky
   }
 } posDef;
+
+class outOfBounds: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Error: Element out of matrix's bounds.";	//for cholesky
+  }
+} wrongElem;
 
 template <class T>
 class Matrix {	//intended for math matrix
@@ -59,6 +70,7 @@ public:
 	void Id();
 	void Zero();
 	void nameElements();
+	void Random(int from, int to);
 
 	bool operator==(Matrix<T> B);
 
@@ -67,8 +79,8 @@ public:
 	void t();	// transpose matrix in O(1)
 	Matrix<T> tr() const;	// returns transposed matrix properly arranged in memory
 
-	T& operator() (unsigned row, unsigned col){return M[row*rcont + col*ccont];}	//i won't check for limits to improve performance... later i'll check if it makes sense
-	T  operator() (unsigned row, unsigned col) const {return M[row*rcont + col*ccont];}
+	T& operator() (unsigned row, unsigned col){if(row >= rows || col >= cols) throw wrongElem; return M[row*rcont + col*ccont];}
+	T  operator() (unsigned row, unsigned col) const {if(row >= rows || col >= cols) throw wrongElem; return M[row*rcont + col*ccont];}
 
 	void print() const;
 
@@ -87,6 +99,7 @@ public:
 	void operator*=(T e);
 
 	int GaussianElimination();
+	int GaussianElimination(Matrix<T> extra);
 
 private:
 	T* M;
@@ -96,8 +109,6 @@ private:
 	unsigned rcont;
 	unsigned ccont = 1;
 
-	T& elem (unsigned row, unsigned col){return M[row*rcont + col*ccont];}
-	T  elemConst (unsigned row, unsigned col) const {return M[row*rcont + col*ccont];}
 	void swapRow(unsigned ,unsigned );
 };
 
@@ -195,7 +206,7 @@ void Matrix<T>::operator=(vector<T>& v)
 	{
 		for(unsigned j = 0; j < cols; j++)
 		{
-			elem(i,j) = v[(i*cols)+j];
+			(*this)(i,j) = v[(i*cols)+j];
 		}
 	}
 }
@@ -209,7 +220,7 @@ void Matrix<T>::operator=(T v[])
 	{
 		for(unsigned j = 0; j < cols; j++)
 		{
-			elem(i,j) = v[(i*cols)+j];
+			(*this)(i,j) = v[(i*cols)+j];
 		}
 	}
 }
@@ -224,9 +235,9 @@ bool Matrix<T>::operator==(Matrix<T> B)
 	{
 		for(unsigned j = 0; j < cols; j++)
 		{
-			if(elem(i,j) != B(i,j))
+			if((*this)(i,j) != B(i,j))
 			{
-				//cout << i << ", " << j << " : elem=" << elem(i,j) << " , B=" << B(i,j) << endl; 
+				//cout << i << ", " << j << " : elem=" << (*this)(i,j) << " , B=" << B(i,j) << endl; 
 				return false;
 			}
 		}
@@ -255,7 +266,7 @@ void Matrix<T>::Id()
 	{
 		for(unsigned j = 0; j < rows; j++)
 		{
-			elem(i,j) = (i==j);
+			(*this)(i,j) = (i==j);
 		}
 	}
 }
@@ -301,6 +312,16 @@ void Matrix<T>::t()
 }
 
 template <class T>
+void Matrix<T>::Random(int from, int to)
+{
+	srand(time(NULL));
+	for(unsigned i = 0; i < rows*cols; i++)
+	{
+		M[i] = (rand() % (to-from+1)) + from;
+	}
+}
+
+template <class T>
 Matrix<T> Matrix<T>::tr() const
 {
 	if(transpose)	//was transposed in O(1), so i just need to copy what i have in memory and mark it as not transposed.
@@ -332,7 +353,7 @@ void Matrix<T>::print() const
 	{
 		for(unsigned j = 0; j < cols; j++)
 		{
-			elemSize = tostr(elemConst(i,j)).size();
+			elemSize = tostr((*this)(i,j)).size();
 			maxSize = max(maxSize, elemSize);
 		}
 	}
@@ -341,28 +362,28 @@ void Matrix<T>::print() const
 	cout << "╭";
 
 	for (unsigned j = 0; j < cols - 1; j++) {
-		cout << setw(maxSize) << elemConst(0, j) << ", ";
+		cout << setw(maxSize) << (*this)(0, j) << ", ";
 	}
 
-	cout << setw(maxSize) << elemConst(0, cols-1) << "╮" << endl;
+	cout << setw(maxSize) << (*this)(0, cols-1) << "╮" << endl;
 
 	for (unsigned i = 1; i < rows - 1; i++) {
 		cout << "│";
 
 		for (unsigned j = 0; j < cols - 1; j++) {
-			cout << setw(maxSize) << elemConst(i, j) << ", ";
+			cout << setw(maxSize) << (*this)(i, j) << ", ";
 		}
 
-		cout << setw(maxSize) << elemConst(i, cols-1) << "│" << endl;
+		cout << setw(maxSize) << (*this)(i, cols-1) << "│" << endl;
 	}
 
 	cout << "╰";
 
 	for (unsigned j = 0; j < cols - 1; j++) {
-		cout << setw(maxSize) << elemConst(rows-1, j) << ", ";
+		cout << setw(maxSize) << (*this)(rows-1, j) << ", ";
 	}
 
-	cout << setw(maxSize) << elemConst(rows-1, cols-1) << "╯" << endl/*;
+	cout << setw(maxSize) << (*this)(rows-1, cols-1) << "╯" << endl/*;
 
 	cout << "***********" << endl << "t = " << boolalpha << transpose << endl << "rows = " << rows << endl << "cols = " << cols << endl << "rcont = " << rcont << endl;
 	cout << "ccont = " << ccont << endl*/ << endl;
@@ -425,7 +446,7 @@ Matrix<T> Matrix<T>::operator+(Matrix<T>& m)
 		{
 			for(unsigned j = 0; j < cols; j++)
 			{
-				res(i,j) = elemConst(i,j) + m(i,j);
+				res(i,j) = (*this)(i,j) + m(i,j);
 			}
 		}
 	}
@@ -443,7 +464,7 @@ void Matrix<T>::operator+=(Matrix<T>& m)
 		{
 			for(unsigned j = 0; j < cols; j++)
 			{
-				elem(i,j) += m(i,j);
+				(*this)(i,j) += m(i,j);
 			}
 		}
 	}
@@ -471,7 +492,7 @@ void Matrix<T>::operator+=(T e)
 	{
 		for(unsigned j = 0; j < cols; j++)
 		{
-			elem(i,j) *= e; 
+			(*this)(i,j) *= e; 
 		}
 	}
 }
@@ -489,7 +510,7 @@ Matrix<T> Matrix<T>::operator-(Matrix<T>& m)
 		{
 			for(unsigned j = 0; j < cols; j++)
 			{
-				res(i,j) = elemConst(i,j) - m(i,j);
+				res(i,j) = (*this)(i,j) - m(i,j);
 			}
 		}
 	}
@@ -507,7 +528,7 @@ void Matrix<T>::operator-=(Matrix<T>& m)
 		{
 			for(unsigned j = 0; j < cols; j++)
 			{
-				elem(i,j) -= m(i,j);
+				(*this)(i,j) -= m(i,j);
 			}
 		}
 	}
@@ -522,7 +543,7 @@ Matrix<T> Matrix<T>::operator-(T e)
 	{
 		for(unsigned j = 0; j < cols; j++)
 		{
-			res(i,j) = elemConst(i,j) - e; 
+			res(i,j) = (*this)(i,j) - e; 
 		}
 	}
 	return res;
@@ -535,7 +556,7 @@ void Matrix<T>::operator-=(T e)
 	{
 		for(unsigned j = 0; j < cols; j++)
 		{
-			elem(i,j) -= e; 
+			(*this)(i,j) -= e; 
 		}
 	}
 }
@@ -555,7 +576,7 @@ Matrix<T> Matrix<T>::operator*(Matrix<T>& m)
 				res(i,j) = 0;
 				for(unsigned k = 0; k < cols; k++)
 				{
-					res(i,j) += elemConst(i,k) * m(k,j);
+					res(i,j) += (*this)(i,k) * m(k,j);
 				}
 			}
 		}
@@ -585,7 +606,7 @@ void Matrix<T>::operator*=(T e)
 	{
 		for(unsigned j = 0; j < cols; j++)
 		{
-			elem(i,j) *= e; 
+			(*this)(i,j) *= e; 
 		}
 	}
 }
@@ -606,9 +627,9 @@ void Matrix<T>::swapRow(unsigned i, unsigned j)
 		T aux;
 		for(unsigned k = 0; k < cols; k++)
 		{
-			aux = elem(i,k);
-			elem(i,k) = elem(j,k);
-			elem(j,k) = aux;
+			aux = (*this)(i,k);
+			(*this)(i,k) = (*this)(j,k);
+			(*this)(j,k) = aux;
 		}
 	}
 }
@@ -621,17 +642,17 @@ int Matrix<T>::GaussianElimination()
 	int det = 1;
 	for(unsigned k = 0; k < min(rows, cols); k++)
 	{
-		T maxAbs = abs<T>(elem(k,k));
+		T maxAbs = abs<T>((*this)(k,k));
 		unsigned pibot = k;
 		for(unsigned m = k+1; m < rows; m++)
 		{
-			if(abs<T>(elem(m,k)) > maxAbs)
+			if(abs<T>((*this)(m,k)) > maxAbs)
 			{
-				maxAbs = abs<T>(elem(m,k));
+				maxAbs = abs<T>((*this)(m,k));
 				pibot = m;
 			}
 		}
-		if(elem(pibot,k) == 0)
+		if((*this)(pibot,k) == 0)
 		{
 			cerr << "Matrix is singular" << endl;	//in Gaussian Elimination this should not always be an exception
 			det = 0;
@@ -646,16 +667,77 @@ int Matrix<T>::GaussianElimination()
 
 			for(unsigned i = k+1; i < rows; i++)
 			{
-				T f = elem(i,k) / elem(k,k);
+				T f = (*this)(i,k) / (*this)(k,k);
 
 				for(unsigned j = k+1; j < cols; j++)
 				{
-					elem(i,j) -= elem(k,j) * f;
+					(*this)(i,j) -= (*this)(k,j) * f;
 				}
 
-				elem(i,k) = 0;
+				(*this)(i,k) = 0;
 			}
 		}
+	}
+
+	return det;
+}
+
+//replace original matrix. Returns operations value (for determinant).
+//I advice to use Fraction as T if the original matrices have only integers.
+template <class T>
+int Matrix<T>::GaussianElimination(Matrix<T> extra)
+{
+	if(extra.rows != rows)
+		throw wrongDim;
+
+	int det = 1;
+	for(unsigned k = 0; k < min(rows, cols); k++)
+	{
+		T maxAbs = abs<T>((*this)(k,k));
+		unsigned pibot = k;
+		for(unsigned m = k+1; m < rows; m++)
+		{
+			if(abs<T>((*this)(m,k)) > maxAbs)
+			{
+				maxAbs = abs<T>((*this)(m,k));
+				pibot = m;
+			}
+		}
+		if((*this)(pibot,k) == 0)
+		{
+			cerr << "Matrix is singular" << endl;	//in Gaussian Elimination this should not always be an exception
+			det = 0;
+		}
+		else
+		{
+			if(k != pibot)
+			{
+				swapRow(k,pibot);
+				det = -det;
+			}
+
+			for(unsigned i = k+1; i < rows; i++)
+			{
+				T f = (*this)(i,k) / (*this)(k,k);
+
+				for(unsigned j = k+1; j < cols; j++)
+				{
+					(*this)(i,j) -= (*this)(k,j) * f;
+				}
+
+				(*this)(i,k) = 0;
+
+				for(unsigned j = 0; j < extra.cols; j++)
+				{
+					extra(i,j) -= extra(k,j) * f;
+				}
+			}
+		}
+	}
+	/*now I solve the equations:*/
+	if(det != 0)
+	{
+		//
 	}
 
 	return det;
