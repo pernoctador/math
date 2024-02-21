@@ -268,9 +268,7 @@ Fraction fromContinuedForm(vector<long> v)
 	if(v.size() == 0)
 	{
 		return Fraction(1,0);
-	}
-	else
-	{
+	}else{
 		Fraction d = v[v.size()-1]-1;
 		for(int i = v.size()-2; i >= 0; i--)
 		{
@@ -423,7 +421,7 @@ Fraction Fraction::doubleToFraction(double value)
     value = abs(value);
 
     // Accuracy is the maximum relative error; convert to absolute maxError
-    double maxError =  value * 1e-15;	//max accuracy for double: 1e-15. For long double should be 1e-18.
+    double maxError =  value * 1e-14;	//max accuracy for double: 1e-15?. For long double should be 1e-17.
 
     double integer = floor(value);
     double decimal = value - integer;

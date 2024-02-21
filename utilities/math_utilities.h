@@ -9,8 +9,6 @@
 #include <cmath> 	//better than math.h
 #include <vector>
 
-#define log2Int(X) ((unsigned) (8*sizeof (unsigned long long) - __builtin_clzll((X)) - 1)) 
-
 using namespace std;
 
 template <class U, class V>

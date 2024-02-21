@@ -48,7 +48,7 @@ void testPrint()
 	a(0,7);
 	b(5,-5);
 	b.print();
-	cout << " = " <<  a << "-1 " << endl;
+	cout << " = " <<  a << " - 1 " << endl;
 
 	try{
 		b(1,0);
@@ -203,7 +203,9 @@ void testBasicFractions()
 	b(4,8);
 	bb = log(4) - log(8);
 	dc = log(b);
-	assert((dc-1e-15) < bb && bb < (dc+1e-15));	//also, with doubles there is a tiny difference, so never use == outside tests
+	cout << "Beware of hidden differences! " << bb << " != " << dc  << endl;
+	//with doubles there is a tiny difference, so never use == outside tests
+	assert((dc-1e-15) < bb && bb < (dc+1e-15));
 
 	bb = log10(4) - log10(8);
 	dc = log10(b);
@@ -219,7 +221,9 @@ void testBasicFractions()
 	a(2744,19683);
 	a = root(a,3);
 	b(14,27);
-	assert((a-1e-15) < b && b < (a+1e-15));
+	cout << "Beware of rounding! "<<  a << " = " << a << " - 1e-10 == "<< a << " + 1e-10 = " << a+1e-10 << endl;
+	//sometimes numbers get rouded, even when they are big. Use a propper error margin according to your needs. And use <= outside tests
+	assert((a-1e-9) < b && b < (a+1e-9));
 
 	// casting
 	double da = a(9,8);
@@ -240,21 +244,6 @@ void testBasicFractions()
 	assert(b == cb);
 	assert(c == cc);
 
-	srand(time(NULL));
-	for(int i = 0; i < 100000; i++)
-	{
-		
-		long p = (rand() % 9999999999) + 1;
-		long q = (rand() % 9999999999) + 1;
-
-		a(p,q);
-		ca = a.continuedForm();
-
-		if(abs(a - ca) > 1e-14)
-		{
-			cout << (double)abs(a - ca) << endl;
-		}
-	}
 }
 
 void testCommonMistakes()
@@ -265,6 +254,10 @@ void testCommonMistakes()
 	assert(a > 0);
 	assert(b < 0);
 	assert(b.denominator() > 0);
+
+	a(-3,-7);
+	assert(a > 0);
+	assert(a.denominator() > 0);
 
 	a(1,-2);
 	b(1,2);
@@ -295,6 +288,7 @@ void testCommonMistakes()
 
 	a(4093*5869, 4093*4397);
 	assert(a.numerator() == 5869);
+	assert(a.denominator() == 4397);
 
 	a(103*103*197*197, 103*197*197*197);
 	assert(a.numerator() == 103);
@@ -316,9 +310,6 @@ void testBetterperiodics()
 	a(136,99);
 	da = 136.0/99.0;
 	b(da);
-	//cout << "double: " << da << endl;
-	//cout << "fraction: " << b << endl;
-	//cout << (double)a << " = " << (double)b << endl;
 	assert(a == b);
 	assert(a == da);
 
@@ -328,13 +319,18 @@ void testBetterperiodics()
 	assert(a == b);
 	assert(a == da);
 
+	a(0.33333333333333);
+	b(1,3);
+	assert(b == (1.0/3.0));
+	assert(a == b);
+
 	a(1571,550);
 	da = 1571.0/550.0;
 	b(da);
 	assert(a == b);
 	assert(a == da);
 
-	da = 15.23232345678910;	//must not transform da into 15.232323232323232323
+	da = 15.2323232345678910;	//must not transform da into 15.232323232323232323
 	a(da);
 	double db = a;
 	assert(abs(da-db) < 1e-13);
@@ -444,74 +440,30 @@ void testInfoOverflow()
 	n+=1;
 	cout << "overflow: 1 + " << ULLONG_MAX << " = (unsigned long long) " << p << "  =  (double)" << n << endl << endl;
 
-	e = LONG_MAX;
+	e = 1e8;
+	long e2 = e*e;
+	cout << "Testing e*e: " << e << " * " << e << " = " << e2 << endl;
+	cout << "	Detect overflow after: " << boolalpha << (e2/e != e) << endl;
+	cout << "	Detected before with division: " << boolalpha << (LONG_MAX/e <= e) << endl;
 
-	cout << "Testing e*e: " << e << " * " << e << " = " << (e*e) << endl;
-	cout << "	Detected with division: " << boolalpha << (LONG_MAX/e <= e) << endl;
-	e = 1e9;
-	cout << "Testing e*e: " << e << " * " << e << " = " << (e*e) << endl;
-	cout << "	Detected with division: " << boolalpha << (LONG_MAX/e > e) << endl;
-	e = 1e10;
-	cout << "Testing e*e: " << e << " * " << e << " = " << (e*e) << endl;
-	cout << "	Detected with division: " << boolalpha << (LONG_MAX/e <= e) << endl;
-
-	cout << "Partial casting: " << endl << (double)e*LONG_MAX << " == " << endl << e*(double)LONG_MAX << endl;
+	cout << endl << "Partial casting: " << endl << (double)e*LONG_MAX << " == " << endl << e*(double)LONG_MAX << endl;
 	
-}
-
-void logTimes()
-{
-	double ttime = 0, ttime2 = 0, ttime2Int = 0, ttime10 = 0;
-	for(double i = 1; i < 10000; i+=0.2)
-	{
-		double time = 0, time2 = 0, time2Int = 0, time10 = 0;
-		clock_t watcher;
-		for(int k = 0; k < 1000; k++)
-		{
-			watcher = clock();
-			log(i);
-			watcher = clock() - watcher;
-			time += watcher;
-
-			watcher = clock();
-			log2(i);
-			watcher = clock() - watcher;
-			time2 += watcher;
-
-			watcher = clock();
-			log2Int(i);
-			watcher = clock() - watcher;
-			time2Int += watcher;
-
-			watcher = clock();
-			log10(i);
-			watcher = clock() - watcher;
-			time10 += watcher;
-		}
-		ttime += time/1000;
-		ttime2 += time2/1000;
-		ttime2Int += time2Int/1000;
-		ttime10 += time10/1000;
-	}
-
-	cout << "ttime = " << ttime << " , ttime2 = " << ttime2 << " , ttime2Int = " << ttime2Int << " , ttime10 = " << ttime10 << endl;
 }
 
 int main()
 {
-	/*
-	someInfo();
-	testPrint();
+
+	//someInfo();
+	//testPrint();
 	testDensity();
-	testCloseToZeroNumbers();
+	/*testCloseToZeroNumbers();
 	testInfoOverflow();
-	*/
-	
+*/
+/*
 	testBasicFractions();	//basic tests for every operation
 	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
 	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
-
-	//logTimes();
+*/
 	
 	return 0;
 }

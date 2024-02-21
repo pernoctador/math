@@ -4,6 +4,7 @@
 
 #include <climits>		//LONG_MAX
 #include <cmath> 	//better than math.h
+#include <iostream>
 
 using namespace std;
 
@@ -14,12 +15,13 @@ inline long doublesIn(double first, double last)
     long res;
 
 	// *reinterpret_cast<long *>(&first) return the bit pattern representing a double as a 64-bit unsigned integer.
+    //cout << endl << last << " - " << first << " = " <<  *reinterpret_cast<long *>(&last) << " - " << *reinterpret_cast<long *>(&first) << endl;
     res = *reinterpret_cast<long *>(&last) - *reinterpret_cast<long *>(&first);
     return res;
 }
 
 //Density of fractions between first and last, or less.
-inline double fractionsIn(unsigned long first, unsigned long last) 
+inline double fractionsIn(double first, double last)
 {
     double pi = 3.141592653589793238462643383279502884;
     double max = LONG_MAX;	//i can't use LONG_MAX directly

@@ -6,6 +6,8 @@
 #include <cmath> 	//better than math.h
 #include <iostream>
 #include <climits>	//LONG_MAX
+#include <string>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -32,7 +34,7 @@ public:
 	void print(){if(den > 1){cout << num << "/" << den;}else{cout << num;}}
 	friend ostream& operator<<(ostream& os, const Fraction &f){if(f.den > 1){os << f.num << "/" << f.den;}else{os << f.num;}return os;}
 
-	Fraction& operator()(long a, long b);
+	Fraction& operator()(long n, long d);
 	Fraction& operator()(double db){*this = doubleToFraction(db); return *this;}
 
 	void operator=(Fraction f){num = f.num; den = f.den;}
