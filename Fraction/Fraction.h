@@ -39,37 +39,44 @@ public:
 
 	void operator=(Fraction f){num = f.num; den = f.den;}
 	void operator=(int i){num = i; den = 1;}
+	void operator=(unsigned i){num = i; den = 1;}
 	void operator=(long l){num = l; den = 1;}
 	void operator=(double db){*this = doubleToFraction(db);}
 	void operator=(vector<long> v);
 
 	bool operator==(Fraction f){return (num == f.num && den == f.den);}
 	bool operator==(int i){return (num == i && den == 1);}
+	bool operator==(unsigned i){return (num == i && den == 1);}
 	bool operator==(long i){return (num == i && den == 1);}
 	bool operator==(double db){return *this == doubleToFraction(db);}
 
 	bool operator!=(Fraction f){return !(*this == f);}
 	bool operator!=(int i){return !(*this == i);}
+	bool operator!=(unsigned i){return !(*this == i);}
 	bool operator!=(long l){return !(*this == l);}
 	bool operator!=(double db){return !(*this == db);}
 
 	bool operator<(Fraction f){return (double)num*f.den < (double)f.num*den;}
 	bool operator<(int i){return num < (double)i*den;}
+	bool operator<(unsigned i){return num < (double)i*den;}
 	bool operator<(long l){return num < (double)l*den;}
 	bool operator<(double db){return num < db*den;}
 
 	bool operator>(Fraction f){return (double)num*f.den > (double)f.num*den;}	//to avoid overflow
 	bool operator>(int i){return num > (double)i*den;}
+	bool operator>(unsigned i){return num > (double)i*den;}
 	bool operator>(long l){return num > (double)l*den;}
 	bool operator>(double db){return num > db*den;}
 
 	bool operator<=(Fraction f){return *this == f || *this < f;}
 	bool operator<=(int i){return *this == i || *this < i;}
+	bool operator<=(unsigned i){return *this == i || *this < i;}
 	bool operator<=(long l){return *this == l || *this < l;}
 	bool operator<=(double db){return *this == db || *this < db;}
 	
 	bool operator>=(Fraction f){return *this > f || *this == f;}
 	bool operator>=(int i){return *this > i || *this == i;}
+	bool operator>=(unsigned i){return *this > i || *this == i;}
 	bool operator>=(long l){return *this > l || *this == l;}
 	bool operator>=(double db){return *this > db || *this == db;}
 
@@ -77,32 +84,38 @@ public:
 
 	Fraction operator+(Fraction f);
 	Fraction operator+(int i){return normal(num + i*den, den);}
+	Fraction operator+(unsigned i){return normal(num + i*den, den);}
 	Fraction operator+(long l){return normal(num + l*den, den);}
 	Fraction operator+(double db){return *this + doubleToFraction(db);}
 
 	void operator+=(Fraction f){*this = *this + f;}
 	void operator+=(int i){num += i*den; normalize();}
+	void operator+=(unsigned i){num += i*den; normalize();}
 	void operator+=(long l){num += l*den; normalize();}
 	void operator+=(double db){*this += doubleToFraction(db);}
 
 	Fraction operator-(Fraction f);
 	Fraction operator-(long i){return normal(num - i*den, den);}	
-	Fraction operator-(int l){return normal(num - l*den, den);}	
+	Fraction operator-(unsigned i){return normal(num - i*den, den);}
+	Fraction operator-(int l){return normal(num - l*den, den);}
 	Fraction operator-(double db){return *this - doubleToFraction(db);}
 
 	void operator-=(Fraction f){*this = *this + (-f);}
 	void operator-=(int i){num -= i*den; normalize();}
+	void operator-=(unsigned i){num -= i*den; normalize();}
 	void operator-=(long l){num -= l*den; normalize();}
 	void operator-=(double db){*this -= doubleToFraction(db);}
 
 	// num * f.num < max => num < max/f.num => check if num >= max/f.num
 	Fraction operator*(Fraction f);
 	Fraction operator*(int i){Fraction f(i, den); f.num *= num; return f;}
+	Fraction operator*(unsigned i){Fraction f(i, den); f.num *= num; return f;}
 	Fraction operator*(long l){Fraction f(l, den); f.num *= num; return f;}
 	Fraction operator*(double db){return *this * doubleToFraction(db);}
 
 	void operator*=(Fraction f){*this = *this * f;}
 	void operator*=(int i){num *= i; normalize();}
+	void operator*=(unsigned i){num *= i; normalize();}
 	void operator*=(long l){num *= l; normalize();}
 	void operator*=(double db){*this *= doubleToFraction(db);}
 

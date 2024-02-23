@@ -16,7 +16,7 @@ CFLAGS = -g -ggdb -Wall -std=c++11
 
 all: tests
 
-tests: Fraction.o tests.o 
+tests: Fraction.o tests.o
 	$(CC) $(CFLAGS) Fraction.o tests.o -o tests
 
 tests.o: Matrix.h tests.cpp

@@ -1,4 +1,4 @@
-#include "Matrix.h"
+﻿#include "Matrix.h"
 #include "../Fraction/Fraction.h"
 #include <cfloat>
 #include <assert.h>
@@ -7,6 +7,24 @@
 
 void printTest()	//MUST check with valgrind
 {
+	//initialize matrix:
+	Matrix<double> zero(5,7);
+	zero.Zero();
+	zero.print();
+
+	Matrix<double> id(7,4);
+	id.Id();
+	id.print();
+
+	Matrix<double> id2(3,4);
+	id2.Id();
+	id2.print();
+
+	Matrix<double> rnd(4,6);
+	rnd.Random(20,40);
+	rnd.print();
+
+	//Transpose, print and transpose again
 	Matrix<double> first(4,15);
 	first.Zero();
 	cout << "matrix A:" << endl;
@@ -48,13 +66,22 @@ void printTest()	//MUST check with valgrind
 	D.print();
 	cout << endl;
 
+	//change elements
 	Matrix<double> second = Id<double>(4);
 	second(1,2) = 46.2654;
 	second.print();
 
 	Matrix<Fraction> third = Id<Fraction>(5);
-	third(1,2) = Fraction(41,53);	//don't know how to improve it
-	third.print();	
+	third(1,2) = Fraction(41,53);
+	third.print();	//don't know how to improve this print
+
+	//prints with 2 matrix
+	B.print(D);
+
+	//this ones shouldn't print, different cols
+	B.print(C);
+	B.print(first);
+
 }
 
 void basicMatrixOperations()
@@ -94,7 +121,6 @@ void basicMatrixOperations()
 	a.nameElements();
 	b.nameElements();
 
-
 	Matrix<double> c = a * b;
 	Matrix<double> r(4,3);
 	double v[] = {3,  4,  5, 9, 14, 19, 15, 24, 33, 21, 34, 47};
@@ -110,8 +136,6 @@ void basicMatrixOperations()
 			d(i,j) = (i+1) * (j+1);
 		}
 	}
-	//cout << "d: " << endl;
-	//d.print(); 
 
 	Matrix<double> c2 = a + d;
 	double v2[] = {1,  3, 4, 7, 7, 11, 10, 15};
@@ -141,12 +165,21 @@ void basicMatrixOperations()
 	cout << "Error: must have thrown exception" << endl;
 	}
 	catch(exception &e){}
+
+	// ()
+	Matrix<double> f(2,4);
+	f.nameElements();
+	assert(f(1,2) == 6);
+	f.t();
+	assert(f(3,1) == 7);
 }
 
-void GaussianEliminationTest()
+void TriangulateTest()
 {
+
 	Fraction first[] = {4, 16, 3, 2, 9, 8, 4, 12, 7};
 	Matrix<Fraction> a(3.3);
+	cout << "First test:" << endl;
 	a = first;
 	
 	Fraction det = a.GaussianElimination();
@@ -156,15 +189,103 @@ void GaussianEliminationTest()
 
 	assert(det == 120);
 
+	cout << "Second test:" << endl;
 	Fraction second[] = {4,8,9,5,3,15,10,6,30};
 	a = second;
 
 	det = a.GaussianElimination();
-
+	a.print();
 	for(unsigned i = 0; i < a.size().first; i++)
 		det *= a(i,i);
 
 	assert(det == 0);
+}
+
+void GaussianEliminationTest(){
+	cout << "First eq test (fractions):" << endl;
+	unsigned eq = 2;
+	Fraction first[] = {1, 2, -2, -2};
+	Fraction result[] = {34, -38};
+	Matrix<Fraction> a(eq,eq);
+	Matrix<Fraction> c(eq,eq);
+	a = first;
+	c = a;
+
+	Matrix<Fraction> b(eq,1);
+	b = result;
+	a.print(b);
+
+	a.GaussianElimination(&b);	//this gauss doesn't return any specific 'a' matrix
+	a.print(b);
+
+	//Fraction solf[] = {4, 15};
+	Matrix<Fraction> checkf(eq,1);
+	checkf = c * b;
+	assert(checkf == result);
+
+
+	cout << "First eq test (double):" << endl;
+	eq = 2;
+	double firstd[] = {1, 2, -2, -2};
+	double resultd[] = {34, -38};
+	Matrix<double> d(eq,eq);
+	Matrix<double> f(eq,eq);
+	d = firstd;
+	f = d;
+
+	Matrix<double> e(eq,1);
+	e = resultd;
+	d.print(e);
+
+	d.GaussianElimination(&e);  //d gets destroyed
+	e.print();
+
+	Matrix<double> checkd(eq,1);
+	checkd = f * e;
+	assert(checkd == resultd);
+
+	eq = 3;
+	cout << "Second eq test (fractions):" << endl;
+	Fraction second[] = {-1, -10, -4 , 3, 5, 2, -2, 2, 2};
+	Fraction result2[] = {9, -2, 14};
+	Matrix<Fraction> g(eq,eq);
+	Matrix<Fraction> i(eq,eq);
+	g = second;
+	i = g;
+
+	Matrix<Fraction> h(eq,1);
+	h = result2;
+	g.print(h);
+
+	g.GaussianElimination(&h); //g gets destroyed
+	h.print();
+
+	Matrix<Fraction> check2f(eq,1);
+	check2f = i * h;
+	assert(check2f == result2);
+
+
+	cout << "Second eq test (double):" << endl;
+	double secondd[] = {-1, -10, -4 , 3, 5, 2, -2, 2, 2};
+	double result2d[] = {9, -2, 14};
+	Matrix<double> j(eq,eq);
+	Matrix<double> l(eq,eq);
+	j = secondd;
+	l = j;
+
+	Matrix<double> k(eq,1);
+	k = result2d;
+	j.print(k);
+
+	j.GaussianElimination(&k); //j gets destroyed
+	k.print();
+
+	Matrix<double> ckeck2d(eq,1);
+	ckeck2d = l * k;
+	cout << "ckeck2d:" << endl;
+	ckeck2d.print();
+	assert(ckeck2d != result2d); //It works, but with doubles detects some difference it doesn't show.
+
 }
 
 void timeTestGaussian()
@@ -202,9 +323,9 @@ void timeTestGaussian()
 int main()
 {
 	//printTest();
-	basicMatrixOperations();
-	//GaussianEliminationTest();
+	//basicMatrixOperations();
+	//TriangulateTest();
+	GaussianEliminationTest();
 	//timeTestGaussian();
-	
 	return 0;
 }

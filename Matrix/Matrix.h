@@ -8,6 +8,7 @@
 #include <iomanip>		//setw
 #include <exception>
 // if ur going to use Random():
+#include <algorithm>
 #include <time.h>
 #include <random>
 
@@ -15,7 +16,7 @@ using namespace std;
 
 class zeroRowsOrCols: public exception
 {
-  virtual const char* what() const throw()
+  virtual const char* error() const throw()
   {
     return "Error: ammount of rows and columns must be greater than 0.";
   }
@@ -23,7 +24,7 @@ class zeroRowsOrCols: public exception
 
 class wrongDimensions: public exception
 {
-  virtual const char* what() const throw()
+  virtual const char* error() const throw()
   {
     return "Error: wrong dimensions in matrix operation.";
   }
@@ -31,7 +32,7 @@ class wrongDimensions: public exception
 
 class needSquareMatrix: public exception
 {
-  virtual const char* what() const throw()
+  virtual const char* error() const throw()
   {
     return "Error: matrix must be square.";	// QR?
   }
@@ -39,7 +40,7 @@ class needSquareMatrix: public exception
 
 class needPositiveDefinite: public exception
 {
-  virtual const char* what() const throw()
+  virtual const char* error() const throw()
   {
     return "Error: matrix must be positive-definite.";	//for cholesky
   }
@@ -47,7 +48,7 @@ class needPositiveDefinite: public exception
 
 class outOfBounds: public exception
 {
-  virtual const char* what() const throw()
+  virtual const char* error() const throw()
   {
     return "Error: Element out of matrix's bounds.";	//for cholesky
   }
@@ -73,6 +74,10 @@ public:
 	void Random(int from, int to);
 
 	bool operator==(Matrix<T> B);
+	bool operator==(T v[]);
+
+	bool operator!=(Matrix<T> B){return !(*this == B);};
+	bool operator!=(T v[]){return !(*this == v);};
 
 	pair<unsigned,unsigned> size() const {return pair<unsigned,unsigned>(rows, cols);}
 
@@ -82,7 +87,8 @@ public:
 	T& operator() (unsigned row, unsigned col){if(row >= rows || col >= cols) throw wrongElem; return M[row*rcont + col*ccont];}
 	T  operator() (unsigned row, unsigned col) const {if(row >= rows || col >= cols) throw wrongElem; return M[row*rcont + col*ccont];}
 
-	void print() const;
+	void print();
+	void print(Matrix<T>);
 
 	Matrix<T> operator+(Matrix<T>& m);
 	void operator+=(Matrix<T>& m);
@@ -99,7 +105,8 @@ public:
 	void operator*=(T e);
 
 	int GaussianElimination();
-	int GaussianElimination(Matrix<T> extra);
+	double GaussianElimination(Matrix<T>* extra);
+
 
 private:
 	T* M;
@@ -109,8 +116,21 @@ private:
 	unsigned rcont;
 	unsigned ccont = 1;
 
+	Matrix();	//Null matrix
+
+	void draw(T v[], unsigned);
 	void swapRow(unsigned ,unsigned );
+	int triangulate(Matrix<T>* extra);
 };
+
+template <class T>
+Matrix<T>::Matrix()	//Null matrix
+{
+	rows = 0;
+	cols = 0;
+	rcont = 0;
+	M = new T[0];
+}
 
 template <class T>
 Matrix<T>::Matrix(unsigned r, unsigned c)
@@ -176,7 +196,6 @@ void Matrix<T>::operator=(Matrix<T> B)	//if B was transposed in O(1), *this will
 		for(unsigned i = 0; i < rows*cols; i++)
 		{
 			M[i] = B.M[i];
-			//cout << "M[" << i <<  "] = B.M[" << i << "] => " << M[i] << " = " << B.M[i] << endl;
 		}
 
 	}
@@ -237,7 +256,21 @@ bool Matrix<T>::operator==(Matrix<T> B)
 		{
 			if((*this)(i,j) != B(i,j))
 			{
-				//cout << i << ", " << j << " : elem=" << (*this)(i,j) << " , B=" << B(i,j) << endl; 
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+template <class T>
+bool Matrix<T>::operator==(T v[]) {
+	for(unsigned i = 0; i < rows; i++)
+	{
+		for(unsigned j = 0; j < cols; j++)
+		{
+			if((*this)(i,j) != v[(i*cols)+j])
+			{
 				return false;
 			}
 		}
@@ -262,9 +295,9 @@ Matrix<T> Id(unsigned size)
 template <class T>
 void Matrix<T>::Id()
 {
-	for(unsigned i = 0; i < cols; i++)
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(unsigned j = 0; j < rows; j++)
+		for(unsigned j = 0; j < cols; j++)
 		{
 			(*this)(i,j) = (i==j);
 		}
@@ -345,8 +378,21 @@ Matrix<T> Matrix<T>::tr() const
 }
 
 template <class T>
-void Matrix<T>::print() const
+void Matrix<T>::print() {
+	T vv[] = {};
+	draw(vv, 0);
+}
+template <class T>
+void Matrix<T>::print(Matrix<T> B) {
+	if(B.rows == rows) {
+		draw(B.M, B.cols*B.rows);
+	}
+}
+template <class T>
+void Matrix<T>::draw(T v[], unsigned size)
 {
+	//v ether have 0 elements or same rows as this
+	unsigned vcols = size/rows;
 	unsigned maxSize = 1;
 	unsigned elemSize;
 	for(unsigned i = 0; i < rows; i++)
@@ -356,37 +402,33 @@ void Matrix<T>::print() const
 			elemSize = tostr((*this)(i,j)).size();
 			maxSize = max(maxSize, elemSize);
 		}
-	}
-	//cout << "maxSize: " << maxSize << endl;
-
-	cout << "╭";
-
-	for (unsigned j = 0; j < cols - 1; j++) {
-		cout << setw(maxSize) << (*this)(0, j) << ", ";
+		for(unsigned j = 0; j < vcols; j++)
+		{
+			elemSize = tostr(v[i*vcols + j]).size();
+			maxSize = max(maxSize, elemSize);
+		}
 	}
 
-	cout << setw(maxSize) << (*this)(0, cols-1) << "╮" << endl;
-
-	for (unsigned i = 1; i < rows - 1; i++) {
-		cout << "│";
+	for (unsigned i = 0; i < rows; i++) {
 
 		for (unsigned j = 0; j < cols - 1; j++) {
 			cout << setw(maxSize) << (*this)(i, j) << ", ";
 		}
 
-		cout << setw(maxSize) << (*this)(i, cols-1) << "│" << endl;
+		cout << setw(maxSize) << (*this)(i, cols-1);
+
+		if (vcols > 0) {
+			cout << " | " << setw(maxSize) << v[i*vcols];
+
+			for (unsigned j = 1; j < vcols; j++) {
+				cout << ", " << setw(maxSize) << v[i*vcols + j];
+			}
+		}
+
+		cout << endl;
 	}
 
-	cout << "╰";
-
-	for (unsigned j = 0; j < cols - 1; j++) {
-		cout << setw(maxSize) << (*this)(rows-1, j) << ", ";
-	}
-
-	cout << setw(maxSize) << (*this)(rows-1, cols-1) << "╯" << endl/*;
-
-	cout << "***********" << endl << "t = " << boolalpha << transpose << endl << "rows = " << rows << endl << "cols = " << cols << endl << "rcont = " << rcont << endl;
-	cout << "ccont = " << ccont << endl*/ << endl;
+	cout << endl;
 }
 
 template <class T>
@@ -622,7 +664,7 @@ inline T abs(T e)
 template <class T>
 void Matrix<T>::swapRow(unsigned i, unsigned j)
 {
-	if(i != j && i >= 0 && j >= 0 && i < rows && j < cols)
+	if(i != j && i < rows && j < rows)
 	{
 		T aux;
 		for(unsigned k = 0; k < cols; k++)
@@ -634,113 +676,91 @@ void Matrix<T>::swapRow(unsigned i, unsigned j)
 	}
 }
 
+template <class T>
+int Matrix<T>::triangulate(Matrix<T>* extra) {
+	int detSign = 1;
+	for(unsigned k = 0; k < min(rows, cols); k++) {
+		T maxAbs = abs<T>((*this)(k,k));
+		unsigned pibot = k;
+		for(unsigned m = k+1; m < rows; m++)
+		{
+			if(abs<T>((*this)(m,k)) > maxAbs)
+			{
+				maxAbs = abs<T>((*this)(m,k));
+				pibot = m;
+			}
+		}
+		if((*this)(pibot,k) == 0)
+		{
+			cerr << "Matrix is singular" << endl;	//in Gaussian Elimination this should not always be an exception
+			detSign = 0;
+		}
+		else
+		{
+			if(k != pibot)
+			{
+				swapRow(k,pibot);
+				if(extra->rows > 0) {
+					extra->swapRow(k, pibot);
+				}
+				detSign = -detSign;
+			}
+
+			for(unsigned i = k+1; i < rows; i++)
+			{
+				T f = (*this)(i,k) / (*this)(k,k);
+
+				for(unsigned j = k+1; j < cols; j++)
+				{
+					(*this)(i,j) -= (*this)(k,j) * f;
+				}
+
+				(*this)(i,k) = 0;
+
+				for(int j = 0; j < (int)extra->cols; j++)
+				{
+					(*extra)(i,j) -= (*extra)(k,j) * f;
+				}
+			}
+		}
+	}
+	return detSign;
+}
 //replace original matrix. Returns operations value (for determinant).
 //I advice to use Fraction as T if the original matrices have only integers.
 template <class T>
 int Matrix<T>::GaussianElimination()
 {
-	int det = 1;
-	for(unsigned k = 0; k < min(rows, cols); k++)
-	{
-		T maxAbs = abs<T>((*this)(k,k));
-		unsigned pibot = k;
-		for(unsigned m = k+1; m < rows; m++)
-		{
-			if(abs<T>((*this)(m,k)) > maxAbs)
-			{
-				maxAbs = abs<T>((*this)(m,k));
-				pibot = m;
-			}
-		}
-		if((*this)(pibot,k) == 0)
-		{
-			cerr << "Matrix is singular" << endl;	//in Gaussian Elimination this should not always be an exception
-			det = 0;
-		}
-		else
-		{
-			if(k != pibot)
-			{
-				swapRow(k,pibot);
-				det = -det;
-			}
-
-			for(unsigned i = k+1; i < rows; i++)
-			{
-				T f = (*this)(i,k) / (*this)(k,k);
-
-				for(unsigned j = k+1; j < cols; j++)
-				{
-					(*this)(i,j) -= (*this)(k,j) * f;
-				}
-
-				(*this)(i,k) = 0;
-			}
-		}
-	}
-
-	return det;
+	Matrix<T> extra;
+	return triangulate(&extra);
 }
 
 //replace original matrix. Returns operations value (for determinant).
 //I advice to use Fraction as T if the original matrices have only integers.
 template <class T>
-int Matrix<T>::GaussianElimination(Matrix<T> extra)
+double Matrix<T>::GaussianElimination(Matrix<T>* extra)
 {
-	if(extra.rows != rows)
+	if(extra->rows != rows)
 		throw wrongDim;
 
-	int det = 1;
-	for(unsigned k = 0; k < min(rows, cols); k++)
-	{
-		T maxAbs = abs<T>((*this)(k,k));
-		unsigned pibot = k;
-		for(unsigned m = k+1; m < rows; m++)
-		{
-			if(abs<T>((*this)(m,k)) > maxAbs)
-			{
-				maxAbs = abs<T>((*this)(m,k));
-				pibot = m;
-			}
-		}
-		if((*this)(pibot,k) == 0)
-		{
-			cerr << "Matrix is singular" << endl;	//in Gaussian Elimination this should not always be an exception
-			det = 0;
-		}
-		else
-		{
-			if(k != pibot)
-			{
-				swapRow(k,pibot);
-				det = -det;
-			}
+	double determinant = this->triangulate(extra);
 
-			for(unsigned i = k+1; i < rows; i++)
-			{
-				T f = (*this)(i,k) / (*this)(k,k);
+	if(determinant != 0) {
 
-				for(unsigned j = k+1; j < cols; j++)
-				{
-					(*this)(i,j) -= (*this)(k,j) * f;
-				}
-
-				(*this)(i,k) = 0;
-
-				for(unsigned j = 0; j < extra.cols; j++)
-				{
-					extra(i,j) -= extra(k,j) * f;
+		for(int i = rows-1; i >= 0; i--) {
+			for(int j = cols-1; j >= i+1; j--) {
+				for(int k = 0; k < extra->cols; k++) {
+					//sub
+					(*extra)(i,k) -= (*this)(i,j) * (*extra)(j,k);
 				}
 			}
+			//div
+			(*extra)(i,0) /= (*this)(i,i);
+			determinant *= (double)(*this)(i,i);
+			(*this)(i,i) = 1;
 		}
 	}
-	/*now I solve the equations:*/
-	if(det != 0)
-	{
-		//
-	}
-
-	return det;
+	return determinant;
 }
 
 #endif
