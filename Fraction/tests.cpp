@@ -450,20 +450,41 @@ void testInfoOverflow()
 	
 }
 
+void problemChildren() {
+	cout << " Problem Children: " << endl;
+	double ad = 944;
+	Fraction bf(4865998, 4482501);
+	double bd = bf;
+	Fraction af = ad;
+	double res1d = ad * bd;
+	Fraction res1f = af * bf;
+	cout << "Setup a: " << ad << " == " << af << endl;
+	cout << "Setup b: " << bd << " == " << (double)bf << endl;
+	cout << "Problem a*b: " << res1d << " == " << (double)res1f << endl;
+
+	Fraction cf(944, 4482501);
+	double cd = 944.0 / 4482501.0;
+
+	cout << "interm : " << cd << " = " << (double)cf << " = " << cf << endl;
+	cf = cf * 4865998.0;
+	cd = cd * 4865998.0;
+	cout << "interm p2: " << cd << " = " << (double)cf << " = " << cf << endl;
+}
+
 int main()
 {
 
 	//someInfo();
 	//testPrint();
-	testDensity();
-	/*testCloseToZeroNumbers();
-	testInfoOverflow();
-*/
-/*
-	testBasicFractions();	//basic tests for every operation
-	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
-	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
-*/
+	//testDensity();
+	//testCloseToZeroNumbers();
+	//testInfoOverflow();
+
+
+	//testBasicFractions();	//basic tests for every operation
+	//testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
+	//testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
+	problemChildren();
 	
 	return 0;
 }

@@ -218,16 +218,16 @@ Fraction Fraction::operator-(Fraction f)
 
 Fraction Fraction::operator*(Fraction f)
 {
+	if(num == 0 || f.num == 0) return Fraction(0);
 	//check for simplifications
 
 	Fraction a = normal(f.num,den);
 	Fraction b = normal(num, f.den);
 	
-	if(b.num == 0) return Fraction(0);
-	if(LONG_MAX/abs(b.num) <= abs(num) || LONG_MAX/abs(b.den) <= abs(den))
+
+	if(LONG_MAX/abs(b.num) <= abs(a.num) || LONG_MAX/abs(b.den) <= abs(a.den))
 	{
-		double newDen = a.den;
-		newDen *= b.den;
+		double newDen = a.den * b.den;
 		double newNum = max(a.num, b.num) / newDen;
 		newNum *= min(a.num, b.num);
 		Fraction h(newNum);
@@ -330,6 +330,29 @@ void Fraction::operator/=(int i)
 		throw divByZ;
 }
 
+Fraction Fraction::operator/(unsigned i)
+{
+	if(i != 0)
+	{
+		Fraction f(num, i);
+		f.den *= den;
+		return f;
+	}
+	else
+		throw divByZ;
+}
+
+void Fraction::operator/=(unsigned i)
+{
+	if(i != 0)
+	{
+		den*=i;
+		normalize();
+	}
+	else
+		throw divByZ;
+}
+
 vector<long> Fraction::continuedForm()
 {
 	vector<long> res;
@@ -415,37 +438,42 @@ double log10(Fraction f)
 
 Fraction Fraction::doubleToFraction(double value)
 {
-	long sign = (value >= 0);	//0 if value is neg. 1 if 0 or greater
+	long sign = (value >= 0);	//if value is negative => 0. if value >= 0 => 1
     sign = sign*2 -1;		//0 or 2, then -1 or 1
 
     value = abs(value);
 
     // Accuracy is the maximum relative error; convert to absolute maxError
-    double maxError =  value * 1e-14;	//max accuracy for double: 1e-15?. For long double should be 1e-17.
+    //double maxError =  value * 1e-14;	//max accuracy for double: 1e-15?. For long double should be 1e-17.
+	double maxError = 1e-10;
 
     double integer = floor(value);
     double decimal = value - integer;
 
-    if (decimal < 1e-15)
+    if (decimal < maxError)
         return Fraction((long)integer*sign, 1);
 
-    if (decimal > 1 - 1e-15)
+    if (decimal > 1 - maxError)
         return Fraction((long)(integer + 1)*sign, 1);
 
     double z = value;
     long previousDenominator = 0;
     long denominator = 1;
-    long numerator, temp;
+    long numerator, Di;
+	double diff, zdiff;
 
     do
     {
         z = 1.0 / (z - floor(z));
-        temp = denominator;
-        denominator = denominator * floor(z) + previousDenominator;
-        previousDenominator = temp;
+        Di = denominator;
+        denominator = Di * floor(z) + previousDenominator;
+        previousDenominator = Di;
         numerator = round(value * denominator);
+
+    	diff = abs((double)numerator / (double)denominator - value);
+    	zdiff = abs(z - floor(z));
     }
-    while (abs(value - (double)numerator / (double)denominator) > maxError && z != floor(z));
+    while (diff > maxError && zdiff > maxError);
 
     return Fraction(numerator * sign, denominator);
 }

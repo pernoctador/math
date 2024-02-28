@@ -284,8 +284,58 @@ void GaussianEliminationTest(){
 	ckeck2d = l * k;
 	cout << "ckeck2d:" << endl;
 	ckeck2d.print();
-	assert(ckeck2d != result2d); //It works, but with doubles detects some difference it doesn't show.
+	k = result2d;
+	cout << "distance:" << ckeck2d.distance(k) << endl;
+	assert(ckeck2d.distance(k) < 1e-14);
+}
 
+void GaussianEliminationTest2() {
+	cout << "First eq test (fractions):" << endl;
+	unsigned n = 3;
+	Fraction a[] = {944,    2,  -70, 369, -856, -876, -866,  272,  934};
+	Fraction b[] = {944,    2,  -70};
+	Matrix<Fraction> A(n,n);
+	Matrix<Fraction> B(n,1);
+	A = a;
+	B = b;
+	Matrix<Fraction> A2(n,n);
+	Matrix<Fraction> B2(n,1);
+	Matrix<Fraction> check(n,1);
+	A2 = A;
+	B2 = B;
+
+	
+	double c[] = {944,    2,  -70, 369, -856, -876, -866,  272,  934};
+	double d[] = {944,    2,  -70};
+	Matrix<double> C(n,n);
+	Matrix<double> D(n,1);
+	C = c;
+	D = d;
+	Matrix<double> C2(n,n);
+	Matrix<double> D2(n,1);
+	Matrix<double> check2(n,1);
+	C2 = C;
+	D2 = D;
+
+	
+	A.GaussianElimination(&B);
+	check = A2*B;
+	double dist = check.distance(B2);
+	A2.print(B);
+	cout << "  ====================  " << endl;
+	check.print(B2);
+	cout << "Dist = " << dist << endl;
+
+/*
+	C.GaussianElimination(&D);
+	check2 = C2*D;
+	double dist2 = check2.distance(D2);
+	C2.print(D);
+	cout << "  ====================  " << endl;
+	check2.print(D2);
+
+	cout << "Dist = " << dist2 << endl;*/
+	//assert(dist < 1e-6 && dist >= 0);
 }
 
 void timeTestGaussian()
@@ -319,13 +369,40 @@ void timeTestGaussian()
 	cout << "GaussianElimination transposed takes " << promt << endl << endl;
 }
 
+void pressureGETest() {
+	for(int n = 1; n < 1000; n++) {
+		Matrix<Fraction> A(n,n);
+		A.Random(-1000, 1000);
+		Matrix<Fraction> B(n,1);
+		B.Random(-1000,1000);
+		Matrix<Fraction> A2(n,n);
+		Matrix<Fraction> B2(n,1);
+		Matrix<Fraction> check(n,1);
+		A2 = A;
+		B2 = B;
+		A.GaussianElimination(&B);
+		check = A2*B;
+		double dist = check.distance(B2);
+		cout << n << " : dist = " << dist << endl;
+		if (dist > 1) {
+			A2.print(B2);
+			cout << "  ====================  " << endl;
+			B.print();
+			break;
+		}
+		//assert(dist < 1e-6 && dist >= 0);
+	}
+}
+
 
 int main()
 {
 	//printTest();
 	//basicMatrixOperations();
 	//TriangulateTest();
-	GaussianEliminationTest();
+	//GaussianEliminationTest();
+	//GaussianEliminationTest2();
+	pressureGETest();
 	//timeTestGaussian();
 	return 0;
 }

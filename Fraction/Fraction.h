@@ -21,6 +21,7 @@ public:
 
 	Fraction(){num = 1; den = 1;}
 	Fraction(int n){num = n; den = 1;}
+	Fraction(unsigned n){num = n; den = 1;}
 	Fraction(long n){num = n; den = 1;}
 	Fraction(const Fraction& f){num = f.num; den = f.den;}
 	Fraction(long n, long d);
@@ -46,7 +47,7 @@ public:
 
 	bool operator==(Fraction f){return (num == f.num && den == f.den);}
 	bool operator==(int i){return (num == i && den == 1);}
-	bool operator==(unsigned i){return (num == i && den == 1);}
+	bool operator==(unsigned i){return (num == (long)i && den == 1);}
 	bool operator==(long i){return (num == i && den == 1);}
 	bool operator==(double db){return *this == doubleToFraction(db);}
 
@@ -121,11 +122,13 @@ public:
 
 	Fraction operator/(Fraction);
 	Fraction operator/(int);
+	Fraction operator/(unsigned);
 	Fraction operator/(long);
 	Fraction operator/(double db){return *this / doubleToFraction(db);}
 
 	void operator/=(Fraction);
 	void operator/=(int);
+	void operator/=(unsigned);
 	void operator/=(long);
 	void operator/=(double db){*this /= doubleToFraction(db);}
 
@@ -136,6 +139,7 @@ public:
 	vector<long> continuedForm();
 
 	operator int(){return num/den;}
+	operator unsigned(){return abs(num)/den;}
 	operator long(){return num/den;}
 	operator double(){return (double)num/(double)den;}
 

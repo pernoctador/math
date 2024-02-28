@@ -104,6 +104,8 @@ public:
 	Matrix<T> operator*(T e);
 	void operator*=(T e);
 
+	double distance(Matrix<T> B);
+
 	int GaussianElimination();
 	double GaussianElimination(Matrix<T>* extra);
 
@@ -604,25 +606,34 @@ void Matrix<T>::operator-=(T e)
 }
 
 template <class T>
-Matrix<T> Matrix<T>::operator*(Matrix<T>& m)
-{
-	Matrix<T> res(rows, m.cols);
+Matrix<T> Matrix<T>::operator*(Matrix<T>& m) {
 	if(cols != m.rows)
 		throw wrongDim;
-	else
+
+	Matrix<T> res(rows, m.cols);
+
+	for(unsigned i = 0; i < rows; i++)
 	{
-		for(unsigned i = 0; i < rows; i++)
+		for(unsigned j = 0; j < m.cols; j++)
 		{
-			for(unsigned j = 0; j < m.cols; j++)
+			res(i,j) = 0;
+			for(unsigned k = 0; k < cols; k++)
 			{
-				res(i,j) = 0;
-				for(unsigned k = 0; k < cols; k++)
-				{
-					res(i,j) += (*this)(i,k) * m(k,j);
-				}
+				T a = (*this)(i,k);
+				T b = m(k,j);
+				T semi = a * b;
+				double semid = (double)semi;
+				T ress = res(i,j);
+				double ressd = ress;
+
+				ress +=  semi;
+				ressd += (double)semi;
+
+				res(i,j) += (*this)(i,k) * m(k,j);
 			}
 		}
 	}
+
 	return res;
 }
 
@@ -674,6 +685,22 @@ void Matrix<T>::swapRow(unsigned i, unsigned j)
 			(*this)(j,k) = aux;
 		}
 	}
+}
+
+template <class T>
+double Matrix<T>::distance(Matrix<T> B) {
+	if(cols != B.cols || rows != B.rows) {
+		return -1;
+	}
+	T dist = 0;
+	for(unsigned i = 0; i < rows; i++) {
+		for(unsigned j = 0; j < cols; j++) {
+			double a = (*this)(i,j);
+			double b = B(i,j);
+			dist += abs(a-b);
+		}
+	}
+	return (double)dist;
 }
 
 template <class T>
@@ -749,7 +776,7 @@ double Matrix<T>::GaussianElimination(Matrix<T>* extra)
 
 		for(int i = rows-1; i >= 0; i--) {
 			for(int j = cols-1; j >= i+1; j--) {
-				for(int k = 0; k < extra->cols; k++) {
+				for(unsigned k = 0; k < extra->cols; k++) {
 					//sub
 					(*extra)(i,k) -= (*this)(i,j) * (*extra)(j,k);
 				}
