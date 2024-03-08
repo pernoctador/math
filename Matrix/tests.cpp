@@ -304,7 +304,15 @@ void GaussianEliminationTest2() {
 	A2 = A;
 	B2 = B;
 
-	
+	A.GaussianElimination(&B);
+	check = A2*B;
+	double dist = check.distance(B2);
+	A2.print(B);
+	cout << "  ====================  " << endl;
+	check.print(B2);
+	cout << "Dist = " << dist << endl;
+
+	cout << "First eq test (double):" << endl;
 	double c[] = {944,    2,  -70, 369, -856, -876, -866,  272,  934};
 	double d[] = {944,    2,  -70};
 	Matrix<double> C(n,n);
@@ -317,14 +325,14 @@ void GaussianEliminationTest2() {
 	C2 = C;
 	D2 = D;
 
-	
-	A.GaussianElimination(&B);
-	check = A2*B;
-	double dist = check.distance(B2);
-	A2.print(B);
+	C.GaussianElimination(&D);
+	check2 = C2*D;
+	dist = check2.distance(D2);
+	C2.print(D);
 	cout << "  ====================  " << endl;
-	check.print(B2);
+	check2.print(D2);
 	cout << "Dist = " << dist << endl;
+
 
 /*
 	C.GaussianElimination(&D);
@@ -401,8 +409,8 @@ int main()
 	//basicMatrixOperations();
 	//TriangulateTest();
 	//GaussianEliminationTest();
-	//GaussianEliminationTest2();
-	pressureGETest();
+	GaussianEliminationTest2();
+	//pressureGETest();
 	//timeTestGaussian();
 	return 0;
 }

@@ -620,15 +620,20 @@ Matrix<T> Matrix<T>::operator*(Matrix<T>& m) {
 			for(unsigned k = 0; k < cols; k++)
 			{
 				T a = (*this)(i,k);
-				T b = m(k,j);
-				T semi = a * b;
-				double semid = (double)semi;
-				T ress = res(i,j);
-				double ressd = ress;
+				if(a == (double)-70 || a == (double)-876 || a == (double)934) {
+					T b = m(k,j);
+					T semi = a * b;
+					double semid = (double)a * (double)b;
+					T ress = res(i,j);
+					double ressd = (double)ress;
 
-				ress +=  semi;
-				ressd += (double)semi;
+					T tot =  semi + ress;
+					double totd = semid + ressd;
 
+					if(abs(totd - (double)tot) > 1e-10) {
+						cout << a << " * " << b << " + " << ress << " == " << tot << " != " << totd << endl;
+					}
+				}
 				res(i,j) += (*this)(i,k) * m(k,j);
 			}
 		}

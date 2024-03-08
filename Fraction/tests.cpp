@@ -121,7 +121,7 @@ void testBasicFractions()
 	c(5,6);
 	a += b;
 	assert(a == c);
-	b += 2.3;
+	b = b + 2.3;
 	c(14,5);
 	assert(b == c);
 	a += 1;
@@ -450,25 +450,83 @@ void testInfoOverflow()
 	
 }
 
-void problemChildren() {
-	cout << " Problem Children: " << endl;
-	double ad = 944;
-	Fraction bf(4865998, 4482501);
-	double bd = bf;
-	Fraction af = ad;
-	double res1d = ad * bd;
-	Fraction res1f = af * bf;
-	cout << "Setup a: " << ad << " == " << af << endl;
-	cout << "Setup b: " << bd << " == " << (double)bf << endl;
-	cout << "Problem a*b: " << res1d << " == " << (double)res1f << endl;
-
+void problemChildren1() {
+	cout << " Problem Children 1: " << endl;
 	Fraction cf(944, 4482501);
 	double cd = 944.0 / 4482501.0;
-
-	cout << "interm : " << cd << " = " << (double)cf << " = " << cf << endl;
 	cf = cf * 4865998.0;
 	cd = cd * 4865998.0;
-	cout << "interm p2: " << cd << " = " << (double)cf << " = " << cf << endl;
+	cout << "Diff = " << abs(cd-(double)cf) << endl;
+	assert(abs(cd-(double)cf) < 1e-10);
+}
+
+void problemChildren2() {
+	cout << " Problem Children 2: " << endl;
+	Fraction af(-1038123,1494167);
+	af *= 2;
+	double ad = 2 * -1038123;
+	ad /= 1494167;
+	Fraction bf(31787130,31019);
+	af += bf;
+	ad += 31787130.0/31019.0;
+	cout << "Diff = " << abs(ad-(double)af) << endl;
+	assert(abs(ad-(double)af) < 1e-10);
+}
+
+void problemChildren3() {
+	cout << " Problem Children 3: " << endl;
+	Fraction af(5082749,4482501);
+	af *= -70;
+	double ad = -70 * 5082749;
+	ad /= 4482501;
+	Fraction bf(1046043415,1022152);
+	af += bf;
+	ad += 1046043415.0/1022152.0;
+	cout << "Diff = " << abs(ad-(double)af) << endl;
+	assert(abs(ad-(double)af) < 1);
+}
+
+void problemChildren4() {	//-876 * 5082749/4482501 + 482506670/484783 == 1 != 2
+	cout << " Problem Children 4: " << endl;
+	Fraction af(5082749,4482501);
+	af *= -876.0;
+	double ad = -876.0 * 5082749.0;
+	ad /= 4482501.0;
+	cout << af << " ~ " << ad << endl;
+	Fraction bf(482506670,484783);
+	af = af + bf;
+	ad += 482506670.0/484783.0;
+	cout << af << " ~ " << ad << endl;
+	cout << "Diff = " << abs(ad-(double)af) << endl;
+	assert(abs(ad-(double)af) < 1);
+}
+
+void problemChildren5() {	//934 * 5082749/4482501 + -1429488778/1266075 == 0 != -70
+	cout << " Problem Children 5: " << endl;
+	Fraction af(5082749,4482501);
+	af *= 934.0;
+	double ad = 934.0 * 5082749.0;
+	ad /= 4482501.0;
+	cout << af << " ~ " << ad << endl;
+	Fraction bf(1429488778,1266075);
+	af += bf;
+	double bd = 1429488778.0/1266075.0;
+	ad += bd;
+	cout << af << " ~ " << ad << endl;
+	cout << "Diff = " << abs(ad-(double)af) << endl;
+	assert(abs(ad-(double)af) < 1);
+}
+
+void problemEq(double a, Fraction b, Fraction c) {
+	cout << " Eq: " << a << " * " << b << " + " << c << endl;
+	Fraction resf = Fraction(a) * b;
+	double resd = a * (double)b;
+	cout << (double)resf << " ~ " << resd << endl;
+	resf = resf + c;
+	resd = resd + (double)c;
+	cout << (double)resf << " ~ " << resd << endl;
+	cout << "Diff = " << abs(resd-(double)resf) << endl;
+	assert(abs(resd-(double)resf) < 1e-8);
 }
 
 int main()
@@ -480,11 +538,20 @@ int main()
 	//testCloseToZeroNumbers();
 	//testInfoOverflow();
 
+	testBasicFractions();	//basic tests for every operation
+	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
+	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
 
-	//testBasicFractions();	//basic tests for every operation
-	//testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
-	//testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
-	problemChildren();
-	
+	//-70 * 256251/225989 + 130284675/127309 == -2147483648/284866021 != 944
+	problemEq(-70.0, Fraction(256251,225989), Fraction(130284675,127309));
+	//934 * 256251/225989 + -70044188/62037 == -536870912/9628875 != -70
+	problemEq(934.0, Fraction(256251,225989), Fraction(-70044188/62037));
+	//-876 * 5082749/4482501 + 482506670/484783 == 1 != 2
+	problemEq(-876.0, Fraction(5082749,4482501), Fraction(482506670,484783));
+	problemEq(-70.0, Fraction(5082749,4482501), Fraction(1046043415,1022152));
+	problemEq(2.0, Fraction(-1038123,1494167), Fraction(31787130,31019));
+	problemEq(1.0, Fraction(944,4482501), Fraction(4865998,1));
+
+
 	return 0;
 }

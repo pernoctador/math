@@ -168,13 +168,13 @@ Fraction Fraction::operator+(Fraction f)
 	lcm /= gcd(den, f.den);
 	lcm *= min(den,f.den);
 
-	// a/c + b/d = [a*(lcm/d) + b*(lcm/c)] / lcm	//use to create normal fractions
+	// a/c + b/d = [a*(lcm/c) + b*(lcm/d)] / lcm	//use to create normal fractions
 
 	// a/c + b/d = [a/lcm * (lcm/c)] + [b/lcm * (lcm/d)]	//use to create fractions through double
 	double p = (double)num;
-	p *= lcm / (double)den;
 	double q = (double)f.num;
-	q *= lcm / (double)f.den;
+	p *= (lcm / (double)den);
+	q *= (lcm / (double)f.den);
 
 	if(lcm >= LONG_MAX || (p + q) >= LONG_MAX || (p + q) <= LONG_MIN)	//tested in testOverflow() over tests.cpp
 	{
@@ -183,7 +183,7 @@ Fraction Fraction::operator+(Fraction f)
 		p *= lcm / (double)den;
 		q = (double)f.num / lcm;
 		q *= lcm / (double)f.den;
-		return Fraction(p + q);
+		return Fraction(p+q);
 	}
 	else
 		return normal(p + q, (long)lcm);
@@ -436,15 +436,14 @@ double log10(Fraction f)
 	return res;
 }
 
-Fraction Fraction::doubleToFraction(double value)
+Fraction Fraction::doubleToFraction(double value)	//Jhon Kennedy's algorithm https://begriffs.com/pdf/dec2frac.pdf
 {
 	long sign = (value >= 0);	//if value is negative => 0. if value >= 0 => 1
     sign = sign*2 -1;		//0 or 2, then -1 or 1
 
     value = abs(value);
 
-    // Accuracy is the maximum relative error; convert to absolute maxError
-    //double maxError =  value * 1e-14;	//max accuracy for double: 1e-15?. For long double should be 1e-17.
+    //long maxError is 1e-10 since I save the fraction with long. For long long would be 1e-18
 	double maxError = 1e-10;
 
     double integer = floor(value);
@@ -457,9 +456,9 @@ Fraction Fraction::doubleToFraction(double value)
         return Fraction((long)(integer + 1)*sign, 1);
 
     double z = value;
-    long previousDenominator = 0;
+    long previousDenominator = 0, previousNumerator = 0;
     long denominator = 1;
-    long numerator, Di;
+    long numerator = 0, Di = 0;
 	double diff, zdiff;
 
     do
@@ -467,13 +466,32 @@ Fraction Fraction::doubleToFraction(double value)
         z = 1.0 / (z - floor(z));
         Di = denominator;
         denominator = Di * floor(z) + previousDenominator;
-        previousDenominator = Di;
+
+        previousNumerator = numerator;
         numerator = round(value * denominator);
 
-    	diff = abs((double)numerator / (double)denominator - value);
+        if(numerator < 0){	//this works if numerator and denominator are long, but only if it fails at the third eq.
+        	if(previousNumerator == 0){
+        		return Fraction((long)integer);
+        	}
+        	numerator = previousNumerator;
+        	denominator = Di;
+        	break;
+        }
+
+		double test = numerator / denominator;
+    	previousDenominator = Di;
+
+    	diff = abs(numerator / denominator - value);
     	zdiff = abs(z - floor(z));
     }
     while (diff > maxError && zdiff > maxError);
 
-    return Fraction(numerator * sign, denominator);
+	if(max(numerator,denominator) > LONG_MAX){
+		double comm = floor(max(numerator,denominator) / LONG_MAX);
+		numerator = floor(numerator/comm);
+		denominator = ceil(denominator/comm);
+	}
+
+    return Fraction((long)numerator * sign, (long)denominator);
 }
