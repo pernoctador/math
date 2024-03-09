@@ -332,18 +332,57 @@ void GaussianEliminationTest2() {
 	cout << "  ====================  " << endl;
 	check2.print(D2);
 	cout << "Dist = " << dist << endl;
+}
 
+void GaussianEliminationTest3() {
+	cout << "First eq test (fractions):" << endl;
+	unsigned n = 4;
+	/*
+	 0, -1, -1,  0 |  0
+	-1,  0,  1,  0 | -1
+	 0,  0, -1,  1 | -1
+	 1,  0,  0, -1 |  0
+*/
+	Fraction a[] = {0, -1, -1, 0, -1, 0, 1, 0, 0, 0, -1, 1, 1, 0, 0, -1};
+	Fraction b[] = {0, -1, -1, 0};
+	Matrix<Fraction> A(n,n);
+	Matrix<Fraction> B(n,1);
+	A = a;
+	B = b;
+	Matrix<Fraction> A2(n,n);
+	Matrix<Fraction> B2(n,1);
+	Matrix<Fraction> check(n,1);
+	A2 = A;
+	B2 = B;
 
-/*
+	A.GaussianElimination(&B);
+	check = A2*B;
+	double dist = check.distance(B2);
+	A2.print(B);
+	cout << "  ====================  " << endl;
+	check.print(B2);
+	cout << "Dist = " << dist << endl;
+
+	cout << "First eq test (double):" << endl;
+	double c[] = {0, -1, -1, 0, -1, 0, 1, 0, 0, 0, -1, 1, 1, 0, 0, -1};
+	double d[] = {0, -1, -1, 0};
+	Matrix<double> C(n,n);
+	Matrix<double> D(n,1);
+	C = c;
+	D = d;
+	Matrix<double> C2(n,n);
+	Matrix<double> D2(n,1);
+	Matrix<double> check2(n,1);
+	C2 = C;
+	D2 = D;
+
 	C.GaussianElimination(&D);
 	check2 = C2*D;
-	double dist2 = check2.distance(D2);
+	dist = check2.distance(D2);
 	C2.print(D);
 	cout << "  ====================  " << endl;
 	check2.print(D2);
-
-	cout << "Dist = " << dist2 << endl;*/
-	//assert(dist < 1e-6 && dist >= 0);
+	cout << "Dist = " << dist << endl;
 }
 
 void timeTestGaussian()
@@ -379,26 +418,37 @@ void timeTestGaussian()
 
 void pressureGETest() {
 	for(int n = 1; n < 1000; n++) {
-		Matrix<Fraction> A(n,n);
-		A.Random(-1000, 1000);
-		Matrix<Fraction> B(n,1);
-		B.Random(-1000,1000);
-		Matrix<Fraction> A2(n,n);
-		Matrix<Fraction> B2(n,1);
-		Matrix<Fraction> check(n,1);
-		A2 = A;
-		B2 = B;
-		A.GaussianElimination(&B);
-		check = A2*B;
-		double dist = check.distance(B2);
-		cout << n << " : dist = " << dist << endl;
-		if (dist > 1) {
-			A2.print(B2);
-			cout << "  ====================  " << endl;
-			B.print();
-			break;
+		bool breaked = false;
+		cout << n << endl;
+		for(int t = 0; t < 5; t++){
+			int limit = pow(10,t);
+			for(int i = 0; i < 10000; i++) {
+				Matrix<Fraction> A(n,n);
+				A.Random(-limit, limit);
+				Matrix<Fraction> B(n,1);
+				B.Random(-limit,limit);
+				Matrix<Fraction> A2(n,n);
+				Matrix<Fraction> B2(n,1);
+				Matrix<Fraction> check(n,1);
+				A2 = A;
+				B2 = B;
+				A.GaussianElimination(&B);
+				check = A2*B;
+				double dist = check.distance(B2);
+				if (dist > 1) {
+					cout << "    dist = " << dist << endl;
+					A2.print(B2);
+					cout << "  ====================  " << endl;
+					B.print();
+					breaked = true;
+					break;
+				}
+			}
+			if(breaked)
+				break;
 		}
-		//assert(dist < 1e-6 && dist >= 0);
+		if(breaked)
+			break;
 	}
 }
 
@@ -409,7 +459,8 @@ int main()
 	//basicMatrixOperations();
 	//TriangulateTest();
 	//GaussianEliminationTest();
-	GaussianEliminationTest2();
+	//GaussianEliminationTest2();
+	GaussianEliminationTest3();
 	//pressureGETest();
 	//timeTestGaussian();
 	return 0;
