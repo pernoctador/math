@@ -17,14 +17,7 @@ class dividendIsZero: public exception
   }
 } divZ;
 
-Fraction::Fraction(long n, long d)
-{
-	num = n;
-	den = d;
-	normalize();
-}
-
-Fraction::Fraction(vector<long> v)
+Fraction::Fraction(vector<T_integer> v)
 {
 	if(v.size() == 0)
 	{
@@ -45,6 +38,14 @@ Fraction::Fraction(vector<long> v)
 
 Fraction::~Fraction(){}
 
+Fraction& Fraction::operator()(int n, int d)
+{
+	num = n;
+	den = d;
+	normalize();
+	return *this;
+}
+
 Fraction& Fraction::operator()(long n, long d)
 {
 	num = n;
@@ -53,112 +54,82 @@ Fraction& Fraction::operator()(long n, long d)
 	return *this;
 }
 
-long neg(long x)
+Fraction& Fraction::operator()(long long n, long long d)
+{
+	num = n;
+	den = d;
+	normalize();
+	return *this;
+}
+
+T_integer neg(T_integer x)
 {
 	if(x > 0)
 		x = -x;
 	return x;
 }
 
-Fraction Fraction::normal(long n, long d)
+Fraction Fraction::normal(T_integer n, T_integer d)
 {
-	if(d != 0)
-	{
-		if(n == 0)
-			return Fraction(0,1);
-
-		//if absolute values are way too big, they create a lot of problems. LONG_MIN is a specific troublesome case.
-		if(d < -1e18 || d > 1e18)
-		{
-			long double fix, max17 = 99999999999999999;
-			if(neg(d) <= neg(n))	//i'm doing this because abs(LONG_MIN) is still LONG_MIN (overflow, LONG_MIN = LONG_MAX + 1)
-			{
-				fix = d/max17;	//I'll reduce both numbers to as much as 17 digits.
-				d = max17;
-				n = round(n/fix);
-			}
-			else
-			{
-				fix = n/max17;
-				n = max17;
-				d = round(d/fix);
-			}
-		}
-
-		long g = gcd(n,d); 
-		g = abs(g);	//another thing needed to avoid SIGFPE
-		n/=g; 
-		d/=g; 
-		if(d < 0)
-		{
-			d = -d;
-			n = -n;
-		}
-		return Fraction(n,d);
-	}
-	else
-		throw divZ;
+	return Fraction(n,d);
 }
 
 void Fraction::normalize()
 {
-	if(den != 0)
+	if(den == 0)
+		throw divZ;
+	if(num == 0)
+		den = 1;
+	else
 	{
-		if(num == 0)
-			den = 1;
-		else
+		//if absolute values are way too big, they create a lot of problems. LONG_MIN is a specific troublesome case.
+		if(den < -1e18 || den > 1e18)
 		{
-			//if absolute values are way too big, they create a lot of problems. LONG_MIN is a specific troublesome case.
-			if(den < -1e18 || den > 1e18)
+			long double fix, max17 = 99999999999999999;
+			if(neg(den) <= neg(num))	//i'm doing this because abs(LONG_MIN) is still LONG_MIN (overflow, LONG_MIN = LONG_MAX + 1)
 			{
-				long double fix, max17 = 99999999999999999;
-				if(neg(den) <= neg(num))	//i'm doing this because abs(LONG_MIN) is still LONG_MIN (overflow, LONG_MIN = LONG_MAX + 1)
-				{
-					fix = den/max17;	//I'll reduce both numbers to as much as 17 digits.
-					den = max17;
-					num = round(num/fix);
-				}
-				else
-				{
-					fix = num/max17;
-					num = max17;
-					den = round(den/fix);
-				}
+				fix = den/max17;	//I'll reduce both numbers to as much as 17 digits.
+				den = max17;
+				num = round(num/fix);
 			}
-
-			long g = gcd(num,den); 
-			g = abs(g);	//another thing needed to avoid SIGFPE
-			num/=g; 
-			den/=g; 
-			if(den < 0)
+			else
 			{
-				den = -den;
-				num = -num;
+				fix = num/max17;
+				num = max17;
+				den = round(den/fix);
 			}
 		}
+
+		T_integer g = gcd(num,den);
+		g = abs(g);	//another thing needed to avoid SIGFPE
+		num/=g;
+		den/=g;
+		if(den < 0)
+		{
+			den = -den;
+			num = -num;
+		}
 	}
-	else
-		throw divZ;
 }
 
-void Fraction::operator=(vector<long> v)
+void Fraction::operator=(vector<T_integer> v)
 {
 	*this = fromContinuedForm(v);
 }
 
 Fraction invert(Fraction f)
 {
-	if(f.numerator() == 0) 
-		throw divZ; 
-	
+	if(f.numerator() == 0)
+		throw divZ;
+
 	return Fraction(f.denominator(),f.numerator());
 }
 
 void Fraction::invert()
 {
-	if(num == 0) 
-		throw divZ; 
-	
+	if(num == 0)
+		throw divZ;
+
 	swap(num,den);
 }
 
@@ -176,7 +147,7 @@ Fraction Fraction::operator+(Fraction f)
 	p *= (lcm / (double)den);
 	q *= (lcm / (double)f.den);
 
-	if(lcm >= LONG_MAX || (p + q) >= LONG_MAX || (p + q) <= LONG_MIN)	//tested in testOverflow() over tests.cpp
+	if(lcm >= FRAC_MAX || (p + q) >= FRAC_MAX || (p + q) <= -FRAC_MAX)	//tested in testOverflow() over tests.cpp
 	{
 		//cerr << "Aproximating " << num << "/" << den << " + " << f.num << "/" << f.den << endl;
 		p = (double)num / lcm;
@@ -186,7 +157,7 @@ Fraction Fraction::operator+(Fraction f)
 		return Fraction(p+q);
 	}
 	else
-		return normal(p + q, (long)lcm);
+		return normal(p + q, (T_integer)lcm);
 }
 
 Fraction Fraction::operator-(Fraction f)
@@ -203,7 +174,7 @@ Fraction Fraction::operator-(Fraction f)
 	double q = (double)f.num;
 	q *= lcm / (double)f.den;
 
-	if(lcm >= LONG_MAX || (p - q) >= LONG_MAX)	//tested in testOverflow() over tests.cpp
+	if(lcm >= FRAC_MAX || (p - q) >= FRAC_MAX)	//tested in testOverflow() over tests.cpp
 	{
 		//cerr << "Aproximating " << num << "/" << den << " - " << f.num << "/" << f.den << endl;
 		p = (double)num / lcm;
@@ -213,7 +184,7 @@ Fraction Fraction::operator-(Fraction f)
 		return Fraction(p - q);
 	}
 	else
-		return normal(p - q, (long)lcm);
+		return normal(p - q, (T_integer)lcm);
 }
 
 Fraction Fraction::operator*(Fraction f)
@@ -223,9 +194,9 @@ Fraction Fraction::operator*(Fraction f)
 
 	Fraction a = normal(f.num,den);
 	Fraction b = normal(num, f.den);
-	
 
-	if(LONG_MAX/abs(b.num) <= abs(a.num) || LONG_MAX/abs(b.den) <= abs(a.den))
+
+	if(FRAC_MAX/abs(b.num) <= abs(a.num) || FRAC_MAX/abs(b.den) <= abs(a.den))
 	{
 		double newDen = a.den * b.den;
 		double newNum = max(a.num, b.num) / newDen;
@@ -245,9 +216,9 @@ Fraction Fraction::operator/(Fraction f)
 
 		Fraction a = normal(num, f.num);
 		Fraction b = normal(f.den, den);
-		
+
 		if(b.num == 0) return Fraction(0);	//should NEVER happen: b is f.den/den so both should be non-zero
-		if(LONG_MAX/abs(b.num) <= abs(num) || LONG_MAX/abs(b.den) <= (den))
+		if(FRAC_MAX/abs(b.num) <= abs(num) || FRAC_MAX/abs(b.den) <= (den))
 		{
 			double newDen = a.den;
 			newDen *= b.den;
@@ -263,7 +234,7 @@ Fraction Fraction::operator/(Fraction f)
 		throw divByZ;
 }
 
-Fraction fromContinuedForm(vector<long> v)
+Fraction Fraction::fromContinuedForm(vector<T_integer> v)
 {
 	if(v.size() == 0)
 	{
@@ -284,7 +255,7 @@ void Fraction::operator/=(Fraction f)
 	*this = *this / f;
 }
 
-Fraction Fraction::operator/(long l)
+Fraction Fraction::operator/(T_integer l)
 {
 	if(l != 0)
 	{
@@ -296,7 +267,7 @@ Fraction Fraction::operator/(long l)
 		throw divByZ;
 }
 
-void Fraction::operator/=(long l)
+void Fraction::operator/=(T_integer l)
 {
 	if(l != 0)
 	{
@@ -311,7 +282,7 @@ Fraction Fraction::operator/(int i)
 {
 	if(i != 0)
 	{
-		Fraction f(num, i);
+		Fraction f(num, (T_integer)i);
 		f.den *= den;
 		return f;
 	}
@@ -353,16 +324,16 @@ void Fraction::operator/=(unsigned i)
 		throw divByZ;
 }
 
-vector<long> Fraction::continuedForm()
+vector<T_integer> Fraction::continuedForm()
 {
-	vector<long> res;
-	long integerPart;
+	vector<T_integer> res;
+	T_integer integerPart;
 	Fraction d(num,den);
 	double maxSize = floor(log2(den)/log2(1.61));
 
 	while(abs(d) > 1e-8 && res.size() < maxSize)
 	{
-		integerPart = (long)d;
+		integerPart = (T_integer)d;
 		res.push_back(integerPart);
 		d -= integerPart;
 		if(abs(d) > 1e-8)
@@ -372,14 +343,14 @@ vector<long> Fraction::continuedForm()
 	return res;
 }
 
-Fraction pow(Fraction f, long l)
+Fraction pow(Fraction f, T_integer l)
 {
 	double n = pow(f.numerator(), l);
 	double d = pow(f.denominator(), l);
-	return Fraction(n/d);	
+	return Fraction(n/d);
 
 }
-double pow(long l, Fraction f)
+double pow(T_integer l, Fraction f)
 {
 	double res = pow(l, f.numerator());
 	double root = 1.0/f.denominator();
@@ -402,16 +373,16 @@ Fraction pow(Fraction base, Fraction exp)
 	return f;
 }
 
-Fraction root(Fraction f, long l)
+Fraction root(Fraction f, T_integer l)
 {
-	double n = pow(f.numerator(), 1.0/l); 
-	double d = pow(f.denominator(), 1.0/l); 
-	Fraction nf(n); 
-	Fraction df(d); 
+	double n = pow(f.numerator(), 1.0/l);
+	double d = pow(f.denominator(), 1.0/l);
+	Fraction nf(n);
+	Fraction df(d);
 	return (nf / df);
 }
 
-double logb(Fraction f, long base)
+double logb(Fraction f, T_integer base)
 {
 	double res = log2(f.numerator())/log2(base);	//log2 is faster than log and log10
 	res -= log2(f.denominator())/log2(base);
@@ -438,27 +409,28 @@ double log10(Fraction f)
 
 Fraction Fraction::doubleToFraction(double value)	//Jhon Kennedy's algorithm https://begriffs.com/pdf/dec2frac.pdf
 {
-	long sign = (value >= 0);	//if value is negative => 0. if value >= 0 => 1
+	T_integer sign = (value >= 0);	//if value is negative => 0. if value >= 0 => 1
     sign = sign*2 -1;		//0 or 2, then -1 or 1
 
     value = abs(value);
 
-    //long maxError is 1e-10 since I save the fraction with long. For long long would be 1e-18
-	double maxError = 1e-10;
+    //long maxError is 1e-9, for long long would be 1e-18. But long has many problems with casting from double. Not recomended.
+	double maxError = 1e-18;
 
     double integer = floor(value);
     double decimal = value - integer;
+	T_integer den = 1;
 
     if (decimal < maxError)
-        return Fraction((long)integer*sign, 1);
+        return Fraction((T_integer)integer*sign, den);
 
     if (decimal > 1 - maxError)
-        return Fraction((long)(integer + 1)*sign, 1);
+        return Fraction((T_integer)(integer + 1)*sign, den);
 
     double z = value;
-    long previousDenominator = 0, previousNumerator = 0;
-    long denominator = 1;
-    long numerator = 0, Di = 0;
+    T_integer previousDenominator = 0, previousNumerator = 0;
+    T_integer denominator = 1;
+    T_integer numerator = 0, Di = 0;
 	double diff, zdiff;
 
     do
@@ -470,28 +442,27 @@ Fraction Fraction::doubleToFraction(double value)	//Jhon Kennedy's algorithm htt
         previousNumerator = numerator;
         numerator = round(value * denominator);
 
-        if(numerator < 0){	//this works if numerator and denominator are long, but only if it fails at the third eq.
+        if(numerator < 0){	//this works if numerator and denominator are T_integer, but only if it fails at the third eq.
         	if(previousNumerator == 0){
-        		return Fraction((long)integer);
+        		return Fraction((T_integer)integer);
         	}
         	numerator = previousNumerator;
         	denominator = Di;
         	break;
         }
 
-		double test = numerator / denominator;
     	previousDenominator = Di;
 
-    	diff = abs(numerator / denominator - value);
+    	diff = abs((double)numerator / (double)denominator - value);
     	zdiff = abs(z - floor(z));
     }
     while (diff > maxError && zdiff > maxError);
 
-	if(max(numerator,denominator) > LONG_MAX){
-		double comm = floor(max(numerator,denominator) / LONG_MAX);
+	if(max(numerator,denominator) > FRAC_MAX){
+		double comm = floor(max(numerator,denominator) / FRAC_MAX);
 		numerator = floor(numerator/comm);
 		denominator = ceil(denominator/comm);
 	}
 
-    return Fraction((long)numerator * sign, (long)denominator);
+    return Fraction((T_integer)numerator * sign, (T_integer)denominator);
 }

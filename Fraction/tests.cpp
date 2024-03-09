@@ -10,6 +10,7 @@ void someInfo()
 	cout << "Range of positive doubles:  " << DBL_MIN << " to " << DBL_MAX << endl;
 	cout << "Range of positive fraction: " << FRAC_MIN << "   to " << FRAC_MAX << endl << endl;
 
+	cout << "If I use long:         " << (double)1/(double)LONG_MAX << "   to " << LONG_MAX << endl;
 	cout << "If I use long long:         " << (double)1/(double)LLONG_MAX << "   to " << LLONG_MAX << endl;
 	cout << "If I use int:               " << (double)1/(double)INT_MAX << "  to " << INT_MAX << endl;
 	cout << "If I use uint:              " << (double)1/(double)UINT_MAX << "  to " << UINT_MAX << endl;
@@ -19,7 +20,8 @@ void someInfo()
 	//cout << "I don't have as many integers as double, but i have more rationals between integers" << endl;
 
 	cout << "Digits in double: " << numeric_limits<double>::digits10 << endl;
-	cout << "Digits in long: " << numeric_limits<long>::digits10 << endl << endl;
+	cout << "Digits in long: " << numeric_limits<long>::digits10 << endl;
+	cout << "Digits in long long: " << numeric_limits<long long>::digits10 << endl << endl;
 
 }
 
@@ -68,7 +70,7 @@ void testBasicFractions()
 {
 	cout.precision(numeric_limits<double>::digits10);
 	//constructor, (), = and ==, <= and >=
-	Fraction a(1,2);
+	Fraction a(1l,2l);
 	Fraction aa;
 	aa = a;
 	Fraction aaa(aa);
@@ -81,13 +83,13 @@ void testBasicFractions()
 	assert(a <= b);
 	assert(a >= b);
 	double bb = 1.25;
-	b(5,4);
+	b(5l,4l);
 	assert(b == bb);
 
 	// <, >, <= and >=
 	a = 4;
 	a = a / 3;
-	b(5,4);
+	b(5l,4l);
 	assert(a > b);	//1+1/3 > 1+1/4
 	assert(a >= b);
 	assert(b < a);
@@ -97,7 +99,7 @@ void testBasicFractions()
 	a(1,3);
 	b(1,2);
 	Fraction c(5,6);
-	//cout << a+b << endl;
+	//cout << "a+b = " << a+b << endl;
 	assert(a + b == c);
 	assert(a + 0.5 == c);
 	assert(b + 2 == 2.5);
@@ -123,6 +125,7 @@ void testBasicFractions()
 	assert(a == c);
 	b = b + 2.3;
 	c(14,5);
+	//cout << "b =" << b << endl;
 	assert(b == c);
 	a += 1;
 	c(11,6);
@@ -185,12 +188,12 @@ void testBasicFractions()
 	assert(a == b);
 	
 	c(2,3);
-	long lc = 27;
+	T_integer lc = 27;
 	double dc = pow(lc, c);
 	double dcc = 9;
-	//cout << dc << " = " << dcc << " , dif = " << dc - dcc << endl;
+	//cout << dc << " = " << dcc << " , dif = " << abs(dc-dcc) << endl;
 	//assert(dc == dcc);
-	assert((dc-1e-15) < dcc && dcc < (dc+1e-15));
+	assert(abs(dc-dcc) < 1e-14);
 	lc = -3;
 	dc = pow(lc, c);
 	assert(dc > 0);
@@ -203,6 +206,7 @@ void testBasicFractions()
 	b(4,8);
 	bb = log(4) - log(8);
 	dc = log(b);
+	assert(bb != dc);
 	cout << "Beware of hidden differences! " << bb << " != " << dc  << endl;
 	//with doubles there is a tiny difference, so never use == outside tests
 	assert((dc-1e-15) < bb && bb < (dc+1e-15));
@@ -221,9 +225,9 @@ void testBasicFractions()
 	a(2744,19683);
 	a = root(a,3);
 	b(14,27);
-	cout << "Beware of rounding! "<<  a << " = " << a << " - 1e-10 == "<< a << " + 1e-10 = " << a+1e-10 << endl;
+	cout << "Beware of rounding! a = "<<  a << ";  a - 1e-18 = " << a-1e-18 << "; a + 1e-18 = " << a+1e-18 << endl;
 	//sometimes numbers get rouded, even when they are big. Use a propper error margin according to your needs. And use <= outside tests
-	assert((a-1e-9) < b && b < (a+1e-9));
+	assert((a-1e-16) < b && b < (a+1e-16));
 
 	// casting
 	double da = a(9,8);
@@ -319,9 +323,10 @@ void testBetterperiodics()
 	assert(a == b);
 	assert(a == da);
 
-	a(0.33333333333333);
+	a(0.33333333333333333332);
 	b(1,3);
 	assert(b == (1.0/3.0));
+	//cout << " a = " << a << " == " << b << " = b" << endl;
 	assert(a == b);
 
 	a(1571,550);
@@ -344,22 +349,23 @@ void testBetterperiodics()
 
 void testCloseToZeroNumbers()
 {
+	T_integer MAX = LLONG_MAX;
 	double t, df, dif, maxErr=0, averageErr=0;
 	Fraction f,g;
 	for(double i = 1000; i >= 1; i--)
 	{
-		t = i/LONG_MAX;
+		t = i/MAX;
 		f(t);
-		g(i,LONG_MAX);
+		g(i,MAX);
 		
 		dif = abs(f - g);
 		if(dif > maxErr)
 			maxErr = dif;
 		averageErr+=dif;
 
-		t = 1/(LONG_MAX-i);
+		t = 1/(MAX-i);
 		f(t);
-		g(1,LONG_MAX-i);
+		g(1,MAX-i);
 		dif = abs(f - g);
 		if(dif > maxErr)
 			maxErr = dif;
@@ -374,18 +380,18 @@ void testCloseToZeroNumbers()
 	
 	for(double i = 1000; i >= 1; i--)
 	{
-		f(i,LONG_MAX);
+		f(i,MAX);
 		df = f;
-		t = i/LONG_MAX;
+		t = i/MAX;
 		
 		dif = abs(df - t);
 		if(dif > maxErr)
 			maxErr = dif;
 		averageErr+=dif;
 
-		f(1,LONG_MAX-i);
+		f(1,MAX-i);
 		df = f;
-		t = 1/(LONG_MAX-i);
+		t = 1/(MAX-i);
 		dif = abs(df - t);
 		if(dif > maxErr)
 			maxErr = dif;
@@ -397,7 +403,8 @@ void testCloseToZeroNumbers()
 }
 
 void testInfoOverflow()
-{	
+{
+	T_integer MAX = LLONG_MAX;
 	cout.precision(numeric_limits<double>::max_digits10);
 	
 	double a, b, c;
@@ -408,7 +415,7 @@ void testInfoOverflow()
 
 	cout << "Can I operate with long overflow, casting to double?: "; 
 
-	e = LONG_MAX;
+	e = MAX;
 	m = e + 1;
 	n = e;
 	n++;
@@ -422,17 +429,17 @@ void testInfoOverflow()
 
 	a = e;
 	a++;
-	cout << "Can I detect strict overflow casting to double?: " << boolalpha << (a > LONG_MAX) << endl << endl;
-	cout << "Can I detect overflow casting to double?: " << boolalpha << ((a >= LONG_MAX) && (e == LONG_MAX)) << endl; 
+	cout << "Can I detect strict overflow casting to double?: " << boolalpha << (a > MAX) << endl << endl;
+	cout << "Can I detect overflow casting to double?: " << boolalpha << ((a >= MAX) && (e == MAX)) << endl; 
 	a = e;
 	a *= a;
 	a += a;
-	cout << "Can I detect max overflow in fractions casting to double?: " << boolalpha << ((a >= LONG_MAX) && (e == LONG_MAX)) << endl << endl; 
+	cout << "Can I detect max overflow in fractions casting to double?: " << boolalpha << ((a >= MAX) && (e == MAX)) << endl << endl; 
 
 	e+=1;
 	cout.precision(numeric_limits<double>::max_digits10);
-	cout << "WARNING! (double)LONG_MAX + 1 is still overflow: " << fixed << m << endl << "	But double e = LONG_MAX; e+1 is OK: " << n << endl << "Must always explicitly cast to double" << endl << endl;
-	cout << "overflow: 1 + " << LONG_MAX << " = (long)" << e << " = (double)" << n << endl;
+	cout << "WARNING! (double)MAX + 1 is still overflow: " << fixed << m << endl << "	But double e = MAX; e+1 is OK: " << n << endl << "Must always explicitly cast to double" << endl << endl;
+	cout << "overflow: 1 + " << MAX << " = (long)" << e << " = (double)" << n << endl;
 
 	unsigned long long p = ULLONG_MAX;
 	p++;
@@ -444,114 +451,43 @@ void testInfoOverflow()
 	long e2 = e*e;
 	cout << "Testing e*e: " << e << " * " << e << " = " << e2 << endl;
 	cout << "	Detect overflow after: " << boolalpha << (e2/e != e) << endl;
-	cout << "	Detected before with division: " << boolalpha << (LONG_MAX/e <= e) << endl;
+	cout << "	Detected before with division: " << boolalpha << (MAX/e <= e) << endl;
 
-	cout << endl << "Partial casting: " << endl << (double)e*LONG_MAX << " == " << endl << e*(double)LONG_MAX << endl;
+	cout << endl << "Partial casting: " << endl << (double)e*MAX << " == " << endl << e*(double)MAX << endl;
 	
 }
 
-void problemChildren1() {
-	cout << " Problem Children 1: " << endl;
-	Fraction cf(944, 4482501);
-	double cd = 944.0 / 4482501.0;
-	cf = cf * 4865998.0;
-	cd = cd * 4865998.0;
-	cout << "Diff = " << abs(cd-(double)cf) << endl;
-	assert(abs(cd-(double)cf) < 1e-10);
-}
-
-void problemChildren2() {
-	cout << " Problem Children 2: " << endl;
-	Fraction af(-1038123,1494167);
-	af *= 2;
-	double ad = 2 * -1038123;
-	ad /= 1494167;
-	Fraction bf(31787130,31019);
-	af += bf;
-	ad += 31787130.0/31019.0;
-	cout << "Diff = " << abs(ad-(double)af) << endl;
-	assert(abs(ad-(double)af) < 1e-10);
-}
-
-void problemChildren3() {
-	cout << " Problem Children 3: " << endl;
-	Fraction af(5082749,4482501);
-	af *= -70;
-	double ad = -70 * 5082749;
-	ad /= 4482501;
-	Fraction bf(1046043415,1022152);
-	af += bf;
-	ad += 1046043415.0/1022152.0;
-	cout << "Diff = " << abs(ad-(double)af) << endl;
-	assert(abs(ad-(double)af) < 1);
-}
-
-void problemChildren4() {	//-876 * 5082749/4482501 + 482506670/484783 == 1 != 2
-	cout << " Problem Children 4: " << endl;
-	Fraction af(5082749,4482501);
-	af *= -876.0;
-	double ad = -876.0 * 5082749.0;
-	ad /= 4482501.0;
-	cout << af << " ~ " << ad << endl;
-	Fraction bf(482506670,484783);
-	af = af + bf;
-	ad += 482506670.0/484783.0;
-	cout << af << " ~ " << ad << endl;
-	cout << "Diff = " << abs(ad-(double)af) << endl;
-	assert(abs(ad-(double)af) < 1);
-}
-
-void problemChildren5() {	//934 * 5082749/4482501 + -1429488778/1266075 == 0 != -70
-	cout << " Problem Children 5: " << endl;
-	Fraction af(5082749,4482501);
-	af *= 934.0;
-	double ad = 934.0 * 5082749.0;
-	ad /= 4482501.0;
-	cout << af << " ~ " << ad << endl;
-	Fraction bf(1429488778,1266075);
-	af += bf;
-	double bd = 1429488778.0/1266075.0;
-	ad += bd;
-	cout << af << " ~ " << ad << endl;
-	cout << "Diff = " << abs(ad-(double)af) << endl;
-	assert(abs(ad-(double)af) < 1);
-}
-
 void problemEq(double a, Fraction b, Fraction c) {
-	cout << " Eq: " << a << " * " << b << " + " << c << endl;
+	cout << endl << "Eq: " << a << " * " << b << " + " << c << endl;
 	Fraction resf = Fraction(a) * b;
 	double resd = a * (double)b;
 	cout << (double)resf << " ~ " << resd << endl;
 	resf = resf + c;
 	resd = resd + (double)c;
 	cout << (double)resf << " ~ " << resd << endl;
-	cout << "Diff = " << abs(resd-(double)resf) << endl;
+	cout << "    Diff = " << abs(resd-(double)resf) << endl;
 	assert(abs(resd-(double)resf) < 1e-8);
 }
 
 int main()
 {
 
-	//someInfo();
-	//testPrint();
-	//testDensity();
-	//testCloseToZeroNumbers();
-	//testInfoOverflow();
+	someInfo();
+	testPrint();
+	testDensity();
+	testCloseToZeroNumbers();
+	testInfoOverflow();
 
 	testBasicFractions();	//basic tests for every operation
 	testCommonMistakes();	//what i consider to be possible mistakes while programming Fractions
 	testBetterperiodics();	//searching for periodic rational numbers when defining a Fraction with a double
 
-	//-70 * 256251/225989 + 130284675/127309 == -2147483648/284866021 != 944
 	problemEq(-70.0, Fraction(256251,225989), Fraction(130284675,127309));
-	//934 * 256251/225989 + -70044188/62037 == -536870912/9628875 != -70
 	problemEq(934.0, Fraction(256251,225989), Fraction(-70044188/62037));
-	//-876 * 5082749/4482501 + 482506670/484783 == 1 != 2
 	problemEq(-876.0, Fraction(5082749,4482501), Fraction(482506670,484783));
 	problemEq(-70.0, Fraction(5082749,4482501), Fraction(1046043415,1022152));
 	problemEq(2.0, Fraction(-1038123,1494167), Fraction(31787130,31019));
 	problemEq(1.0, Fraction(944,4482501), Fraction(4865998,1));
-
 
 	return 0;
 }
