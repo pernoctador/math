@@ -201,188 +201,52 @@ void TriangulateTest()
 	assert(det == 0);
 }
 
-void GaussianEliminationTest(){
+void GaussianEliminationTest(unsigned n, Fraction af[], Fraction bf[], double ad[], double bd[]) {
 	cout << "First eq test (fractions):" << endl;
-	unsigned eq = 2;
-	Fraction first[] = {1, 2, -2, -2};
-	Fraction result[] = {34, -38};
-	Matrix<Fraction> a(eq,eq);
-	Matrix<Fraction> c(eq,eq);
-	a = first;
-	c = a;
-
-	Matrix<Fraction> b(eq,1);
-	b = result;
-	a.print(b);
-
-	a.GaussianElimination(&b);	//this gauss doesn't return any specific 'a' matrix
-	a.print(b);
-
-	//Fraction solf[] = {4, 15};
-	Matrix<Fraction> checkf(eq,1);
-	checkf = c * b;
-	assert(checkf == result);
-
-
-	cout << "First eq test (double):" << endl;
-	eq = 2;
-	double firstd[] = {1, 2, -2, -2};
-	double resultd[] = {34, -38};
-	Matrix<double> d(eq,eq);
-	Matrix<double> f(eq,eq);
-	d = firstd;
-	f = d;
-
-	Matrix<double> e(eq,1);
-	e = resultd;
-	d.print(e);
-
-	d.GaussianElimination(&e);  //d gets destroyed
-	e.print();
-
-	Matrix<double> checkd(eq,1);
-	checkd = f * e;
-	assert(checkd == resultd);
-
-	eq = 3;
-	cout << "Second eq test (fractions):" << endl;
-	Fraction second[] = {-1, -10, -4 , 3, 5, 2, -2, 2, 2};
-	Fraction result2[] = {9, -2, 14};
-	Matrix<Fraction> g(eq,eq);
-	Matrix<Fraction> i(eq,eq);
-	g = second;
-	i = g;
-
-	Matrix<Fraction> h(eq,1);
-	h = result2;
-	g.print(h);
-
-	g.GaussianElimination(&h); //g gets destroyed
-	h.print();
-
-	Matrix<Fraction> check2f(eq,1);
-	check2f = i * h;
-	assert(check2f == result2);
-
-
-	cout << "Second eq test (double):" << endl;
-	double secondd[] = {-1, -10, -4 , 3, 5, 2, -2, 2, 2};
-	double result2d[] = {9, -2, 14};
-	Matrix<double> j(eq,eq);
-	Matrix<double> l(eq,eq);
-	j = secondd;
-	l = j;
-
-	Matrix<double> k(eq,1);
-	k = result2d;
-	j.print(k);
-
-	j.GaussianElimination(&k); //j gets destroyed
-	k.print();
-
-	Matrix<double> ckeck2d(eq,1);
-	ckeck2d = l * k;
-	cout << "ckeck2d:" << endl;
-	ckeck2d.print();
-	k = result2d;
-	cout << "distance:" << ckeck2d.distance(k) << endl;
-	assert(ckeck2d.distance(k) < 1e-14);
-}
-
-void GaussianEliminationTest2() {
-	cout << "First eq test (fractions):" << endl;
-	unsigned n = 3;
-	Fraction a[] = {944,    2,  -70, 369, -856, -876, -866,  272,  934};
-	Fraction b[] = {944,    2,  -70};
 	Matrix<Fraction> A(n,n);
 	Matrix<Fraction> B(n,1);
-	A = a;
-	B = b;
+	A = af;
+	B = bf;
 	Matrix<Fraction> A2(n,n);
 	Matrix<Fraction> B2(n,1);
 	Matrix<Fraction> check(n,1);
 	A2 = A;
 	B2 = B;
 
-	A.GaussianElimination(&B);
-	check = A2*B;
-	double dist = check.distance(B2);
-	A2.print(B);
-	cout << "  ====================  " << endl;
-	check.print(B2);
-	cout << "Dist = " << dist << endl;
+	double det = A.GaussianElimination(&B);
+	if(det == 0) {
+		cout << "Matrix is singular" << endl;
+	} else {
+		check = A2*B;
+		double dist = check.distance(B2);
+		A2.print(B);
+		cout << "  ====================  " << endl;
+		check.print(B2);
+		cout << "Dist = " << dist << endl;
+	}
 
 	cout << "First eq test (double):" << endl;
-	double c[] = {944,    2,  -70, 369, -856, -876, -866,  272,  934};
-	double d[] = {944,    2,  -70};
 	Matrix<double> C(n,n);
 	Matrix<double> D(n,1);
-	C = c;
-	D = d;
+	C = ad;
+	D = bd;
 	Matrix<double> C2(n,n);
 	Matrix<double> D2(n,1);
 	Matrix<double> check2(n,1);
 	C2 = C;
 	D2 = D;
 
-	C.GaussianElimination(&D);
-	check2 = C2*D;
-	dist = check2.distance(D2);
-	C2.print(D);
-	cout << "  ====================  " << endl;
-	check2.print(D2);
-	cout << "Dist = " << dist << endl;
-}
-
-void GaussianEliminationTest3() {
-	cout << "First eq test (fractions):" << endl;
-	unsigned n = 4;
-	/*
-	 0, -1, -1,  0 |  0
-	-1,  0,  1,  0 | -1
-	 0,  0, -1,  1 | -1
-	 1,  0,  0, -1 |  0
-*/
-	Fraction a[] = {0, -1, -1, 0, -1, 0, 1, 0, 0, 0, -1, 1, 1, 0, 0, -1};
-	Fraction b[] = {0, -1, -1, 0};
-	Matrix<Fraction> A(n,n);
-	Matrix<Fraction> B(n,1);
-	A = a;
-	B = b;
-	Matrix<Fraction> A2(n,n);
-	Matrix<Fraction> B2(n,1);
-	Matrix<Fraction> check(n,1);
-	A2 = A;
-	B2 = B;
-
-	A.GaussianElimination(&B);
-	check = A2*B;
-	double dist = check.distance(B2);
-	A2.print(B);
-	cout << "  ====================  " << endl;
-	check.print(B2);
-	cout << "Dist = " << dist << endl;
-
-	cout << "First eq test (double):" << endl;
-	double c[] = {0, -1, -1, 0, -1, 0, 1, 0, 0, 0, -1, 1, 1, 0, 0, -1};
-	double d[] = {0, -1, -1, 0};
-	Matrix<double> C(n,n);
-	Matrix<double> D(n,1);
-	C = c;
-	D = d;
-	Matrix<double> C2(n,n);
-	Matrix<double> D2(n,1);
-	Matrix<double> check2(n,1);
-	C2 = C;
-	D2 = D;
-
-	C.GaussianElimination(&D);
-	check2 = C2*D;
-	dist = check2.distance(D2);
-	C2.print(D);
-	cout << "  ====================  " << endl;
-	check2.print(D2);
-	cout << "Dist = " << dist << endl;
+	double det2 = C.GaussianElimination(&D);
+	if(det2 == 0) {
+		cout << "Matrix is singular" << endl;
+	} else {
+		check2 = C2*D;
+		double dist2 = check2.distance(D2);
+		//C2.print(D);
+		cout << "  ====================  " << endl;
+		check2.print(D2);
+		cout << "Dist = " << dist2 << endl;
+	}
 }
 
 void timeTestGaussian()
@@ -417,31 +281,34 @@ void timeTestGaussian()
 }
 
 void pressureGETest() {
-	for(int n = 1; n < 1000; n++) {
+	srand(time(NULL));
+	for(int n = 1; n < 50; n++) {
 		bool breaked = false;
 		cout << n << endl;
-		for(int t = 0; t < 5; t++){
+		for(int t = 1; t < 9; t++){
 			int limit = pow(10,t);
-			for(int i = 0; i < 10000; i++) {
-				Matrix<Fraction> A(n,n);
+			for(int i = 0; i < 10000000; i++) {
+				Matrix<double> A(n,n);
 				A.Random(-limit, limit);
-				Matrix<Fraction> B(n,1);
+				Matrix<double> B(n,1);
 				B.Random(-limit,limit);
-				Matrix<Fraction> A2(n,n);
-				Matrix<Fraction> B2(n,1);
-				Matrix<Fraction> check(n,1);
+				Matrix<double> A2(n,n);
+				Matrix<double> B2(n,1);
+				Matrix<double> check(n,1);
 				A2 = A;
 				B2 = B;
-				A.GaussianElimination(&B);
-				check = A2*B;
-				double dist = check.distance(B2);
-				if (dist > 1) {
-					cout << "    dist = " << dist << endl;
-					A2.print(B2);
-					cout << "  ====================  " << endl;
-					B.print();
-					breaked = true;
-					break;
+				double det = A.GaussianElimination(&B);
+				if(det != 0) {
+					check = A2*B;
+					double dist = check.distance(B2);
+					if (dist > 1) {
+						cout << "    dist = " << dist << endl;
+						A2.print(B2);
+						cout << "  ====================  " << endl;
+						B.print();
+						breaked = true;
+						break;
+					}
 				}
 			}
 			if(breaked)
@@ -458,9 +325,22 @@ int main()
 	//printTest();
 	//basicMatrixOperations();
 	//TriangulateTest();
-	//GaussianEliminationTest();
-	//GaussianEliminationTest2();
-	GaussianEliminationTest3();
+
+	Fraction af[] = {-6, -1, 8, 1, 8, -1, -7, 1, 9, -10, 6, -9, -4, -3, 9, 3};
+	Fraction bf[] = {2, 8, 3, 7};
+	double ad[] = {-6, -1, 8, 1, 8, -1, -7, 1, 9, -10, 6, -9, -4, -3, 9, 3};
+	double bd[] = {2, 8, 3, 7};
+	GaussianEliminationTest(4, af, bf, ad, bd);
+
+	Fraction cf[] = {-9.99907e+07, -9.99944e+07, -9.99855e+07,
+					-9.99825e+07, -9.99713e+07, -9.99829e+07,
+					-9.99831e+07, -9.99868e+07, -9.99778e+07};
+	Fraction df[] = {-9.99695e+07,
+					-9.99742e+07,
+					-9.99896e+07};
+	double cd[] = {-9.99907e+07, -9.99944e+07, -9.99855e+07, -9.99825e+07, -9.99713e+07, -9.99829e+07, -9.99831e+07, -9.99868e+07, -9.99778e+07};
+	double dd[] = {-9.99695e+07, -9.99742e+07, -9.99896e+07};
+	GaussianEliminationTest(3, cf, cf, cd, dd);
 	//pressureGETest();
 	//timeTestGaussian();
 	return 0;

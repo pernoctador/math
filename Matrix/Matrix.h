@@ -66,6 +66,7 @@ public:
 
 	void operator=(Matrix<T> B);
 	void operator=(vector<T>& v);
+	void operator=(const vector<T>& v);
 	void operator=(T v[]);
 
 	void Id();
@@ -216,9 +217,23 @@ void Matrix<T>::operator=(Matrix<T> B)	//if B was transposed in O(1), *this will
 	transpose = false;
 }
 
-
 template <class T>
 void Matrix<T>::operator=(vector<T>& v)
+{
+	if(v.size() != rows*cols)
+		throw wrongDim;
+
+	for(unsigned i = 0; i < rows; i++)
+	{
+		for(unsigned j = 0; j < cols; j++)
+		{
+			(*this)(i,j) = v[(i*cols)+j];
+		}
+	}
+}
+
+template <class T>
+void Matrix<T>::operator=(const vector<T>& v)
 {
 	if(v.size() != rows*cols)
 		throw wrongDim;
@@ -349,7 +364,6 @@ void Matrix<T>::t()
 template <class T>
 void Matrix<T>::Random(int from, int to)
 {
-	srand(time(NULL));
 	for(unsigned i = 0; i < rows*cols; i++)
 	{
 		M[i] = (rand() % (to-from+1)) + from;
@@ -711,6 +725,7 @@ double Matrix<T>::distance(Matrix<T> B) {
 template <class T>
 int Matrix<T>::triangulate(Matrix<T>* extra) {
 	int detSign = 1;
+	//this->print(*extra);
 	for(unsigned k = 0; k < min(rows, cols); k++) {
 		T maxAbs = abs<T>((*this)(k,k));
 		unsigned pibot = k;
@@ -722,9 +737,9 @@ int Matrix<T>::triangulate(Matrix<T>* extra) {
 				pibot = m;
 			}
 		}
-		if((*this)(pibot,k) == 0)
+		if(abs((*this)(pibot,k)) < 1e-12)
 		{
-			cerr << "Matrix is singular" << endl;	//in Gaussian Elimination this should not always be an exception
+			//cerr << "Matrix is singular" << endl;	//in Gaussian Elimination this should not always be an exception
 			detSign = 0;
 		}
 		else
@@ -736,6 +751,7 @@ int Matrix<T>::triangulate(Matrix<T>* extra) {
 					extra->swapRow(k, pibot);
 				}
 				detSign = -detSign;
+				//this->print(*extra);
 			}
 
 			for(unsigned i = k+1; i < rows; i++)
@@ -754,6 +770,7 @@ int Matrix<T>::triangulate(Matrix<T>* extra) {
 					(*extra)(i,j) -= (*extra)(k,j) * f;
 				}
 			}
+			//this->print(*extra);
 		}
 	}
 	return detSign;
@@ -776,6 +793,8 @@ double Matrix<T>::GaussianElimination(Matrix<T>* extra)
 		throw wrongDim;
 
 	double determinant = this->triangulate(extra);
+
+	//this->print(*extra);
 
 	if(determinant != 0) {
 
